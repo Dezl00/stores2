@@ -17,9 +17,15 @@ export default async function LoginPage() {
     redirect("/admin")
   }
 
-  const themeConfig = await db.themeConfig.findUnique({
-    where: { id: "default" }
-  })
+  const { getCurrentStore } = await import("@/lib/tenant")
+  const store = await getCurrentStore()
+  let themeConfig = null
+  
+  if (store) {
+    themeConfig = await db.themeConfig.findUnique({
+      where: { storeId: store.storeId }
+    })
+  }
 
   return <LoginClient themeConfig={themeConfig} />
 }

@@ -3,6 +3,8 @@ import Link from "next/link"
 import { CreateStoreModal } from "./create-store-modal"
 import { StoreActionsMenu } from "./store-actions-menu"
 
+export const dynamic = "force-dynamic"
+
 export default async function PlatformStoresPage() {
   const stores = await db.store.findMany({
     orderBy: { createdAt: 'desc' },
