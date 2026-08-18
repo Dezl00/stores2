@@ -51,9 +51,7 @@ export async function getArticleBySlug(slug: string) {
 export async function getArticleById(id: string) {
   const storeId = await resolveStoreId()
   try {
-    const article = await db.article.findUnique({
-      where: { id, storeId }
-    })
+    const article = await db.article.findFirst({ where: { id, storeId }$2)
     return { success: true, article }
   } catch (error) {
     console.error("Error fetching article:", error)
@@ -122,8 +120,7 @@ export async function updateArticle(id: string, data: {
   if (!session?.user || session.user.role === "CUSTOMER") return { success: false, error: "غير مصرح لك" }
 
   try {
-    const article = await db.article.update({
-      where: { id, storeId },
+    const article = await db.article.update({ where: { id },
       data: {
         ...data,
       }
@@ -147,9 +144,7 @@ export async function deleteArticle(id: string) {
   if (!session?.user || session.user.role === "CUSTOMER") return { success: false, error: "غير مصرح لك" }
 
   try {
-    await db.article.delete({
-      where: { id, storeId }
-    })
+    await db.article.delete({ where: { id }})
     
     revalidatePath("/admin/articles")
     revalidatePath("/blog")

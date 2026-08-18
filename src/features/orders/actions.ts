@@ -15,11 +15,10 @@ export async function updateOrderStatus(orderId: string, status: string) {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
-    const order = await db.order.findUnique({ where: { id: orderId, storeId }, include: { user: true } })
+    const order = await db.order.findFirst({ where: { id: orderId, storeId }, include: { user: true } })
     if (!order) return { success: false, error: "Order not found" }
 
-    await db.order.update({
-      where: { id: orderId, storeId },
+    await db.order.update({ where: { id: orderId },
       data: { status }
     })
 
@@ -45,8 +44,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
         
         // Find product image if available
         let imageUrl: string | undefined = undefined;
-        const fullOrder = await db.order.findUnique({
-          where: { id: orderId, storeId },
+        const fullOrder = await db.order.findFirst({ where: { id: orderId, storeId },
           include: {
             items: {
               include: { 
@@ -94,9 +92,7 @@ export async function deleteOrder(orderId: string) {
     }
     const session = await auth()
     
-    await db.order.delete({
-      where: { id: orderId, storeId }
-    })
+    await db.order.delete({ where: { id: orderId }})
 
     if (session?.user?.id) {
       await db.activityLog.create({

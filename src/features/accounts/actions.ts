@@ -69,8 +69,7 @@ export async function updateAccount(id: string, data: FormData) {
       updateData.passwordHash = await bcrypt.hash(password, 10)
     }
 
-    await prisma.storeUser.update({
-      where: { id, storeId },
+    await prisma.storeUser.update({ where: { id },
       data: updateData
     })
     revalidatePath('/admin/accounts')
@@ -89,8 +88,7 @@ export async function updateAccountStatus(id: string, isActive: boolean) {
 
   try {
     const storeId = await resolveStoreId()
-    await prisma.storeUser.update({
-      where: { id, storeId },
+    await prisma.storeUser.update({ where: { id },
       data: { isActive }
     })
     revalidatePath('/admin/accounts')
@@ -108,7 +106,7 @@ export async function deleteAccount(id: string) {
 
   try {
     const storeId = await resolveStoreId()
-    await prisma.storeUser.delete({ where: { id, storeId } })
+    await prisma.storeUser.delete({ where: { id }})
     revalidatePath('/admin/accounts')
     return { success: true, error: undefined }
   } catch(e) {
@@ -131,8 +129,7 @@ export async function updateProfile(data: FormData) {
     }
 
     const storeId = await resolveStoreId()
-    await prisma.storeUser.update({
-      where: { id: session.user.id, storeId },
+    await prisma.storeUser.update({ where: { id: session.user.id },
       data: updateData
     })
     return { success: true, error: undefined }

@@ -53,7 +53,7 @@ export async function getCategories() {
 export async function deleteCategory(id: string) {
   try {
     const storeId = await resolveStoreId()
-    await db.category.delete({ where: { id, storeId } })
+    await db.category.delete({ where: { id }})
     
     await db.activityLog.create({
       data: {

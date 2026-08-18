@@ -62,8 +62,7 @@ export async function updateWidgetOrder(updates: { id: string, sortOrder: number
     // Perform sequentially or in a transaction. Let's do a transaction.
     await db.$transaction(
       updates.map((update) => 
-        db.widget.update({
-          where: { id: update.id, storeId },
+        db.widget.update({ where: { id: update.id },
           data: { sortOrder: update.sortOrder }
         })
       )
@@ -104,7 +103,7 @@ export async function getWidgets() {
 export async function deleteWidget(id: string) {
   try {
     const storeId = await resolveStoreId()
-    await db.widget.delete({ where: { id, storeId } })
+    await db.widget.delete({ where: { id }})
     
     await db.activityLog.create({
       data: {
@@ -128,8 +127,7 @@ export async function updateWidget(id: string, data: any) {
   try {
     const storeId = await resolveStoreId()
     const oldWidget = await db.widget.findFirst({ where: { id, storeId }, include: { items: true } })
-    const widget = await db.widget.update({
-      where: { id, storeId },
+    const widget = await db.widget.update({ where: { id },
       data
     })
     
@@ -143,7 +141,7 @@ export async function updateWidget(id: string, data: any) {
             const existingBrand = await db.brand.findFirst({ where: { name: item.title, storeId } })
             if (existingBrand) {
               await db.product.updateMany({ where: { brandId: existingBrand.id, storeId }, data: { brandId: null } })
-              await db.brand.delete({ where: { id: existingBrand.id, storeId } })
+              await db.brand.delete({ where: { id: existingBrand.id }})
             }
           }
         }
@@ -282,18 +280,18 @@ export async function deleteWidgetContentItem(id: string) {
       })
       if (existingBrand) {
         await db.product.updateMany({ where: { brandId: existingBrand.id, storeId }, data: { brandId: null } })
-        await db.brand.delete({ where: { id: existingBrand.id, storeId } })
+        await db.brand.delete({ where: { id: existingBrand.id }})
       }
     } else if (item?.widget?.type === "ProductList" && item.title) {
       const existingCollection = await db.collection.findFirst({
         where: { name: item.title, storeId }
       })
       if (existingCollection) {
-        await db.collection.delete({ where: { id: existingCollection.id, storeId } })
+        await db.collection.delete({ where: { id: existingCollection.id }})
       }
     }
 
-    await db.widgetContentItem.delete({ where: { id, storeId } })
+    await db.widgetContentItem.delete({ where: { id }})
     revalidatePath("/admin/widgets")
     revalidatePath("/")
     revalidateTag("widgets", "default")
@@ -351,14 +349,13 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
       if (disableRouting) {
         if (existingBrand) {
           await db.product.updateMany({ where: { brandId: existingBrand.id, storeId }, data: { brandId: null } })
-          await db.brand.delete({ where: { id: existingBrand.id, storeId } })
+          await db.brand.delete({ where: { id: existingBrand.id }})
         }
       } else {
         // If the title changed, we create a new brand (since we don't have a direct link to the old brand ID)
         // If the title is the same, we update the existing brand's logo
         if (existingBrand) {
-          await db.brand.update({
-            where: { id: existingBrand.id, storeId },
+          await db.brand.update({ where: { id: existingBrand.id },
             data: {
               name: title,
               logoUrl: dataToUpdate.desktopImage || existingBrand.logoUrl
@@ -389,8 +386,7 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
       
       let newCollection;
       if (existingCollection) {
-        newCollection = await db.collection.update({
-          where: { id: existingCollection.id, storeId },
+        newCollection = await db.collection.update({ where: { id: existingCollection.id },
           data: { name: title }
         })
         if (!buttonUrl) {
@@ -409,8 +405,7 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
 
       if (formData.has("productIds")) {
         const productIds = JSON.parse(formData.get("productIds") as string);
-        await db.collection.update({
-          where: { id: newCollection.id, storeId },
+        await db.collection.update({ where: { id: newCollection.id },
           data: {
             products: {
               set: productIds.map((id: string) => ({ id }))
@@ -420,8 +415,7 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
       }
     }
 
-    const item = await db.widgetContentItem.update({
-      where: { id, storeId },
+    const item = await db.widgetContentItem.update({ where: { id },
       data: dataToUpdate
     })
 
@@ -478,8 +472,7 @@ export async function updateWidgetContentItemOrder(updates: { id: string, sortOr
     const storeId = await resolveStoreId()
     await db.$transaction(
       updates.map((update) => 
-        db.widgetContentItem.update({
-          where: { id: update.id, storeId },
+        db.widgetContentItem.update({ where: { id: update.id },
           data: { sortOrder: update.sortOrder }
         })
       )

@@ -38,9 +38,7 @@ export async function deleteMenu(id: string) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
     const storeId = await resolveStoreId()
-    await db.menu.delete({
-      where: { id, storeId }
-    })
+    await db.menu.delete({ where: { id }})
     revalidatePath("/admin/navigation")
     return { success: true }
   } catch (error: any) {
@@ -97,8 +95,7 @@ export async function updateMenuItem(id: string, menuId: string, formData: FormD
       return { success: false, error: "Label is required" }
     }
 
-    await db.menuItem.update({
-      where: { id, storeId },
+    await db.menuItem.update({ where: { id },
       data: {
         label,
         url,
@@ -121,9 +118,7 @@ export async function deleteMenuItem(id: string, menuId: string) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
     const storeId = await resolveStoreId()
-    await db.menuItem.delete({
-      where: { id, storeId }
-    })
+    await db.menuItem.delete({ where: { id }})
     revalidatePath(`/admin/navigation/${menuId}`)
     return { success: true }
   } catch (error: any) {

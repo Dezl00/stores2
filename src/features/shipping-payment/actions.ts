@@ -36,7 +36,7 @@ export async function createGovernorate(data: { name: string; shippingCost?: num
 export async function updateGovernorate(id: string, data: { name?: string; shippingCost?: number; hideCities?: boolean; isActive?: boolean }) {
   await checkAdmin()
   const storeId = await resolveStoreId()
-  const gov = await db.governorate.update({ where: { id, storeId }, data })
+  const gov = await db.governorate.update({ where: { id }, data })
   revalidatePath('/admin/shipping-payment')
   return gov
 }
@@ -44,7 +44,7 @@ export async function updateGovernorate(id: string, data: { name?: string; shipp
 export async function deleteGovernorate(id: string) {
   await checkAdmin()
   const storeId = await resolveStoreId()
-  await db.governorate.delete({ where: { id, storeId } })
+  await db.governorate.delete({ where: { id }})
   revalidatePath('/admin/shipping-payment')
   return { success: true }
 }
@@ -62,7 +62,7 @@ export async function createCity(data: { name: string; shippingCost: number; gov
 export async function updateCity(id: string, data: { name?: string; shippingCost?: number; isActive?: boolean }) {
   await checkAdmin()
   const storeId = await resolveStoreId()
-  const city = await db.city.update({ where: { id, storeId }, data })
+  const city = await db.city.update({ where: { id }, data })
   revalidatePath('/admin/shipping-payment')
   return city
 }
@@ -70,7 +70,7 @@ export async function updateCity(id: string, data: { name?: string; shippingCost
 export async function deleteCity(id: string) {
   await checkAdmin()
   const storeId = await resolveStoreId()
-  await db.city.delete({ where: { id, storeId } })
+  await db.city.delete({ where: { id }})
   revalidatePath('/admin/shipping-payment')
   return { success: true }
 }
@@ -96,7 +96,7 @@ export async function createPaymentMethod(data: { name: string; type: string; ac
 export async function updatePaymentMethod(id: string, data: { name?: string; type?: string; accountInfo?: string; paymentLink?: string; logoUrl?: string; instructions?: string; isActive?: boolean; sortOrder?: number }) {
   await checkAdmin()
   const storeId = await resolveStoreId()
-  const pm = await db.paymentMethod.update({ where: { id, storeId }, data })
+  const pm = await db.paymentMethod.update({ where: { id }, data })
   revalidatePath('/admin/shipping-payment')
   return pm
 }
@@ -104,7 +104,7 @@ export async function updatePaymentMethod(id: string, data: { name?: string; typ
 export async function deletePaymentMethod(id: string) {
   await checkAdmin()
   const storeId = await resolveStoreId()
-  await db.paymentMethod.delete({ where: { id, storeId } })
+  await db.paymentMethod.delete({ where: { id }})
   revalidatePath('/admin/shipping-payment')
   return { success: true }
 }

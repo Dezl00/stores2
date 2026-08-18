@@ -7,7 +7,6 @@ import { resolveStoreId } from "@/lib/store-context"
 
 export async function addAddress(formData: FormData) {
   try {
-    const storeId = await resolveStoreId()
     const session = await auth()
     if (!session?.user?.id) return { error: "غير مصرح" }
 
@@ -26,12 +25,12 @@ export async function addAddress(formData: FormData) {
       return { error: "رقم الهاتف يجب أن يتكون من 11 رقم ويبدأ بـ 01" }
     }
 
-    const existingAddressesCount = await db.address.count({ where: { userId: session.user.id, storeId } })
+    const existingAddressesCount = await db.address.count({ where: { userId: session.user.id } })
     const shouldBeDefault = isDefault || existingAddressesCount === 0
 
     if (shouldBeDefault) {
       await db.address.updateMany({
-        where: { userId: session.user.id, storeId },
+        where: { userId: session.user.id },
         data: { isDefault: false }
       })
     }
@@ -39,7 +38,6 @@ export async function addAddress(formData: FormData) {
     await db.address.create({
       data: {
         userId: session.user.id,
-        storeId,
         title,
         address,
         city,
@@ -58,15 +56,13 @@ export async function addAddress(formData: FormData) {
 
 export async function deleteAddress(addressId: string) {
   try {
-    const storeId = await resolveStoreId()
     const session = await auth()
     if (!session?.user?.id) return { error: "غير مصرح" }
 
-    await db.address.delete({
+    await db.address.deleteMany({
       where: { 
         id: addressId,
-        userId: session.user.id,
-        storeId
+        userId: session.user.id
       }
     })
 
@@ -79,20 +75,18 @@ export async function deleteAddress(addressId: string) {
 
 export async function setDefaultAddress(addressId: string) {
   try {
-    const storeId = await resolveStoreId()
     const session = await auth()
     if (!session?.user?.id) return { error: "غير مصرح" }
 
     await db.address.updateMany({
-      where: { userId: session.user.id, storeId },
+      where: { userId: session.user.id },
       data: { isDefault: false }
     })
 
-    await db.address.update({
+    await db.address.updateMany({
       where: { 
         id: addressId,
-        userId: session.user.id,
-        storeId
+        userId: session.user.id
       },
       data: { isDefault: true }
     })

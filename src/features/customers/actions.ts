@@ -15,8 +15,7 @@ export async function deleteCustomer(userId: string) {
 
     const storeId = await resolveStoreId();
 
-    await db.storeUser.delete({
-      where: { id: userId, storeId },
+    await db.storeUser.delete({ where: { id: userId },
     });
     revalidatePath("/admin/customers");
     return { success: true };

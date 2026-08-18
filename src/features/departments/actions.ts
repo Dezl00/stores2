@@ -54,9 +54,7 @@ export async function deleteDepartment(id: string) {
       return { success: false, error: `لا يمكن حذف هذا المجال لأنه يحتوي على ${categoryCount} أقسام. قم بنقلها أولاً.` }
     }
 
-    await db.department.delete({
-      where: { id, storeId }
-    })
+    await db.department.delete({ where: { id }})
     revalidatePath("/admin/departments")
     return { success: true }
   } catch (error: any) {
@@ -74,8 +72,7 @@ export async function updateDepartment(id: string, formData: FormData) {
     const storeId = await resolveStoreId()
     const isActiveStr = formData.get("isActive");
     if (isActiveStr !== null) {
-      await db.department.update({
-        where: { id, storeId },
+      await db.department.update({ where: { id },
         data: { isActive: isActiveStr === "true" }
       });
       revalidatePath("/admin/departments")
@@ -91,8 +88,7 @@ export async function updateDepartment(id: string, formData: FormData) {
       return { success: false, error: "Name and Slug are required" }
     }
 
-    await db.department.update({
-      where: { id, storeId },
+    await db.department.update({ where: { id },
       data: {
         name,
         slug,
