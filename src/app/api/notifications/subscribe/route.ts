@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
 import { db as prisma } from "@/lib/db";
+import { resolveStoreId } from "@/lib/store-context";
 
 export async function POST(req: Request) {
   try {
@@ -19,6 +20,7 @@ export async function POST(req: Request) {
     // However, usually we only notify registered users or admins.
     // For admin, if role is ADMIN, we flag it.
 
+    const storeId = await resolveStoreId();
     const existingSub = await prisma.pushSubscription.findUnique({
       where: { endpoint: subscription.endpoint }
     });
@@ -26,6 +28,7 @@ export async function POST(req: Request) {
     if (!existingSub) {
       await prisma.pushSubscription.create({
         data: {
+          storeId,
           endpoint: subscription.endpoint,
           p256dh: subscription.keys.p256dh,
           auth: subscription.keys.auth,
@@ -38,6 +41,7 @@ export async function POST(req: Request) {
       await prisma.pushSubscription.update({
         where: { endpoint: subscription.endpoint },
         data: {
+          storeId,
           userId: userId || existingSub.userId,
           role: role === "STORE_OWNER" || role === "MANAGER" ? "STORE_OWNER" : "CUSTOMER"
         }

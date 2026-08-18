@@ -18,7 +18,7 @@ export async function sendNotification({ userId, targetRole, title, message, typ
     // 1. Save to database (in-app notification)
     await prisma.notification.create({
       data: {
-        storeUserId: userId || undefined,
+        userId: userId || undefined,
         title,
         message,
         type,
@@ -31,7 +31,7 @@ export async function sendNotification({ userId, targetRole, title, message, typ
     let pushSubs: any[] = [];
     if (userId) {
       pushSubs = await prisma.pushSubscription.findMany({
-        where: { storeUserId: userId, storeId }
+        where: { userId, storeId }
       });
     } else if (targetRole === "MANAGER" || targetRole === "STORE_OWNER") {
       // Find subscriptions that belong to managers or owners of THIS store

@@ -33,7 +33,7 @@ export async function createStore(formData: FormData) {
         data: {
           name,
           slug,
-          isActive: true,
+          status: "ACTIVE",
         }
       })
 
@@ -44,7 +44,7 @@ export async function createStore(formData: FormData) {
         }
       })
 
-      await tx.storeUser.create({
+      const newOwner = await tx.storeUser.create({
         data: {
           storeId: newStore.id,
           name: ownerName,
@@ -52,6 +52,11 @@ export async function createStore(formData: FormData) {
           passwordHash,
           role: "STORE_OWNER",
         }
+      })
+
+      await tx.store.update({
+        where: { id: newStore.id },
+        data: { ownerId: newOwner.id }
       })
 
       return newStore
@@ -71,7 +76,7 @@ export async function toggleStoreStatus(storeId: string, isActive: boolean) {
     await requireSuperAdmin()
     await db.store.update({
       where: { id: storeId },
-      data: { isActive }
+      data: { status: isActive ? "ACTIVE" : "SUSPENDED" }
     })
     revalidatePath("/platform/stores")
     return { success: true }

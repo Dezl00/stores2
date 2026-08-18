@@ -7,7 +7,7 @@ export default async function PlatformStoresPage() {
   const stores = await db.store.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
-      _count: { select: { products: true, orders: true, users: true } }
+      _count: { select: { products: true, orders: true, storeUsers: true } }
     }
   })
 
@@ -39,19 +39,19 @@ export default async function PlatformStoresPage() {
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
                       <span className="text-gray-600 font-mono text-sm">{store.slug}</span>
-                      {store.domain && <span className="text-xs text-gray-400">{store.domain}</span>}
+                      {store.customDomain && <span className="text-xs text-gray-400">{store.customDomain}</span>}
                     </div>
                   </td>
                   <td className="px-6 py-4 text-center text-gray-600">{store._count.products}</td>
                   <td className="px-6 py-4 text-center text-gray-600">{store._count.orders}</td>
-                  <td className="px-6 py-4 text-center text-gray-600">{store._count.users}</td>
+                  <td className="px-6 py-4 text-center text-gray-600">{store._count.storeUsers}</td>
                   <td className="px-6 py-4 text-center">
-                    <span className={`inline-block px-3 py-1 text-xs rounded-full ${store.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {store.isActive ? 'نشط' : 'معطل'}
+                    <span className={`inline-block px-3 py-1 text-xs rounded-full ${store.status === "ACTIVE" ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {store.status === "ACTIVE" ? 'نشط' : 'معطل'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <StoreActionsMenu storeId={store.id} isActive={store.isActive} storeName={store.name} />
+                    <StoreActionsMenu storeId={store.id} isActive={store.status === "ACTIVE"} storeName={store.name} />
                   </td>
                 </tr>
               ))}

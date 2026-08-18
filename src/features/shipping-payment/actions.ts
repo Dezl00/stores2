@@ -53,8 +53,7 @@ export async function deleteGovernorate(id: string) {
 
 export async function createCity(data: { name: string; shippingCost: number; governorateId: string; isActive?: boolean }) {
   await checkAdmin()
-  const storeId = await resolveStoreId()
-  const city = await db.city.create({ data: { ...data, storeId } })
+  const city = await db.city.create({ data })
   revalidatePath('/admin/shipping-payment')
   return city
 }

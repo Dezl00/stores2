@@ -55,8 +55,7 @@ export async function logProductView(productId: string) {
         ipAddress: ip,
         userAgent,
         country: decodeURIComponent(country),
-        city: decodeURIComponent(city),
-        storeId
+        city: decodeURIComponent(city)
       }
     })
   } catch (error) {

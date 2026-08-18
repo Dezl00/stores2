@@ -90,8 +90,8 @@ model Store {
   customDomain     String?     @unique
   domainVerified   Boolean     @default(false)
   status           StoreStatus @default(ACTIVE)
-  ownerId          String
-  owner            StoreUser   @relation("StoreOwnership", fields: [ownerId], references: [id])
+  ownerId          String?
+  owner            StoreUser?    @relation("StoreOwnership", fields: [ownerId], references: [id])
   logoUrl          String?
   faviconUrl       String?
   description      String?

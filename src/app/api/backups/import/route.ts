@@ -2,9 +2,11 @@ import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import JSZip from "jszip"
+import { resolveStoreId } from "@/lib/store-context"
 
 export async function POST(req: Request) {
   try {
+    const storeId = await resolveStoreId()
     const session = await auth()
     if (session?.user?.role !== "STORE_OWNER") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -80,7 +82,7 @@ export async function POST(req: Request) {
       }
       if (themeConfig) {
         await tx.themeConfig.upsert({
-          where: { id: "default" },
+          where: { storeId },
           update: { 
             storeName: themeConfig.storeName,
             logoUrl: themeConfig.logoUrl,
@@ -88,7 +90,7 @@ export async function POST(req: Request) {
             primaryColor: themeConfig.primaryColor
           },
           create: {
-            id: "default",
+            storeId,
             storeName: themeConfig.storeName,
             logoUrl: themeConfig.logoUrl,
             faviconUrl: themeConfig.faviconUrl,

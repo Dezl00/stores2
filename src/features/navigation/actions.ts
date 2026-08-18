@@ -67,8 +67,7 @@ export async function createMenuItem(menuId: string, formData: FormData) {
         menuId,
         label,
         url,
-        sortOrder,
-        storeId
+        sortOrder
       }
     })
 

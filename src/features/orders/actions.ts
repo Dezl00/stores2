@@ -70,7 +70,8 @@ export async function updateOrderStatus(orderId: string, status: string) {
           type: "ORDER_UPDATED",
           link: `/account?tab=orders`,
           sound: true,
-          image: imageUrl
+          image: imageUrl,
+          storeId
         })
       }
     }

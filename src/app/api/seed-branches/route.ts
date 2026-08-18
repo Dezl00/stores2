@@ -31,8 +31,11 @@ export async function GET() {
       },
     ];
 
+    const { resolveStoreId } = await import("@/lib/store-context");
+    const storeId = await resolveStoreId();
+
     for (const branch of branches) {
-      await db.branch.create({ data: branch });
+      await db.branch.create({ data: { ...branch, storeId } });
     }
 
     return NextResponse.json({ success: true, message: "تم إضافة الفروع بنجاح!" });

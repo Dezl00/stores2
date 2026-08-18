@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth"
 import JSZip from "jszip"
 import fs from "fs/promises"
 import path from "path"
+import { resolveStoreId } from "@/lib/store-context"
 
 async function addFolderToZipAsync(folderPath: string, zip: JSZip, rootPath: string) {
   try {
@@ -25,6 +26,7 @@ async function addFolderToZipAsync(folderPath: string, zip: JSZip, rootPath: str
 
 export async function GET() {
   try {
+    const storeId = await resolveStoreId()
     const session = await auth()
     if (session?.user?.role !== "STORE_OWNER") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -121,7 +123,8 @@ export async function GET() {
       data: {
         filename,
         size: zipBuffer.byteLength,
-        status: "COMPLETED"
+        status: "COMPLETED",
+        storeId
       }
     })
 

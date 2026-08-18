@@ -40,7 +40,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         message: `قام العميل بإلغاء الطلب #${orderId.slice(-6).toUpperCase()}`,
         type: "ORDER_CANCELLED",
         link: `/admin/orders/${orderId}`,
-        sound: true
+        sound: true,
+        storeId: order.storeId
       });
     }
 

@@ -28,7 +28,7 @@ export const getStoreBySlug = cache(async (slug: string) => {
 
 export const getStoreByDomain = cache(async (domain: string) => {
   return db.store.findFirst({
-    where: { domain }
+    where: { customDomain: domain }
   })
 })
 
@@ -56,7 +56,7 @@ export const getCurrentStore = cache(async (): Promise<TenantInfo | null> => {
     storeId: store.id,
     storeSlug: store.slug,
     storeName: store.name,
-    isActive: store.isActive,
+    isActive: store.status === "ACTIVE",
   }
 })
 

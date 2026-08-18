@@ -126,7 +126,7 @@ export async function deleteWidget(id: string) {
 export async function updateWidget(id: string, data: any) {
   try {
     const storeId = await resolveStoreId()
-    const oldWidget = await db.widget.findFirst({ where: { id, storeId }, include: { items: true } })
+    const oldWidget = await db.widget.findFirst({ where: { id }, include: { items: true } })
     const widget = await db.widget.update({ where: { id },
       data
     })
@@ -183,7 +183,7 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
       let counter = 1;
       
       // Ensure unique slug
-      while (await db.brand.findFirst({ where: { slug_storeId: { slug, storeId } } })) {
+      while (await db.brand.findFirst({ where: { slug, storeId } })) {
         slug = `${baseSlug}-${counter}`;
         counter++;
       }
@@ -208,7 +208,7 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
       
       let slug = baseSlug;
       let counter = 1;
-      while (await db.collection.findFirst({ where: { slug_storeId: { slug, storeId } } })) {
+      while (await db.collection.findFirst({ where: { slug, storeId } })) {
         slug = `${baseSlug}-${counter}`;
         counter++;
       }
@@ -244,7 +244,6 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
 
     const item = await db.widgetContentItem.create({
       data: {
-        storeId,
         widgetId,
         desktopImage,
         mobileImage,
@@ -270,7 +269,7 @@ export async function deleteWidgetContentItem(id: string) {
   try {
     const storeId = await resolveStoreId()
     const item = await db.widgetContentItem.findFirst({
-      where: { id, storeId },
+      where: { id },
       include: { widget: true }
     })
     
@@ -333,7 +332,7 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
     const title = dataToUpdate.title
 
     const oldItem = await db.widgetContentItem.findFirst({
-      where: { id, storeId },
+      where: { id },
       include: { widget: true }
     })
 

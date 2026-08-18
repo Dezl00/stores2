@@ -2,9 +2,11 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { webpush } from "@/lib/web-push"
+import { resolveStoreId } from "@/lib/store-context"
 
 export async function POST(req: Request) {
   try {
+    const storeId = await resolveStoreId()
     const session = await auth()
     
     // Check if user is authenticated and has permission
@@ -12,7 +14,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "غير مصرح لك بالوصول" }, { status: 401 })
     }
 
-    const user = await db.storeUser.findUnique({ where: { id: session.user.id } })
+    const user = await db.storeUser.findFirst({ where: { id: session.user.id, storeId } })
     if (user?.role !== "STORE_OWNER" && user?.role !== "MANAGER") {
       return NextResponse.json({ error: "لا تملك صلاحية لإرسال الإشعارات" }, { status: 403 })
     }
@@ -27,6 +29,7 @@ export async function POST(req: Request) {
     // We target subscriptions where role is null or CUSTOMER
     const subscriptions = await db.pushSubscription.findMany({
       where: {
+        storeId,
         OR: [
           { role: "CUSTOMER" },
           { role: null }
@@ -84,6 +87,7 @@ export async function POST(req: Request) {
     // Save campaign log
     const campaign = await db.notificationCampaign.create({
       data: {
+        storeId,
         title,
         message,
         imageUrl,
