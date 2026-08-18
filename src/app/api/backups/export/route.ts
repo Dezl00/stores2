@@ -26,7 +26,7 @@ async function addFolderToZipAsync(folderPath: string, zip: JSZip, rootPath: str
 export async function GET() {
   try {
     const session = await auth()
-    if (session?.user?.role !== "ADMIN") {
+    if (session?.user?.role !== "STORE_OWNER") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

@@ -53,7 +53,7 @@ export default async function SettingsPage() {
 
   const session = await auth()
   const currentUser = session?.user
-  const isAdmin = currentUser?.role === "ADMIN"
+  const isAdmin = currentUser?.role === "STORE_OWNER"
   const permissions = currentUser?.permissions || []
 
   return (

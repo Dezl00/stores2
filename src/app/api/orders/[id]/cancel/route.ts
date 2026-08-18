@@ -35,7 +35,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (config?.adminOrderNotifications !== false) {
       await sendNotification({
         userId: undefined,
-        targetRole: "ADMIN",
+        targetRole: "STORE_OWNER",
         title: "إلغاء طلب",
         message: `قام العميل بإلغاء الطلب #${orderId.slice(-6).toUpperCase()}`,
         type: "ORDER_CANCELLED",

@@ -182,7 +182,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
               {/* Notifications */}
               {user && (
                 <div className="flex items-center justify-center border border-border bg-background rounded-full w-11 h-11 shadow-sm">
-                  <NotificationsDropdown isAdmin={user.role === 'ADMIN' || user.role === 'MANAGER'} />
+                  <NotificationsDropdown isAdmin={user.role === 'STORE_OWNER' || user.role === 'MANAGER'} />
                 </div>
               )}
               
@@ -208,7 +208,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                 
                 {user && (
                   <div className="absolute top-full left-0 w-48 bg-card border border-border shadow-xl rounded-2xl py-2 flex flex-col opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all duration-200 z-50 mt-2">
-                    {(user.role === 'ADMIN' || user.role === 'MANAGER') ? (
+                    {(user.role === 'STORE_OWNER' || user.role === 'MANAGER') ? (
                       <a href="/admin" className="flex items-center gap-2 px-4 py-2 hover:bg-primary/5 hover:text-primary text-sm font-bold transition-colors">
                         <LayoutDashboard className="w-4 h-4" />
                         لوحة التحكم

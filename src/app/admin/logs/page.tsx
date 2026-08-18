@@ -9,7 +9,7 @@ export default async function LogsPage() {
   const session = await auth()
   if (!session?.user) redirect('/admin')
 
-  const isAdmin = session?.user?.role === 'ADMIN'
+  const isAdmin = session?.user?.role === 'STORE_OWNER'
 
   // Only admins see the logs
   const logs = isAdmin ? await prisma.activityLog.findMany({

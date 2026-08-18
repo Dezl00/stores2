@@ -160,7 +160,7 @@ export function SettingsClient({ config, branches: initialBranches = [], backups
   const { data: session, status, update: updateSession } = useSession()
   const currentUser = session?.user
   const permissions = status === "loading" ? initialPermissions : (currentUser?.permissions || initialPermissions)
-  const isAdmin = status === "loading" ? initialIsAdmin : (currentUser?.role === "ADMIN")
+  const isAdmin = status === "loading" ? initialIsAdmin : (currentUser?.role === "STORE_OWNER")
 
   async function handleProfileSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()

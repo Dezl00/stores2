@@ -11,7 +11,7 @@ export async function GET(req: Request) {
 
     const role = session.user.role;
     const userId = session.user.id;
-    const isAdmin = role === "ADMIN" || role === "MANAGER";
+    const isAdmin = role === "STORE_OWNER" || role === "MANAGER";
 
     // Fetch notifications
     const notifications = await prisma.notification.findMany({
@@ -41,7 +41,7 @@ export async function PATCH(req: Request) {
 
     const role = session.user.role;
     const userId = session.user.id;
-    const isAdmin = role === "ADMIN" || role === "MANAGER";
+    const isAdmin = role === "STORE_OWNER" || role === "MANAGER";
 
     await prisma.notification.updateMany({
       where: {

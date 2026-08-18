@@ -55,7 +55,7 @@ function AdminLayoutInner({
   const pathname = usePathname()
   const { data: session } = useSession()
   const permissions = session?.user?.permissions || []
-  const isAdmin = session?.user?.role === "ADMIN"
+  const isAdmin = session?.user?.role === "STORE_OWNER"
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 

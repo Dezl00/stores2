@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 
 export function LogsClient({ logs, currentUser }: { logs: any[], currentUser: any }) {
   const permissions = currentUser?.permissions || []
-  const isAdmin = currentUser?.role === 'ADMIN'
+  const isAdmin = currentUser?.role === 'STORE_OWNER'
   const hasPerm = (perm: string) => isAdmin || permissions.includes(perm)
 
   const allowedTabs = [

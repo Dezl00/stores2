@@ -30,7 +30,7 @@ export async function POST(req: Request) {
           p256dh: subscription.keys.p256dh,
           auth: subscription.keys.auth,
           userId: userId || null,
-          role: role === "ADMIN" || role === "MANAGER" ? "ADMIN" : "CUSTOMER"
+          role: role === "STORE_OWNER" || role === "MANAGER" ? "STORE_OWNER" : "CUSTOMER"
         }
       });
     } else {
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
         where: { endpoint: subscription.endpoint },
         data: {
           userId: userId || existingSub.userId,
-          role: role === "ADMIN" || role === "MANAGER" ? "ADMIN" : "CUSTOMER"
+          role: role === "STORE_OWNER" || role === "MANAGER" ? "STORE_OWNER" : "CUSTOMER"
         }
       });
     }

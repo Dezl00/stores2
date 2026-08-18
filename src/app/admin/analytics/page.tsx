@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function AnalyticsPage() {
   const session = await auth()
-  if (session?.user?.role !== 'ADMIN' && session?.user?.role !== 'MANAGER') redirect('/admin')
+  if (session?.user?.role !== 'STORE_OWNER' && session?.user?.role !== 'MANAGER') redirect('/admin')
 
   const thirtyDaysAgo = new Date(new Date().setDate(new Date().getDate() - 30))
   const todayStart = new Date(new Date().setHours(0, 0, 0, 0))

@@ -91,7 +91,7 @@ export async function submitOrder(data: {
     if (config?.adminOrderNotifications !== false) {
       await sendNotification({
         userId: undefined, // Admins
-        targetRole: "ADMIN",
+        targetRole: "STORE_OWNER",
         title: "طلب جديد",
         message: `تم استلام طلب جديد #${order.id} بقيمة ${order.totalAmount} ج.م`,
         type: "ORDER_CREATED",

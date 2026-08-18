@@ -369,7 +369,7 @@ export function AccountsClient({ accounts }: { accounts: any[] }) {
                                 <Edit className="w-4 h-4" />
                               </Button>
                             )}
-                            {canDelete && acc.role !== "ADMIN" && (
+                            {canDelete && acc.role !== "STORE_OWNER" && (
                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md bg-red-50/50 hover:bg-red-100 text-red-600" onClick={() => { setItemToDelete(acc); setDeleteModalOpen(true) }}>
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -458,7 +458,7 @@ export function AccountsClient({ accounts }: { accounts: any[] }) {
                               تعديل
                             </Button>
                           )}
-                          {canDelete && acc.role !== "ADMIN" && (
+                          {canDelete && acc.role !== "STORE_OWNER" && (
                             <Button 
                               variant="ghost" 
                               size="sm" 

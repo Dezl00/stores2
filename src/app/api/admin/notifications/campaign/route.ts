@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     }
 
     const user = await db.storeUser.findUnique({ where: { id: session.user.id } })
-    if (user?.role !== "ADMIN" && user?.role !== "MANAGER") {
+    if (user?.role !== "STORE_OWNER" && user?.role !== "MANAGER") {
       return NextResponse.json({ error: "لا تملك صلاحية لإرسال الإشعارات" }, { status: 403 })
     }
 

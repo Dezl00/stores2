@@ -9,7 +9,7 @@ async function checkAdmin() {
   const session = await auth()
   if (!session || !session.user) throw new Error("Unauthorized")
   const user = await db.storeUser.findUnique({ where: { id: session.user.id } })
-  if (!user || user.role !== "ADMIN" && user.role !== "MANAGER") {
+  if (!user || user.role !== "STORE_OWNER" && user.role !== "MANAGER") {
     throw new Error("Unauthorized")
   }
 }

@@ -22,7 +22,7 @@ export function MobileBottomNav({ user }: { user?: any }) {
   const handleAccountClick = (e: React.MouseEvent) => {
     e.preventDefault()
     if (user) {
-      if (user.role === 'ADMIN' || user.role === 'MANAGER') {
+      if (user.role === 'STORE_OWNER' || user.role === 'MANAGER') {
         window.location.href = '/admin'
       } else {
         router.push('/account')

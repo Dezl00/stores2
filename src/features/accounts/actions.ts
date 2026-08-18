@@ -7,7 +7,7 @@ import { resolveStoreId } from "@/lib/store-context"
 
 export async function createAccount(data: FormData) {
   const session = await auth()
-  const isAdmin = session?.user?.role === 'ADMIN'
+  const isAdmin = session?.user?.role === 'STORE_OWNER'
   const hasPerm = session?.user?.permissions?.includes('accounts.add')
   if (!isAdmin && !hasPerm) return { success: false, error: 'Unauthorized' }
 
@@ -40,7 +40,7 @@ export async function createAccount(data: FormData) {
 
 export async function updateAccount(id: string, data: FormData) {
   const session = await auth()
-  const isAdmin = session?.user?.role === 'ADMIN'
+  const isAdmin = session?.user?.role === 'STORE_OWNER'
   const hasPerm = session?.user?.permissions?.includes('accounts.edit')
   if (!isAdmin && !hasPerm) return { success: false, error: 'Unauthorized' }
 
@@ -56,7 +56,7 @@ export async function updateAccount(id: string, data: FormData) {
     
     // Check current user to preserve ADMIN role if they are an admin
     const currentUser = await prisma.storeUser.findFirst({ where: { id, storeId } })
-    const targetRole = currentUser?.role === 'ADMIN' ? 'ADMIN' : (data.get('role') || 'MANAGER')
+    const targetRole = currentUser?.role === 'STORE_OWNER' ? 'STORE_OWNER' : (data.get('role') || 'MANAGER')
 
     const updateData: any = {
       name: data.get('name') as string,
@@ -82,7 +82,7 @@ export async function updateAccount(id: string, data: FormData) {
 
 export async function updateAccountStatus(id: string, isActive: boolean) {
   const session = await auth()
-  const isAdmin = session?.user?.role === 'ADMIN'
+  const isAdmin = session?.user?.role === 'STORE_OWNER'
   const hasPerm = session?.user?.permissions?.includes('accounts.edit')
   if (!isAdmin && !hasPerm) return { success: false, error: 'Unauthorized' }
 
@@ -100,7 +100,7 @@ export async function updateAccountStatus(id: string, isActive: boolean) {
 
 export async function deleteAccount(id: string) {
   const session = await auth()
-  const isAdmin = session?.user?.role === 'ADMIN'
+  const isAdmin = session?.user?.role === 'STORE_OWNER'
   const hasPerm = session?.user?.permissions?.includes('accounts.delete')
   if (!isAdmin && !hasPerm) return { success: false, error: 'Unauthorized' }
 

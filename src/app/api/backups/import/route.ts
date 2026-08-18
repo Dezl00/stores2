@@ -6,7 +6,7 @@ import JSZip from "jszip"
 export async function POST(req: Request) {
   try {
     const session = await auth()
-    if (session?.user?.role !== "ADMIN") {
+    if (session?.user?.role !== "STORE_OWNER") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

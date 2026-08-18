@@ -7,7 +7,7 @@ import { redirect } from "next/navigation"
 export default async function AdminOrderPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   
-  if (!session || (session.user.role !== "ADMIN" && session.user.role !== "MANAGER")) {
+  if (!session || (session.user.role !== "STORE_OWNER" && session.user.role !== "MANAGER")) {
     redirect("/")
   }
 

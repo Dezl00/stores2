@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function AccountsPage() {
   const session = await auth()
-  const isAdmin = session?.user?.role === 'ADMIN'
+  const isAdmin = session?.user?.role === 'STORE_OWNER'
   const hasPerm = session?.user?.permissions?.includes('accounts.view')
   
   if (!isAdmin && !hasPerm) {
@@ -16,7 +16,7 @@ export default async function AccountsPage() {
 
   const accounts = await prisma.storeUser.findMany({
     where: { 
-      role: { in: ['ADMIN', 'MANAGER'] },
+      role: { in: ['STORE_OWNER', 'MANAGER'] },
       phone: { not: 'admin@assal.com' }
     },
     orderBy: { createdAt: 'desc' }
