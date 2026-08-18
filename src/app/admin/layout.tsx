@@ -4,12 +4,18 @@ import { AdminLayoutClient } from "./admin-layout-client"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import type { Metadata } from "next"
+import { getCurrentStore } from "@/lib/tenant"
 
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
+  const store = await getCurrentStore()
+  if (!store) {
+    return { title: 'إدارة المتجر' }
+  }
+
   const config = await db.themeConfig.findUnique({
-    where: { id: "default" }
+    where: { storeId: store.storeId }
   })
   
   return {
@@ -40,9 +46,14 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   const session = await auth()
+  const store = await getCurrentStore()
   
-  if (session?.user?.id) {
-    const dbUser = await db.user.findUnique({
+  if (!store) {
+    redirect('/')
+  }
+
+  if (session?.user?.id && session.user.context === 'store') {
+    const dbUser = await db.storeUser.findUnique({
       where: { id: session.user.id },
       select: { isActive: true }
     })
@@ -50,14 +61,17 @@ export default async function AdminLayout({
     if (!dbUser || dbUser.isActive === false) {
       redirect('/login?locked=true')
     }
+  } else {
+    // If not authenticated, let the inner route handlers deal with it or redirect here.
+    // For now we rely on the specific page guards or middleware.
   }
 
   const config = await db.themeConfig.findUnique({
-    where: { id: "default" }
+    where: { storeId: store.storeId }
   })
   
   return (
-    <AdminLayoutClient storeName={config?.storeName || "Assal Admin"} logoUrl={config?.logoUrl || null}>
+    <AdminLayoutClient storeName={config?.storeName || store.storeName || "إدارة المتجر"} logoUrl={config?.logoUrl || null}>
       {children}
     </AdminLayoutClient>
   )

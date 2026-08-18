@@ -1,13 +1,16 @@
 "use server"
 
 import { db } from "@/lib/db"
+import { resolveStoreId } from "@/lib/store-context"
 
 export async function searchProductsLive(query: string) {
   if (!query || query.trim().length === 0) return []
   
   try {
+    const storeId = await resolveStoreId()
     const products = await db.product.findMany({
       where: {
+        storeId,
         OR: [
           { name: { contains: query, mode: "insensitive" } },
           { description: { contains: query, mode: "insensitive" } }

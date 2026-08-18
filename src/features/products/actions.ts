@@ -1,8 +1,10 @@
 "use server"
 
-import { requireAdmin, requirePermission } from "@/lib/auth/require-admin"
+import { requireStoreAdmin, requirePermission } from "@/lib/auth/require-admin"
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
+import { resolveStoreId } from "@/lib/store-context"
+import { auth } from "@/lib/auth"
 
 export async function createProduct(formData: FormData) {
   try {
@@ -11,14 +13,15 @@ export async function createProduct(formData: FormData) {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
+    const storeId = await resolveStoreId()
     const name = formData.get("name") as string
     let slug = formData.get("slug") as string
     let sku: string | null = formData.get("sku") as string || null
     
     if (!slug) {
-      // Find the next available sequential number efficiently
+      // Find the next available sequential number efficiently scoped by store
       const lastProduct = await db.product.findFirst({
-        where: { slug: { startsWith: 'P-' } },
+        where: { slug: { startsWith: 'P-' }, storeId },
         orderBy: { slug: 'desc' },
         select: { slug: true }
       });
@@ -65,6 +68,7 @@ export async function createProduct(formData: FormData) {
         departmentId,
         brandId,
         description: description || null,
+        storeId,
         ...(images.length > 0 && {
           images: {
             create: images.map((url, idx) => ({
@@ -85,19 +89,24 @@ export async function createProduct(formData: FormData) {
   }
 }
 
-import { auth } from "@/lib/auth"
 
 export async function deleteProduct(id: string) {
   try {
     const session = await auth()
-    const isAdmin = session?.user?.role === "ADMIN"
+    const isStoreAdmin = session?.user?.role === "STORE_OWNER" || session?.user?.role === "MANAGER"
     const hasPerm = session?.user?.permissions?.includes("products.delete")
-    if (!isAdmin && !hasPerm) {
+    if (!isStoreAdmin && !hasPerm) {
       return { success: false, error: "Not authorized to delete products" }
     }
+    const storeId = await resolveStoreId()
     
-    const product = await db.product.delete({
-      where: { id }
+    // Use findFirst to ensure the product belongs to the store before deleting (since we need to pass the id and storeId)
+    // Actually, prisma supports where: { id, storeId } for delete if we define a composite unique, but since we didn't:
+    const product = await db.product.findFirst({ where: { id, storeId } });
+    if (!product) return { success: false, error: "Product not found" }
+
+    await db.product.delete({
+      where: { id: product.id }
     })
     
     await db.activityLog.create({
@@ -106,7 +115,8 @@ export async function deleteProduct(id: string) {
         entityType: "Product",
         entityId: product.id,
         details: { message: `تم حذف المنتج: ${product.name}` },
-        userId: session?.user?.id || null
+        userId: session?.user?.id || null,
+        storeId
       }
     })
 
@@ -118,19 +128,18 @@ export async function deleteProduct(id: string) {
   }
 }
 
-// ... skipped down to bulkDeleteProducts ...
-
 export async function bulkDeleteProducts(ids: string[]) {
   try {
     const session = await auth()
-    const isAdmin = session?.user?.role === "ADMIN"
+    const isStoreAdmin = session?.user?.role === "STORE_OWNER" || session?.user?.role === "MANAGER"
     const hasPerm = session?.user?.permissions?.includes("products.delete")
-    if (!isAdmin && !hasPerm) {
+    if (!isStoreAdmin && !hasPerm) {
       return { success: false, error: "Not authorized to delete products" }
     }
+    const storeId = await resolveStoreId()
 
     await db.product.deleteMany({
-      where: { id: { in: ids } }
+      where: { id: { in: ids }, storeId }
     })
     revalidatePath("/admin/products")
     revalidatePath("/")
@@ -147,6 +156,12 @@ export async function updateProduct(id: string, formData: FormData) {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
+    const storeId = await resolveStoreId()
+    
+    // Verify product ownership
+    const productExists = await db.product.findFirst({ where: { id, storeId } });
+    if (!productExists) return { success: false, error: "Product not found" };
+
     const name = formData.get("name") as string
     let slug = formData.get("slug") as string
     let sku: string | null = formData.get("sku") as string || null
@@ -214,6 +229,11 @@ export async function toggleProductStatus(id: string, isActive: boolean) {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
+    const storeId = await resolveStoreId()
+    
+    const product = await db.product.findFirst({ where: { id, storeId } });
+    if (!product) return { success: false, error: "Product not found" }
+
     await db.product.update({
       where: { id },
       data: { isActive }
@@ -233,8 +253,10 @@ export async function bulkToggleProductsStatus(ids: string[], isActive: boolean)
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
+    const storeId = await resolveStoreId()
+
     await db.product.updateMany({
-      where: { id: { in: ids } },
+      where: { id: { in: ids }, storeId },
       data: { isActive }
     })
     revalidatePath("/admin/products")
@@ -252,9 +274,16 @@ export async function bulkUpdateProducts(productsData: any[]) {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
-    // We update sequentially or use transaction
+    const storeId = await resolveStoreId()
+
+    // Ensure all products belong to this store first
+    const ids = productsData.map(p => p.id);
+    const validProducts = await db.product.findMany({ where: { id: { in: ids }, storeId }, select: { id: true } });
+    const validIds = validProducts.map(p => p.id);
+    const validUpdates = productsData.filter(p => validIds.includes(p.id));
+
     await db.$transaction(
-      productsData.map(p => 
+      validUpdates.map(p => 
         db.product.update({
           where: { id: p.id },
           data: {
@@ -279,21 +308,22 @@ export async function bulkUpdateProducts(productsData: any[]) {
 export async function bulkImportProducts(products: any[], duplicateHandling: 'skip' | 'update') {
   try {
     const session = await auth()
-    const isAdmin = session?.user?.role === "ADMIN"
+    const isStoreAdmin = session?.user?.role === "STORE_OWNER" || session?.user?.role === "MANAGER"
     const hasPerm = session?.user?.permissions?.includes("products.create")
-    if (!isAdmin && !hasPerm) {
+    if (!isStoreAdmin && !hasPerm) {
       return { success: false, error: "Not authorized to import products" }
     }
+    const storeId = await resolveStoreId()
 
     let createdCount = 0;
     let updatedCount = 0;
     let skippedCount = 0;
     
-    // Pre-fetch references
+    // Pre-fetch references scoped by store
     const [existingProducts, categories, brands] = await Promise.all([
-      db.product.findMany({ select: { id: true, sku: true, name: true } }),
-      db.category.findMany({ select: { id: true, name: true, parentId: true } }),
-      db.brand.findMany({ select: { id: true, name: true } })
+      db.product.findMany({ where: { storeId }, select: { id: true, sku: true, name: true } }),
+      db.category.findMany({ where: { storeId }, select: { id: true, name: true, parentId: true } }),
+      db.brand.findMany({ where: { storeId }, select: { id: true, name: true } })
     ]);
     
     const existingByName = new Map(existingProducts.map(p => [p.name.toLowerCase().trim(), p]));
@@ -329,18 +359,15 @@ export async function bulkImportProducts(products: any[], duplicateHandling: 'sk
             if (subCatMap && subCatMap.has(item.subCategoryName.toLowerCase().trim())) {
               finalCategoryId = subCatMap.get(item.subCategoryName.toLowerCase().trim()).id;
             } else {
-              // Subcategory missing, skipping row for safety to avoid assigning to wrong category
               skippedCount++;
               continue; 
             }
           }
         } else {
-          // Category missing
           skippedCount++;
           continue;
         }
       } else {
-        // Missing required category
         skippedCount++;
         continue;
       }
@@ -383,7 +410,6 @@ export async function bulkImportProducts(products: any[], duplicateHandling: 'sk
 
       let slug = item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\u0600-\u06FF-]/g, '');
       if (!slug) slug = `product-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      // Ensure unique slug
       slug = `${slug}-${Math.floor(Math.random() * 1000)}`;
 
       toCreate.push({
@@ -396,6 +422,7 @@ export async function bulkImportProducts(products: any[], duplicateHandling: 'sk
         brandId: finalBrandId,
         description: item.description || null,
         isActive: item.isActive !== undefined ? item.isActive : true,
+        storeId
       });
     }
 

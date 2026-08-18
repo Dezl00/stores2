@@ -3,11 +3,12 @@
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import bcrypt from "bcryptjs"
+import { resolveStoreId } from "@/lib/store-context"
 
 export async function updateUserAccount(formData: FormData) {
   const session = await auth()
   
-  if (!session?.user?.id) {
+  if (!session?.user?.id || session.user.context !== 'store') {
     return { error: "غير مصرح لك بإجراء هذا التعديل" }
   }
 
@@ -19,7 +20,13 @@ export async function updateUserAccount(formData: FormData) {
   const newPassword = formData.get("newPassword") as string
 
   try {
-    const user = await db.user.findUnique({
+    const storeId = await resolveStoreId()
+
+    if (session.user.storeId !== storeId) {
+       return { error: "غير مصرح لك بإجراء هذا التعديل في هذا المتجر" }
+    }
+
+    const user = await db.storeUser.findUnique({
       where: { id: session.user.id }
     })
 
@@ -49,7 +56,7 @@ export async function updateUserAccount(formData: FormData) {
       updatedData.passwordHash = await bcrypt.hash(newPassword, 10)
     }
 
-    await db.user.update({
+    await db.storeUser.update({
       where: { id: user.id },
       data: updatedData
     })

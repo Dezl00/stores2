@@ -1,9 +1,10 @@
 "use server"
 
-import { requireAdmin, requirePermission } from "@/lib/auth/require-admin"
+import { requireStoreAdmin, requirePermission } from "@/lib/auth/require-admin"
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
+import { resolveStoreId } from "@/lib/store-context"
 
 export async function updateThemeConfig(formData: FormData) {
   try {
@@ -12,7 +13,8 @@ export async function updateThemeConfig(formData: FormData) {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
-    const existing = await db.themeConfig.findUnique({ where: { id: "default" } })
+    const storeId = await resolveStoreId()
+    const existing = await db.themeConfig.findUnique({ where: { storeId } })
     const data: any = {}
     
     const stringFields = [
@@ -42,15 +44,16 @@ export async function updateThemeConfig(formData: FormData) {
     }
 
     await db.themeConfig.upsert({
-      where: { id: "default" },
+      where: { storeId },
       update: data,
-      create: { id: "default", storeName: "متجر العسال", ...data }
+      create: { storeId, storeName: "متجر العسال", ...data }
     })
 
     const session = await auth()
     if (session?.user?.id) {
       await db.activityLog.create({
         data: {
+          storeId,
           userId: session.user.id,
           action: "UPDATE_SETTINGS",
           entityType: "Settings"
@@ -74,8 +77,10 @@ export async function createBranch(formData: FormData) {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
+    const storeId = await resolveStoreId()
     const branch = await db.branch.create({
       data: {
+        storeId,
         name: formData.get("name") as string,
         address: formData.get("address") as string,
         phone: formData.get("phone") as string,
@@ -87,6 +92,7 @@ export async function createBranch(formData: FormData) {
     if (session?.user?.id) {
       await db.activityLog.create({
         data: {
+          storeId,
           userId: session.user.id,
           action: "CREATE_BRANCH",
           entityType: "Branch",
@@ -109,8 +115,9 @@ export async function updateBranch(id: string, formData: FormData) {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
+    const storeId = await resolveStoreId()
     const branch = await db.branch.update({
-      where: { id },
+      where: { id, storeId },
       data: {
         name: formData.get("name") as string,
         address: formData.get("address") as string,
@@ -124,6 +131,7 @@ export async function updateBranch(id: string, formData: FormData) {
     if (session?.user?.id) {
       await db.activityLog.create({
         data: {
+          storeId,
           userId: session.user.id,
           action: "UPDATE_BRANCH",
           entityType: "Branch",
@@ -146,11 +154,13 @@ export async function deleteBranch(id: string) {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
-    const branch = await db.branch.delete({ where: { id } })
+    const storeId = await resolveStoreId()
+    const branch = await db.branch.delete({ where: { id, storeId } })
     const session = await auth()
     if (session?.user?.id) {
       await db.activityLog.create({
         data: {
+          storeId,
           userId: session.user.id,
           action: "DELETE_BRANCH",
           entityType: "Branch",
@@ -173,16 +183,17 @@ export async function resetStoreStats() {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
+    const storeId = await resolveStoreId()
     // Delete order items first to satisfy foreign keys
-    await db.orderItem.deleteMany({})
+    await db.orderItem.deleteMany({ where: { order: { storeId } } })
     // Delete orders
-    await db.order.deleteMany({})
+    await db.order.deleteMany({ where: { storeId } })
     // Delete analytics data
-    await db.pageVisit.deleteMany({})
-    await db.productView.deleteMany({})
+    await db.pageVisit.deleteMany({ where: { storeId } })
+    await db.productView.deleteMany({ where: { product: { storeId } } })
     // Delete notifications and activity logs
-    await db.notification.deleteMany({})
-    await db.activityLog.deleteMany({})
+    await db.notification.deleteMany({ where: { storeId } })
+    await db.activityLog.deleteMany({ where: { storeId } })
     
     revalidatePath("/admin/analytics")
     revalidatePath("/admin/orders")
@@ -193,18 +204,23 @@ export async function resetStoreStats() {
     return { success: false, error: "فشل في تصفير بيانات المتجر" }
   }
 }
+
 export async function getNotificationCampaigns() {
-  await requireAdmin()
+  await requireStoreAdmin()
+  const storeId = await resolveStoreId()
   return await db.notificationCampaign.findMany({
+    where: { storeId },
     orderBy: { createdAt: 'desc' },
     take: 50
   })
 }
 
 export async function getSubscribersCount() {
-  await requireAdmin()
+  await requireStoreAdmin()
+  const storeId = await resolveStoreId()
   return await db.pushSubscription.count({
     where: {
+      storeId,
       OR: [
         { role: "CUSTOMER" },
         { role: null }

@@ -3,10 +3,13 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
+import { resolveStoreId } from "@/lib/store-context"
 
 export async function getArticles() {
+  const storeId = await resolveStoreId()
   try {
     const articles = await db.article.findMany({
+      where: { storeId },
       orderBy: { createdAt: "desc" }
     })
     return { success: true, articles }
@@ -17,9 +20,10 @@ export async function getArticles() {
 }
 
 export async function getActiveArticles(limit?: number) {
+  const storeId = await resolveStoreId()
   try {
     const articles = await db.article.findMany({
-      where: { isActive: true },
+      where: { isActive: true, storeId },
       orderBy: { createdAt: "desc" },
       take: limit
     })
@@ -31,10 +35,11 @@ export async function getActiveArticles(limit?: number) {
 }
 
 export async function getArticleBySlug(slug: string) {
+  const storeId = await resolveStoreId()
   try {
     const decodedSlug = decodeURIComponent(slug)
     const article = await db.article.findUnique({
-      where: { slug: decodedSlug }
+      where: { slug_storeId: { slug: decodedSlug, storeId } }
     })
     return { success: true, article }
   } catch (error) {
@@ -44,9 +49,10 @@ export async function getArticleBySlug(slug: string) {
 }
 
 export async function getArticleById(id: string) {
+  const storeId = await resolveStoreId()
   try {
     const article = await db.article.findUnique({
-      where: { id }
+      where: { id, storeId }
     })
     return { success: true, article }
   } catch (error) {
@@ -72,6 +78,7 @@ export async function createArticle(data: {
   isActive?: boolean
 }) {
   const session = await auth()
+  const storeId = await resolveStoreId()
   // Allow ADMIN or MANAGER to create articles. 
   // In `assal` project, it seems we check if session?.user has permission, but for simplicity we check if not CUSTOMER
   if (!session?.user || session.user.role === "CUSTOMER") return { success: false, error: "غير مصرح لك" }
@@ -87,6 +94,7 @@ export async function createArticle(data: {
         seoTitle: data.seoTitle,
         seoDesc: data.seoDesc,
         isActive: data.isActive ?? true,
+        storeId,
       }
     })
     
@@ -110,11 +118,12 @@ export async function updateArticle(id: string, data: {
   isActive?: boolean
 }) {
   const session = await auth()
+  const storeId = await resolveStoreId()
   if (!session?.user || session.user.role === "CUSTOMER") return { success: false, error: "غير مصرح لك" }
 
   try {
     const article = await db.article.update({
-      where: { id },
+      where: { id, storeId },
       data: {
         ...data,
       }
@@ -134,11 +143,12 @@ export async function updateArticle(id: string, data: {
 
 export async function deleteArticle(id: string) {
   const session = await auth()
+  const storeId = await resolveStoreId()
   if (!session?.user || session.user.role === "CUSTOMER") return { success: false, error: "غير مصرح لك" }
 
   try {
     await db.article.delete({
-      where: { id }
+      where: { id, storeId }
     })
     
     revalidatePath("/admin/articles")
@@ -151,3 +161,4 @@ export async function deleteArticle(id: string) {
     return { success: false, error: "حدث خطأ أثناء حذف المقال" }
   }
 }
+

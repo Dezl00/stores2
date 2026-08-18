@@ -3,6 +3,7 @@ import { db as prisma } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 import { auth } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
+import { resolveStoreId } from "@/lib/store-context"
 
 export async function createAccount(data: FormData) {
   const session = await auth()
@@ -18,6 +19,7 @@ export async function createAccount(data: FormData) {
 
     const rawPassword = data.get('password') as string
     const passwordHash = rawPassword ? await bcrypt.hash(rawPassword, 10) : null
+    const storeId = await resolveStoreId()
 
     await prisma.user.create({
       data: {
@@ -26,6 +28,7 @@ export async function createAccount(data: FormData) {
         role: data.get('role') as any,
         permissions: permissions,
         passwordHash: passwordHash || null,
+        storeId,
       }
     })
     revalidatePath('/admin/accounts')
@@ -49,9 +52,10 @@ export async function updateAccount(id: string, data: FormData) {
 
     const password = data.get('password') as string
     let hashedPassword: string | undefined
+    const storeId = await resolveStoreId()
     
     // Check current user to preserve ADMIN role if they are an admin
-    const currentUser = await prisma.user.findUnique({ where: { id } })
+    const currentUser = await prisma.user.findUnique({ where: { id, storeId } })
     const targetRole = currentUser?.role === 'ADMIN' ? 'ADMIN' : (data.get('role') || 'MANAGER')
 
     const updateData: any = {
@@ -66,7 +70,7 @@ export async function updateAccount(id: string, data: FormData) {
     }
 
     await prisma.user.update({
-      where: { id },
+      where: { id, storeId },
       data: updateData
     })
     revalidatePath('/admin/accounts')
@@ -84,8 +88,9 @@ export async function updateAccountStatus(id: string, isActive: boolean) {
   if (!isAdmin && !hasPerm) return { success: false, error: 'Unauthorized' }
 
   try {
+    const storeId = await resolveStoreId()
     await prisma.user.update({
-      where: { id },
+      where: { id, storeId },
       data: { isActive }
     })
     revalidatePath('/admin/accounts')
@@ -102,7 +107,8 @@ export async function deleteAccount(id: string) {
   if (!isAdmin && !hasPerm) return { success: false, error: 'Unauthorized' }
 
   try {
-    await prisma.user.delete({ where: { id } })
+    const storeId = await resolveStoreId()
+    await prisma.user.delete({ where: { id, storeId } })
     revalidatePath('/admin/accounts')
     return { success: true, error: undefined }
   } catch(e) {
@@ -124,8 +130,9 @@ export async function updateProfile(data: FormData) {
       updateData.passwordHash = await bcrypt.hash(password, 10)
     }
 
+    const storeId = await resolveStoreId()
     await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: session.user.id, storeId },
       data: updateData
     })
     return { success: true, error: undefined }

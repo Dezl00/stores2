@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache"
 import { z } from "zod"
+import { resolveStoreId } from "@/lib/store-context"
 
 async function translateToEnglish(text: string): Promise<string> {
   try {
@@ -30,13 +31,15 @@ const WidgetSchema = z.object({
 
 export async function createWidget(data: z.infer<typeof WidgetSchema>) {
   try {
+    const storeId = await resolveStoreId()
     const parsed = WidgetSchema.parse(data)
     
     // We should compute sortOrder if it's not provided explicitly, but for now we trust the client.
-    const widget = await db.widget.create({ data: parsed })
+    const widget = await db.widget.create({ data: { ...parsed, storeId } })
     
     await db.activityLog.create({
       data: {
+        storeId,
         action: "Create",
         entityType: "Widget",
         entityId: widget.id,
@@ -55,11 +58,12 @@ export async function createWidget(data: z.infer<typeof WidgetSchema>) {
 
 export async function updateWidgetOrder(updates: { id: string, sortOrder: number }[]) {
   try {
+    const storeId = await resolveStoreId()
     // Perform sequentially or in a transaction. Let's do a transaction.
     await db.$transaction(
       updates.map((update) => 
         db.widget.update({
-          where: { id: update.id },
+          where: { id: update.id, storeId },
           data: { sortOrder: update.sortOrder }
         })
       )
@@ -67,6 +71,7 @@ export async function updateWidgetOrder(updates: { id: string, sortOrder: number
     
     await db.activityLog.create({
       data: {
+        storeId,
         action: "UpdateOrder",
         entityType: "Widget",
         details: { count: updates.length }
@@ -82,31 +87,28 @@ export async function updateWidgetOrder(updates: { id: string, sortOrder: number
   }
 }
 
-export const getWidgets = unstable_cache(
-  async () => {
-    try {
-      const widgets = await db.widget.findMany({
-        include: { items: { orderBy: { sortOrder: 'asc' } } },
-        orderBy: { sortOrder: 'asc' }
-      })
-      return { success: true, widgets }
-    } catch (error: any) {
-      return { success: false, error: "Failed to fetch widgets" }
-    }
-  },
-  ['store-widgets'],
-  {
-    revalidate: 3600, // Revalidate every hour
-    tags: ['widgets']
+export async function getWidgets() {
+  try {
+    const storeId = await resolveStoreId()
+    const widgets = await db.widget.findMany({
+      where: { storeId },
+      include: { items: { orderBy: { sortOrder: 'asc' } } },
+      orderBy: { sortOrder: 'asc' }
+    })
+    return { success: true, widgets }
+  } catch (error: any) {
+    return { success: false, error: "Failed to fetch widgets" }
   }
-)
+}
 
 export async function deleteWidget(id: string) {
   try {
-    await db.widget.delete({ where: { id } })
+    const storeId = await resolveStoreId()
+    await db.widget.delete({ where: { id, storeId } })
     
     await db.activityLog.create({
       data: {
+        storeId,
         action: "Delete",
         entityType: "Widget",
         entityId: id,
@@ -124,9 +126,10 @@ export async function deleteWidget(id: string) {
 
 export async function updateWidget(id: string, data: any) {
   try {
-    const oldWidget = await db.widget.findUnique({ where: { id }, include: { items: true } })
+    const storeId = await resolveStoreId()
+    const oldWidget = await db.widget.findUnique({ where: { id, storeId }, include: { items: true } })
     const widget = await db.widget.update({
-      where: { id },
+      where: { id, storeId },
       data
     })
     
@@ -137,10 +140,10 @@ export async function updateWidget(id: string, data: any) {
       if (!oldDisable && newDisable && oldWidget) {
         for (const item of oldWidget.items) {
           if (item.title) {
-            const existingBrand = await db.brand.findFirst({ where: { name: item.title } })
+            const existingBrand = await db.brand.findFirst({ where: { name: item.title, storeId } })
             if (existingBrand) {
-              await db.product.updateMany({ where: { brandId: existingBrand.id }, data: { brandId: null } })
-              await db.brand.delete({ where: { id: existingBrand.id } })
+              await db.product.updateMany({ where: { brandId: existingBrand.id, storeId }, data: { brandId: null } })
+              await db.brand.delete({ where: { id: existingBrand.id, storeId } })
             }
           }
         }
@@ -158,6 +161,7 @@ export async function updateWidget(id: string, data: any) {
 
 export async function createWidgetContentItem(widgetId: string, formData: FormData) {
   try {
+    const storeId = await resolveStoreId()
     const desktopImage = formData.get("desktopImage") as string || null
     const mobileImage = formData.get("mobileImage") as string || null
     const title = formData.get("title") as string || null
@@ -167,7 +171,7 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
     const sortOrder = parseInt(formData.get("sortOrder") as string) || 0
 
     // Check if widget is BrandSlider
-    const widget = await db.widget.findUnique({ where: { id: widgetId } })
+    const widget = await db.widget.findUnique({ where: { id: widgetId, storeId } })
     const disableRouting = (widget?.settings as any)?.disableRouting === true
     
     if (widget?.type === "BrandSlider" && title && !disableRouting) {
@@ -181,13 +185,14 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
       let counter = 1;
       
       // Ensure unique slug
-      while (await db.brand.findUnique({ where: { slug } })) {
+      while (await db.brand.findUnique({ where: { slug_storeId: { slug, storeId } } })) {
         slug = `${baseSlug}-${counter}`;
         counter++;
       }
       
       const brand = await db.brand.create({
         data: {
+          storeId,
           name: title,
           slug: slug,
           logoUrl: desktopImage,
@@ -205,7 +210,7 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
       
       let slug = baseSlug;
       let counter = 1;
-      while (await db.collection.findUnique({ where: { slug } })) {
+      while (await db.collection.findUnique({ where: { slug_storeId: { slug, storeId } } })) {
         slug = `${baseSlug}-${counter}`;
         counter++;
       }
@@ -215,6 +220,7 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
       
       const collection = await db.collection.create({
         data: {
+          storeId,
           name: title,
           slug: slug,
           products: {
@@ -240,6 +246,7 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
 
     const item = await db.widgetContentItem.create({
       data: {
+        storeId,
         widgetId,
         desktopImage,
         mobileImage,
@@ -263,29 +270,30 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
 
 export async function deleteWidgetContentItem(id: string) {
   try {
+    const storeId = await resolveStoreId()
     const item = await db.widgetContentItem.findUnique({
-      where: { id },
+      where: { id, storeId },
       include: { widget: true }
     })
     
     if (item?.widget?.type === "BrandSlider" && item.title) {
       const existingBrand = await db.brand.findFirst({
-        where: { name: item.title }
+        where: { name: item.title, storeId }
       })
       if (existingBrand) {
-        await db.product.updateMany({ where: { brandId: existingBrand.id }, data: { brandId: null } })
-        await db.brand.delete({ where: { id: existingBrand.id } })
+        await db.product.updateMany({ where: { brandId: existingBrand.id, storeId }, data: { brandId: null } })
+        await db.brand.delete({ where: { id: existingBrand.id, storeId } })
       }
     } else if (item?.widget?.type === "ProductList" && item.title) {
       const existingCollection = await db.collection.findFirst({
-        where: { name: item.title }
+        where: { name: item.title, storeId }
       })
       if (existingCollection) {
-        await db.collection.delete({ where: { id: existingCollection.id } })
+        await db.collection.delete({ where: { id: existingCollection.id, storeId } })
       }
     }
 
-    await db.widgetContentItem.delete({ where: { id } })
+    await db.widgetContentItem.delete({ where: { id, storeId } })
     revalidatePath("/admin/widgets")
     revalidatePath("/")
     revalidateTag("widgets", "default")
@@ -297,6 +305,7 @@ export async function deleteWidgetContentItem(id: string) {
 
 export async function updateWidgetContentItem(id: string, formData: FormData) {
   try {
+    const storeId = await resolveStoreId()
     const dataToUpdate: any = {}
     
     if (formData.has("desktopImage")) dataToUpdate.desktopImage = formData.get("desktopImage") as string
@@ -326,7 +335,7 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
     const title = dataToUpdate.title
 
     const oldItem = await db.widgetContentItem.findUnique({
-      where: { id },
+      where: { id, storeId },
       include: { widget: true }
     })
 
@@ -336,20 +345,20 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
       const slug = title.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u0621-\u064A0-9\-]+/g, '') + '-' + Math.random().toString(36).substring(2, 6)
       
       const existingBrand = await db.brand.findFirst({
-        where: { name: oldItem.title || "" }
+        where: { name: oldItem.title || "", storeId }
       })
 
       if (disableRouting) {
         if (existingBrand) {
-          await db.product.updateMany({ where: { brandId: existingBrand.id }, data: { brandId: null } })
-          await db.brand.delete({ where: { id: existingBrand.id } })
+          await db.product.updateMany({ where: { brandId: existingBrand.id, storeId }, data: { brandId: null } })
+          await db.brand.delete({ where: { id: existingBrand.id, storeId } })
         }
       } else {
         // If the title changed, we create a new brand (since we don't have a direct link to the old brand ID)
         // If the title is the same, we update the existing brand's logo
         if (existingBrand) {
           await db.brand.update({
-            where: { id: existingBrand.id },
+            where: { id: existingBrand.id, storeId },
             data: {
               name: title,
               logoUrl: dataToUpdate.desktopImage || existingBrand.logoUrl
@@ -362,6 +371,7 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
         } else {
           const brand = await db.brand.create({
             data: {
+              storeId,
               name: title,
               slug: slug,
               logoUrl: dataToUpdate.desktopImage || oldItem.desktopImage,
@@ -375,12 +385,12 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
       }
     } else if (oldItem?.widget?.type === "ProductList" && title !== undefined) {
       const slug = title.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u0621-\u064A0-9\-]+/g, '') + '-' + Math.random().toString(36).substring(2, 6)
-      const existingCollection = await db.collection.findFirst({ where: { name: oldItem.title || "" } })
+      const existingCollection = await db.collection.findFirst({ where: { name: oldItem.title || "", storeId } })
       
       let newCollection;
       if (existingCollection) {
         newCollection = await db.collection.update({
-          where: { id: existingCollection.id },
+          where: { id: existingCollection.id, storeId },
           data: { name: title }
         })
         if (!buttonUrl) {
@@ -389,7 +399,7 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
         }
       } else {
         newCollection = await db.collection.create({
-          data: { name: title, slug }
+          data: { storeId, name: title, slug }
         })
         if (!buttonUrl) {
           buttonUrl = `/collection/${newCollection.slug}`
@@ -400,7 +410,7 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
       if (formData.has("productIds")) {
         const productIds = JSON.parse(formData.get("productIds") as string);
         await db.collection.update({
-          where: { id: newCollection.id },
+          where: { id: newCollection.id, storeId },
           data: {
             products: {
               set: productIds.map((id: string) => ({ id }))
@@ -411,7 +421,7 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
     }
 
     const item = await db.widgetContentItem.update({
-      where: { id },
+      where: { id, storeId },
       data: dataToUpdate
     })
 
@@ -425,7 +435,9 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
 }
 
 export async function getProducts() {
+  const storeId = await resolveStoreId()
   const products = await db.product.findMany({
+    where: { storeId },
     select: { id: true, name: true, price: true, categoryId: true, slug: true },
     orderBy: { createdAt: 'desc' }
   })
@@ -433,7 +445,9 @@ export async function getProducts() {
 }
 
 export async function getCategories() {
+  const storeId = await resolveStoreId()
   const categories = await db.category.findMany({
+    where: { storeId },
     select: { id: true, name: true, slug: true },
     orderBy: { createdAt: 'desc' }
   })
@@ -441,7 +455,9 @@ export async function getCategories() {
 }
 
 export async function getCollections() {
+  const storeId = await resolveStoreId()
   const collections = await db.collection.findMany({
+    where: { storeId },
     select: { id: true, name: true, slug: true },
     orderBy: { createdAt: 'desc' }
   })
@@ -449,8 +465,9 @@ export async function getCollections() {
 }
 
 export async function getCollectionProducts(collectionId: string) {
+  const storeId = await resolveStoreId()
   const collection = await db.collection.findUnique({
-    where: { id: collectionId },
+    where: { id: collectionId, storeId },
     include: { products: { select: { id: true } } }
   })
   return collection?.products.map(p => p.id) || []
@@ -458,10 +475,11 @@ export async function getCollectionProducts(collectionId: string) {
 
 export async function updateWidgetContentItemOrder(updates: { id: string, sortOrder: number }[]) {
   try {
+    const storeId = await resolveStoreId()
     await db.$transaction(
       updates.map((update) => 
         db.widgetContentItem.update({
-          where: { id: update.id },
+          where: { id: update.id, storeId },
           data: { sortOrder: update.sortOrder }
         })
       )

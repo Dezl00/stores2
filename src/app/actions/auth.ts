@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { sendNotification } from "@/lib/send-notification"
+import { resolveStoreId } from "@/lib/store-context"
 
 export async function registerUser(formData: FormData) {
   const name = formData.get("name") as string
@@ -14,33 +15,37 @@ export async function registerUser(formData: FormData) {
   }
 
   try {
-    const existingUser = await db.user.findUnique({
-      where: { phone }
+    const storeId = await resolveStoreId()
+
+    const existingUser = await db.storeUser.findUnique({
+      where: { phone_storeId: { phone, storeId } }
     })
 
     if (existingUser) {
-      return { error: "رقم الهاتف مسجل مسبقاً" }
+      return { error: "رقم الهاتف مسجل مسبقاً في هذا المتجر" }
     }
 
     const passwordHash = await bcrypt.hash(password, 10)
 
-    const user = await db.user.create({
+    const user = await db.storeUser.create({
       data: {
         name,
         phone,
         passwordHash,
-        role: "CUSTOMER"
+        role: "CUSTOMER",
+        storeId
       }
     })
 
-    const config = await db.themeConfig.findUnique({ where: { id: "default" } })
+    const config = await db.themeConfig.findUnique({ where: { storeId } })
     if (config?.adminNewCustomerNotifications !== false) {
       await sendNotification({
-        targetRole: "ADMIN",
+        targetRole: "MANAGER", // Or STORE_OWNER
         title: "عميل جديد!",
         message: `تم تسجيل عميل جديد: ${name} (${phone})`,
         type: "NEW_CUSTOMER",
         link: "/admin/customers",
+        storeId
       });
     }
 
@@ -60,8 +65,10 @@ export async function loginUser(formData: FormData) {
   }
 
   try {
-    const user = await db.user.findUnique({
-      where: { phone }
+    const storeId = await resolveStoreId()
+
+    const user = await db.storeUser.findUnique({
+      where: { phone_storeId: { phone, storeId } }
     })
 
     if (!user || !user.passwordHash) {
@@ -77,7 +84,7 @@ export async function loginUser(formData: FormData) {
       if (isValid) {
         // Auto-migrate plaintext to bcrypt hash
         const hashedPassword = await bcrypt.hash(password, 10)
-        await db.user.update({
+        await db.storeUser.update({
           where: { id: user.id },
           data: { passwordHash: hashedPassword }
         })
@@ -98,4 +105,3 @@ export async function loginUser(formData: FormData) {
     return { error: "حدث خطأ أثناء تسجيل الدخول" }
   }
 }
-

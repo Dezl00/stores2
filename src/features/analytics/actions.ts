@@ -1,7 +1,8 @@
-﻿'use server'
+'use server'
 
 import { db } from "@/lib/db"
 import { headers } from "next/headers"
+import { resolveStoreId } from "@/lib/store-context"
 
 const isBot = (userAgent: string) => {
   const bots = ['bot', 'spider', 'crawl', 'lighthouse', 'google', 'bing', 'yahoo', 'yandex']
@@ -11,6 +12,7 @@ const isBot = (userAgent: string) => {
 
 export async function logPageVisit(path: string) {
   try {
+    const storeId = await resolveStoreId()
     const reqHeaders = await headers()
     const userAgent = reqHeaders.get("user-agent") || "unknown"
     
@@ -26,7 +28,8 @@ export async function logPageVisit(path: string) {
         ipAddress: ip,
         userAgent,
         country: decodeURIComponent(country),
-        city: decodeURIComponent(city)
+        city: decodeURIComponent(city),
+        storeId
       }
     })
   } catch (error) {
@@ -36,6 +39,7 @@ export async function logPageVisit(path: string) {
 
 export async function logProductView(productId: string) {
   try {
+    const storeId = await resolveStoreId()
     const reqHeaders = await headers()
     const userAgent = reqHeaders.get("user-agent") || "unknown"
     
@@ -51,7 +55,8 @@ export async function logProductView(productId: string) {
         ipAddress: ip,
         userAgent,
         country: decodeURIComponent(country),
-        city: decodeURIComponent(city)
+        city: decodeURIComponent(city),
+        storeId
       }
     })
   } catch (error) {

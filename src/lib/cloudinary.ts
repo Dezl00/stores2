@@ -6,10 +6,14 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-export async function uploadImage(fileBuffer: Buffer, folder: string = "assal/products") {
+export async function uploadImage(fileBuffer: Buffer, storeId: string, subfolder: string = "general") {
   return new Promise((resolve, reject) => {
+    // Isolate by platform and storeId
+    const platformPrefix = process.env.NEXT_PUBLIC_PLATFORM_NAME || "matjark"
+    const folderPath = `${platformPrefix}/stores/${storeId}/${subfolder}`
+
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder },
+      { folder: folderPath },
       (error, result) => {
         if (error) {
           reject(error)
@@ -23,7 +27,15 @@ export async function uploadImage(fileBuffer: Buffer, folder: string = "assal/pr
   })
 }
 
-export async function deleteImage(publicId: string) {
+export async function deleteImage(publicId: string, storeId: string) {
+  // Security check: ensure publicId belongs to the storeId before deleting
+  const platformPrefix = process.env.NEXT_PUBLIC_PLATFORM_NAME || "matjark"
+  const expectedPrefix = `${platformPrefix}/stores/${storeId}/`
+  
+  if (!publicId.startsWith(expectedPrefix)) {
+    return Promise.reject(new Error("Unauthorized: Cannot delete media outside your store scope."))
+  }
+
   return new Promise((resolve, reject) => {
     cloudinary.uploader.destroy(publicId, (error, result) => {
       if (error) {

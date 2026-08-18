@@ -2,44 +2,50 @@
 
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
-import { auth } from "@/lib/auth"
-
-async function checkAdmin() {
-  const session = await auth()
-  if (!session || !session.user) throw new Error("Unauthorized")
-  const user = await db.user.findUnique({ where: { id: session.user.id } })
-  if (!user || user.role !== "ADMIN" && user.role !== "MANAGER") {
-    throw new Error("Unauthorized")
-  }
-}
+import { requireStoreAdmin } from "@/lib/auth/require-admin"
+import { resolveStoreId } from "@/lib/store-context"
 
 // -- Coupons --
 
 export async function getCoupons() {
+  const storeId = await resolveStoreId()
   return await db.coupon.findMany({
+    where: { storeId },
     orderBy: { createdAt: 'desc' }
   })
 }
 
 export async function createCoupon(data: { code: string; type: string; value: number; maxUses?: number | null; expiresAt?: Date | null; isActive?: boolean }) {
-  await checkAdmin()
-  const exists = await db.coupon.findUnique({ where: { code: data.code } })
+  await requireStoreAdmin()
+  const storeId = await resolveStoreId()
+  
+  const exists = await db.coupon.findUnique({ where: { code_storeId: { code: data.code, storeId } } })
   if (exists) throw new Error("هذا الكود موجود مسبقاً")
 
-  const coupon = await db.coupon.create({ data })
+  const coupon = await db.coupon.create({ data: { ...data, storeId } })
   revalidatePath('/admin/offers')
   return coupon
 }
 
 export async function updateCoupon(id: string, data: { code?: string; type?: string; value?: number; maxUses?: number | null; expiresAt?: Date | null; isActive?: boolean }) {
-  await checkAdmin()
+  await requireStoreAdmin()
+  const storeId = await resolveStoreId()
+  
+  const couponExists = await db.coupon.findFirst({ where: { id, storeId } })
+  if (!couponExists) throw new Error("Coupon not found")
+
   const coupon = await db.coupon.update({ where: { id }, data })
   revalidatePath('/admin/offers')
   return coupon
 }
 
 export async function deleteCoupon(id: string) {
-  await checkAdmin()
+  await requireStoreAdmin()
+  const storeId = await resolveStoreId()
+  
+  const couponExists = await db.coupon.findFirst({ where: { id, storeId } })
+  if (!couponExists) throw new Error("Coupon not found")
+
   await db.coupon.delete({ where: { id } })
   revalidatePath('/admin/offers')
   return { success: true }
@@ -48,7 +54,8 @@ export async function deleteCoupon(id: string) {
 // -- Offer Settings (ThemeConfig) --
 
 export async function getOfferSettings() {
-  const theme = await db.themeConfig.findUnique({ where: { id: "default" } })
+  const storeId = await resolveStoreId()
+  const theme = await db.themeConfig.findUnique({ where: { storeId } })
   return {
     freeShippingThreshold: theme?.freeShippingThreshold,
     promoPopupEnabled: theme?.promoPopupEnabled,
@@ -62,14 +69,14 @@ export async function getOfferSettings() {
 }
 
 export async function updateOfferSettings(data: any) {
-  await checkAdmin()
+  await requireStoreAdmin()
+  const storeId = await resolveStoreId()
   
-  // ensure default config exists
-  const existing = await db.themeConfig.findUnique({ where: { id: "default" } })
+  const existing = await db.themeConfig.findUnique({ where: { storeId } })
   if (!existing) {
-    await db.themeConfig.create({ data: { id: "default", ...data } })
+    await db.themeConfig.create({ data: { ...data, storeId } })
   } else {
-    await db.themeConfig.update({ where: { id: "default" }, data })
+    await db.themeConfig.update({ where: { storeId }, data })
   }
   
   revalidatePath('/admin/offers')

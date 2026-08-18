@@ -1,12 +1,14 @@
 "use server"
 
-import { requireAdmin, requirePermission } from "@/lib/auth/require-admin"
+import { requireStoreAdmin, requirePermission } from "@/lib/auth/require-admin"
+import { resolveStoreId } from "@/lib/store-context"
 import { db } from "@/lib/db"
 import { uploadImage, deleteImage as deleteCloudinaryImage } from "@/lib/cloudinary"
 import { revalidatePath } from "next/cache"
 
 export async function uploadMediaAction(formData: FormData) {
   try {
+    const storeId = await resolveStoreId()
     try {
       await requirePermission("media.upload")
     } catch (e: any) {
@@ -21,7 +23,7 @@ export async function uploadMediaAction(formData: FormData) {
 
     // Upload to Cloudinary
     const buffer = Buffer.from(await file.arrayBuffer())
-    const uploadResult: any = await uploadImage(buffer, folder)
+    const uploadResult: any = await uploadImage(buffer, storeId, folder)
 
     // Save to database
     const mediaAsset = await db.mediaAsset.create({
@@ -33,6 +35,7 @@ export async function uploadMediaAction(formData: FormData) {
         height: uploadResult.height,
         bytes: uploadResult.bytes,
         folder: folder,
+        storeId,
       }
     })
 
@@ -42,7 +45,8 @@ export async function uploadMediaAction(formData: FormData) {
         action: "Create",
         entityType: "MediaAsset",
         entityId: mediaAsset.id,
-        details: { fileName: file.name, size: file.size }
+        details: { fileName: file.name, size: file.size },
+        storeId,
       }
     })
 
@@ -56,16 +60,17 @@ export async function uploadMediaAction(formData: FormData) {
 
 export async function deleteMediaAction(id: string) {
   try {
+    const storeId = await resolveStoreId()
     try {
       await requirePermission("media.delete")
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
-    const asset = await db.mediaAsset.findUnique({ where: { id } })
+    const asset = await db.mediaAsset.findFirst({ where: { id, storeId } })
     if (!asset) return { success: false, error: "Asset not found" }
 
-    await deleteCloudinaryImage(asset.publicId)
-    await db.mediaAsset.delete({ where: { id } })
+    await deleteCloudinaryImage(asset.publicId, storeId)
+    await db.mediaAsset.delete({ where: { id, storeId } as any })
 
     // Log the activity
     await db.activityLog.create({
@@ -73,7 +78,8 @@ export async function deleteMediaAction(id: string) {
         action: "Delete",
         entityType: "MediaAsset",
         entityId: id,
-        details: { publicId: asset.publicId }
+        details: { publicId: asset.publicId },
+        storeId,
       }
     })
 
@@ -87,8 +93,9 @@ export async function deleteMediaAction(id: string) {
 
 export async function getMediaAssets(folder?: string) {
   try {
+    const storeId = await resolveStoreId()
     const assets = await db.mediaAsset.findMany({
-      where: folder ? { folder } : undefined,
+      where: folder ? { folder, storeId } : { storeId },
       orderBy: { createdAt: "desc" }
     })
     return { success: true, assets }

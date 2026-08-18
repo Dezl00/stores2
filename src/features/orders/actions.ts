@@ -1,23 +1,25 @@
 "use server"
 
-import { requireAdmin, requirePermission } from "@/lib/auth/require-admin"
+import { requireStoreAdmin, requirePermission } from "@/lib/auth/require-admin"
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { sendNotification } from "@/lib/send-notification"
 import { auth } from "@/lib/auth"
+import { resolveStoreId } from "@/lib/store-context"
 
 export async function updateOrderStatus(orderId: string, status: string) {
   try {
+    const storeId = await resolveStoreId()
     try {
       await requirePermission("orders.edit")
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
-    const order = await db.order.findUnique({ where: { id: orderId }, include: { user: true } })
+    const order = await db.order.findUnique({ where: { id: orderId, storeId }, include: { user: true } })
     if (!order) return { success: false, error: "Order not found" }
 
     await db.order.update({
-      where: { id: orderId },
+      where: { id: orderId, storeId },
       data: { status }
     })
 
@@ -25,6 +27,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
     if (session?.user?.id) {
       await db.activityLog.create({
         data: {
+          storeId,
           userId: session.user.id,
           action: "UPDATE_ORDER_STATUS",
           entityType: "Order",
@@ -43,7 +46,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
         // Find product image if available
         let imageUrl: string | undefined = undefined;
         const fullOrder = await db.order.findUnique({
-          where: { id: orderId },
+          where: { id: orderId, storeId },
           include: {
             items: {
               include: { 
@@ -83,6 +86,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
 
 export async function deleteOrder(orderId: string) {
   try {
+    const storeId = await resolveStoreId()
     try {
       await requirePermission("orders.delete")
     } catch (e: any) {
@@ -91,12 +95,13 @@ export async function deleteOrder(orderId: string) {
     const session = await auth()
     
     await db.order.delete({
-      where: { id: orderId }
+      where: { id: orderId, storeId }
     })
 
     if (session?.user?.id) {
       await db.activityLog.create({
         data: {
+          storeId,
           userId: session.user.id,
           action: "DELETE_ORDER",
           entityType: "Order",

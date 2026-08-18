@@ -1,5 +1,6 @@
 "use server"
 import { db } from "@/lib/db"
+import { resolveStoreId } from "@/lib/store-context"
 
 export async function submitOrder(data: {
   customerName: string
@@ -20,9 +21,11 @@ export async function submitOrder(data: {
       return { success: false, error: "السلة فارغة" }
     }
 
+    const storeId = await resolveStoreId()
+
     // Find next order ID
     const lastOrder = await db.order.findFirst({
-      where: { id: { startsWith: 'AG-' } },
+      where: { id: { startsWith: 'AG-' }, storeId },
       orderBy: { createdAt: 'desc' }
     });
     
@@ -37,6 +40,7 @@ export async function submitOrder(data: {
 
     const orderData: any = {
       id: newOrderId,
+      storeId,
       customerName: data.customerName,
       customerPhone: data.customerPhone,
       address: data.address,
@@ -49,7 +53,7 @@ export async function submitOrder(data: {
       totalAmount: data.totalAmount,
       status: "PENDING",
       items: {
-        create: data.items.map(item => ({
+        create: data.items.map((item: any) => ({
           productId: item.productId,
           quantity: item.quantity,
           price: item.price
@@ -76,14 +80,14 @@ export async function submitOrder(data: {
 
     if (data.couponCode) {
       await db.coupon.update({
-        where: { code: data.couponCode },
+        where: { code_storeId: { code: data.couponCode, storeId } },
         data: { usedCount: { increment: 1 } }
       })
     }
     
     // Notify Admin
     const { sendNotification } = await import("@/lib/send-notification")
-    const config = await db.themeConfig.findUnique({ where: { id: "default" } })
+    const config = await db.themeConfig.findFirst({ where: { storeId } })
     if (config?.adminOrderNotifications !== false) {
       await sendNotification({
         userId: undefined, // Admins
@@ -92,7 +96,8 @@ export async function submitOrder(data: {
         message: `تم استلام طلب جديد #${order.id} بقيمة ${order.totalAmount} ج.م`,
         type: "ORDER_CREATED",
         link: `/admin/orders/${order.id}`,
-        sound: true
+        sound: true,
+        storeId
       })
     }
 
@@ -104,8 +109,9 @@ export async function submitOrder(data: {
 }
 
 export async function validateCoupon(code: string) {
+  const storeId = await resolveStoreId()
   const coupon = await db.coupon.findUnique({
-    where: { code: code.toUpperCase() }
+    where: { code_storeId: { code: code.toUpperCase(), storeId } }
   })
   
   if (!coupon) return { error: "كود الخصم غير صحيح" }

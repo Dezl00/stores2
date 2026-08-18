@@ -3,27 +3,27 @@ import { webpush } from "@/lib/web-push";
 
 interface SendNotificationOptions {
   userId?: string; // If null, target admins
-  targetRole?: "ADMIN" | "CUSTOMER"; 
+  targetRole?: "MANAGER" | "STORE_OWNER" | "CUSTOMER"; 
   title: string;
   message: string;
   type: string;
   link?: string;
   sound?: boolean; // Whether to play sound for push
   image?: string;  // Large image to display in the push notification
+  storeId: string; // Required for multi-tenant isolation
 }
 
-export async function sendNotification({ userId, targetRole, title, message, type, link, sound = true, image }: SendNotificationOptions) {
+export async function sendNotification({ userId, targetRole, title, message, type, link, sound = true, image, storeId }: SendNotificationOptions) {
   try {
     // 1. Save to database (in-app notification)
-    // If it's an admin notification (userId is null), we just save one record with userId = null.
-    // The admin dashboard will fetch notifications where userId = null.
     await prisma.notification.create({
       data: {
-        userId: userId || null,
+        storeUserId: userId || undefined,
         title,
         message,
         type,
         link,
+        storeId
       }
     });
 
@@ -31,12 +31,15 @@ export async function sendNotification({ userId, targetRole, title, message, typ
     let pushSubs: any[] = [];
     if (userId) {
       pushSubs = await prisma.pushSubscription.findMany({
-        where: { userId }
+        where: { storeUserId: userId, storeId }
       });
-    } else if (targetRole === "ADMIN") {
-      // Find subscriptions that belong to ADMIN or MANAGER
+    } else if (targetRole === "MANAGER" || targetRole === "STORE_OWNER") {
+      // Find subscriptions that belong to managers or owners of THIS store
       pushSubs = await prisma.pushSubscription.findMany({
-        where: { role: "ADMIN" }
+        where: { 
+          storeId,
+          role: { in: ["MANAGER", "STORE_OWNER"] }
+        }
       });
     }
 
@@ -81,4 +84,3 @@ export async function sendNotification({ userId, targetRole, title, message, typ
     return { success: false, error };
   }
 }
-

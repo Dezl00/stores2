@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import NextTopLoader from 'nextjs-toploader';
 import { PageTracker } from "@/components/page-tracker";
 import { Suspense } from "react";
+import { getCurrentStore } from "@/lib/tenant";
 
 const fallbackFont = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
@@ -16,26 +17,40 @@ const fallbackFont = IBM_Plex_Sans_Arabic({
 
 export async function generateMetadata(): Promise<Metadata> {
   let theme = null;
+  let store = null;
   try {
-    theme = await db.themeConfig.findUnique({ where: { id: "default" } });
+    store = await getCurrentStore();
+    if (store) {
+      theme = await db.themeConfig.findUnique({ where: { storeId: store.storeId } });
+    }
   } catch (e) {
-    // Ignore DB error during build/metadata generation if Neon is asleep
+    // Ignore DB error during build/metadata generation
   }
   
-  const storeName = theme?.storeName || "العسال";
-  const storeDescription = theme?.storeDescription || "أفضل المنتجات وأعلاها جودة";
+  const isPlatform = !store;
+  const platformName = process.env.NEXT_PUBLIC_PLATFORM_NAME || "متجرك";
+  
+  const storeName = theme?.storeName || (isPlatform ? platformName : "متجر جديد");
+  const storeDescription = theme?.storeDescription || (isPlatform ? "منصة متجرك لإنشاء المتاجر الإلكترونية بسهولة" : "أفضل المنتجات وأعلاها جودة");
   const logo = theme?.logoUrl || "/favicon.ico";
   const favicon = theme?.faviconUrl || "/favicon.ico";
 
   let ogImage = logo;
   if (ogImage.includes("res.cloudinary.com") && ogImage.includes("/upload/")) {
-    // Add Cloudinary transformations: 1200x630, pad with white bg, convert to JPG, auto quality
-    // This ensures it falls under WhatsApp's 300KB limit and fits perfectly.
     ogImage = ogImage.replace("/upload/", "/upload/w_1200,h_630,c_pad,b_white,f_jpg,q_auto/");
   }
 
+  // Determine metadata base (custom domain vs platform subdomain vs localhost)
+  let baseUrl = "http://localhost:3000";
+  if (process.env.NEXT_PUBLIC_PLATFORM_DOMAIN) {
+    baseUrl = `https://${process.env.NEXT_PUBLIC_PLATFORM_DOMAIN}`;
+  }
+  if (store && store.storeSlug) {
+    baseUrl = `https://${store.storeSlug}.${process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || 'localhost:3000'}`;
+  }
+
   return {
-    metadataBase: new URL("https://assal1.vercel.app"), // Base URL for OG images
+    metadataBase: new URL(baseUrl),
     title: {
       default: storeName,
       template: `%s | ${storeName}`,
@@ -85,9 +100,12 @@ export default async function RootLayout({
 }>) {
   let theme = null;
   try {
-    theme = await db.themeConfig.findUnique({ where: { id: "default" } });
+    const store = await getCurrentStore();
+    if (store) {
+      theme = await db.themeConfig.findUnique({ where: { storeId: store.storeId } });
+    }
   } catch (e) {
-    // Ignore DB error for root layout if Neon is asleep
+    // Ignore DB error
   }
 
   return (
@@ -103,7 +121,7 @@ export default async function RootLayout({
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning>
         <NextTopLoader 
-          color="var(--color-primary, #b79045)"
+          color="var(--color-primary, #4f46e5)"
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}
@@ -111,7 +129,7 @@ export default async function RootLayout({
           showSpinner={false}
           easing="ease"
           speed={200}
-          shadow="0 0 10px var(--color-primary, #b79045),0 0 5px var(--color-primary, #b79045)"
+          shadow="0 0 10px var(--color-primary, #4f46e5),0 0 5px var(--color-primary, #4f46e5)"
         />
         <Suspense fallback={null}>
           <PageTracker />

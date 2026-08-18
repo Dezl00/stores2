@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { resolveStoreId } from "@/lib/store-context"
 
 const CategorySchema = z.object({
   name: z.string().min(2),
@@ -13,11 +14,13 @@ const CategorySchema = z.object({
 
 export async function createCategory(data: z.infer<typeof CategorySchema>) {
   try {
+    const storeId = await resolveStoreId()
     const parsed = CategorySchema.parse(data)
-    const category = await db.category.create({ data: parsed })
+    const category = await db.category.create({ data: { ...parsed, storeId } })
     
     await db.activityLog.create({
       data: {
+        storeId,
         action: "Create",
         entityType: "Category",
         entityId: category.id,
@@ -35,7 +38,9 @@ export async function createCategory(data: z.infer<typeof CategorySchema>) {
 
 export async function getCategories() {
   try {
+    const storeId = await resolveStoreId()
     const categories = await db.category.findMany({
+      where: { storeId },
       include: { children: true, parent: true },
       orderBy: { createdAt: "desc" }
     })
@@ -47,10 +52,12 @@ export async function getCategories() {
 
 export async function deleteCategory(id: string) {
   try {
-    await db.category.delete({ where: { id } })
+    const storeId = await resolveStoreId()
+    await db.category.delete({ where: { id, storeId } })
     
     await db.activityLog.create({
       data: {
+        storeId,
         action: "Delete",
         entityType: "Category",
         entityId: id,
@@ -81,10 +88,12 @@ const ProductSchema = z.object({
 
 export async function createProduct(data: z.infer<typeof ProductSchema>, imageIds: string[]) {
   try {
+    const storeId = await resolveStoreId()
     const parsed = ProductSchema.parse(data)
     
     const product = await db.product.create({
       data: {
+        storeId,
         name: parsed.name,
         slug: parsed.slug,
         sku: parsed.sku || null,
@@ -108,6 +117,7 @@ export async function createProduct(data: z.infer<typeof ProductSchema>, imageId
     
     await db.activityLog.create({
       data: {
+        storeId,
         action: "Create",
         entityType: "Product",
         entityId: product.id,
@@ -125,8 +135,12 @@ export async function createProduct(data: z.infer<typeof ProductSchema>, imageId
 
 export async function getProducts(options?: { categoryId?: string, limit?: number }) {
   try {
+    const storeId = await resolveStoreId()
     const products = await db.product.findMany({
-      where: options?.categoryId ? { categoryId: options.categoryId } : undefined,
+      where: {
+        storeId,
+        ...(options?.categoryId && { categoryId: options.categoryId }),
+      },
       take: options?.limit,
       include: { images: true, category: true, brand: true },
       orderBy: { createdAt: "desc" }

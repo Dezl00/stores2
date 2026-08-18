@@ -1,6 +1,7 @@
 "use server"
 
-import { requireAdmin, requirePermission } from "@/lib/auth/require-admin"
+import { requirePermission } from "@/lib/auth/require-admin"
+import { resolveStoreId } from "@/lib/store-context"
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
@@ -12,6 +13,7 @@ export async function createCategory(formData: FormData) {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
+    const storeId = await resolveStoreId()
     const name = formData.get("name") as string
     const slug = formData.get("slug") as string
     const description = formData.get("description") as string
@@ -26,6 +28,7 @@ export async function createCategory(formData: FormData) {
 
     await db.category.create({
       data: {
+        storeId,
         name,
         slug,
         description: description || null,
@@ -50,20 +53,22 @@ export async function deleteCategory(id: string) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
 
+    const storeId = await resolveStoreId()
+
     // Safety: check for products in this category
-    const productCount = await db.product.count({ where: { categoryId: id } })
+    const productCount = await db.product.count({ where: { categoryId: id, storeId } })
     if (productCount > 0) {
       return { success: false, error: `لا يمكن حذف هذا القسم لأنه يحتوي على ${productCount} منتج. قم بنقل المنتجات أولاً.` }
     }
 
     // Safety: check for child categories
-    const childCount = await db.category.count({ where: { parentId: id } })
+    const childCount = await db.category.count({ where: { parentId: id, storeId } })
     if (childCount > 0) {
       return { success: false, error: `لا يمكن حذف هذا القسم لأنه يحتوي على ${childCount} أقسام فرعية. قم بحذفها أولاً.` }
     }
 
-    await db.category.delete({
-      where: { id }
+    await db.category.deleteMany({
+      where: { id, storeId }
     })
     revalidatePath("/admin/categories")
     return { success: true }
@@ -79,10 +84,11 @@ export async function updateCategory(id: string, formData: FormData) {
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
+    const storeId = await resolveStoreId()
     const isActiveStr = formData.get("isActive");
     if (isActiveStr !== null) {
-      await db.category.update({
-        where: { id },
+      await db.category.updateMany({
+        where: { id, storeId },
         data: { isActive: isActiveStr === "true" }
       });
       revalidatePath("/admin/categories")
@@ -101,8 +107,8 @@ export async function updateCategory(id: string, formData: FormData) {
       return { success: false, error: "Name and Slug are required" }
     }
 
-    await db.category.update({
-      where: { id },
+    await db.category.updateMany({
+      where: { id, storeId },
       data: {
         name,
         slug,
@@ -127,10 +133,11 @@ export async function bulkUpdateCategories(ids: string[], data: { departmentId?:
     } catch (e: any) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
+    const storeId = await resolveStoreId()
     if (!ids.length) return { success: false, error: "لا توجد أقسام محددة" }
 
     await db.category.updateMany({
-      where: { id: { in: ids } },
+      where: { id: { in: ids }, storeId },
       data: {
         ...(data.departmentId !== undefined && { departmentId: data.departmentId }),
         ...(data.parentId !== undefined && { parentId: data.parentId }),
@@ -147,11 +154,13 @@ export async function bulkUpdateCategories(ids: string[], data: { departmentId?:
 export async function bulkCreateCategories(categoriesToCreate: { main: string, sub?: string }[]) {
   try {
     const session = await auth()
-    const isAdmin = session?.user?.role === "ADMIN"
+    const isAdmin = session?.user?.role === "STORE_OWNER" || session?.user?.role === "MANAGER"
     const hasPerm = session?.user?.permissions?.includes("categories.create")
     if (!isAdmin && !hasPerm) {
       return { success: false, error: "Not authorized to create categories" }
     }
+
+    const storeId = await resolveStoreId()
 
     if (!categoriesToCreate || categoriesToCreate.length === 0) return { success: true, categories: [] }
 
@@ -160,18 +169,18 @@ export async function bulkCreateCategories(categoriesToCreate: { main: string, s
     
     for (const mainName of uniqueMains) {
       let mainCat = await db.category.findFirst({
-        where: { name: mainName, parentId: null }
+        where: { name: mainName, parentId: null, storeId }
       })
       if (!mainCat) {
         let slug = mainName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
         if (!slug || slug.trim() === '') slug = `cat-${Date.now()}-${Math.floor(Math.random() * 1000)}`
         
         // Ensure slug is unique
-        const existingSlug = await db.category.findUnique({ where: { slug } })
+        let existingSlug = await db.category.findUnique({ where: { slug_storeId: { slug, storeId } } })
         if (existingSlug) slug = `${slug}-${Date.now()}`
 
         mainCat = await db.category.create({
-          data: { name: mainName, slug }
+          data: { name: mainName, slug, storeId }
         })
       }
 
@@ -181,17 +190,17 @@ export async function bulkCreateCategories(categoriesToCreate: { main: string, s
 
       for (const subName of uniqueSubs) {
         const subCat = await db.category.findFirst({
-          where: { name: subName, parentId: mainCat.id }
+          where: { name: subName, parentId: mainCat.id, storeId }
         })
         if (!subCat) {
           let subSlug = subName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
           if (!subSlug || subSlug.trim() === '') subSlug = `sub-${Date.now()}-${Math.floor(Math.random() * 1000)}`
           
-          const existingSubSlug = await db.category.findUnique({ where: { slug: subSlug } })
+          let existingSubSlug = await db.category.findUnique({ where: { slug_storeId: { slug: subSlug, storeId } } })
           if (existingSubSlug) subSlug = `${subSlug}-${Date.now()}`
 
           await db.category.create({
-            data: { name: subName, slug: subSlug, parentId: mainCat.id }
+            data: { name: subName, slug: subSlug, parentId: mainCat.id, storeId }
           })
         }
       }

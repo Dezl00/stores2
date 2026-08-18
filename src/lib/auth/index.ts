@@ -5,16 +5,21 @@ import { db } from "@/lib/db"
 
 declare module "next-auth" {
   interface User {
+    id?: string
     role?: string
     permissions?: string[]
     phone?: string
+    storeId?: string
+    context?: 'platform' | 'store'
   }
   interface Session {
     user: User & {
+      id?: string
       role?: string
       permissions?: string[]
-      id?: string
       phone?: string
+      storeId?: string
+      context?: 'platform' | 'store'
     }
   }
 }
@@ -25,62 +30,104 @@ export const authConfig: NextAuthConfig = {
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        phone: { label: "Phone", type: "tel" },
-        password: { label: "Password", type: "password" }
+        phone: { label: "Phone/Email", type: "text" },
+        password: { label: "Password", type: "password" },
+        context: { label: "Context", type: "text" }, // 'platform' or 'store'
+        storeId: { label: "Store ID", type: "text" } // required if context === 'store'
       },
       async authorize(credentials) {
         if (!credentials?.phone || !credentials?.password) {
           return null
         }
 
-        const user = await db.user.findUnique({
-          where: {
-            phone: credentials.phone as string
-          }
-        })
-
-        if (!user || !user.passwordHash) return null
-
-        if (user.isActive === false) return null
-
+        const context = (credentials.context as string) || 'store'
         const password = credentials.password as string
-        let isValid = false
+        const identifier = credentials.phone as string // can be email or phone
 
-        // Check if the stored hash is a bcrypt hash (starts with $2)
-        if (user.passwordHash.startsWith("$2")) {
-          isValid = await bcrypt.compare(password, user.passwordHash)
-        } else {
-          // Legacy plaintext comparison — auto-migrate on success
-          isValid = password === user.passwordHash
-          if (isValid) {
-            const hashedPassword = await bcrypt.hash(password, 10)
-            await db.user.update({
-              where: { id: user.id },
-              data: { passwordHash: hashedPassword }
+        // ----------------------------------------------------
+        // PLATFORM AUTHENTICATION (SUPER ADMIN)
+        // ----------------------------------------------------
+        if (context === 'platform') {
+          const platformUser = await db.platformUser.findUnique({
+            where: { email: identifier }
+          })
+          
+          if (!platformUser || !platformUser.passwordHash || !platformUser.isActive) return null
+
+          const isValid = await bcrypt.compare(password, platformUser.passwordHash)
+          if (!isValid) return null
+
+          return {
+            id: platformUser.id,
+            email: platformUser.email,
+            name: platformUser.name,
+            role: platformUser.role,
+            context: 'platform',
+          }
+        }
+
+        // ----------------------------------------------------
+        // STORE AUTHENTICATION (OWNER / MANAGER / CUSTOMER)
+        // ----------------------------------------------------
+        if (context === 'store') {
+          const storeId = credentials.storeId as string
+          if (!storeId) return null
+
+          // Try finding by phone first, then email (scoped by storeId)
+          let storeUser = await db.storeUser.findUnique({
+            where: { phone_storeId: { phone: identifier, storeId } }
+          })
+
+          if (!storeUser) {
+            storeUser = await db.storeUser.findUnique({
+              where: { email_storeId: { email: identifier, storeId } }
             })
           }
+
+          if (!storeUser || !storeUser.passwordHash || !storeUser.isActive) return null
+
+          let isValid = false
+          if (storeUser.passwordHash.startsWith("$2")) {
+            isValid = await bcrypt.compare(password, storeUser.passwordHash)
+          } else {
+            // Legacy plaintext support during migration
+            isValid = password === storeUser.passwordHash
+            if (isValid) {
+              const hashedPassword = await bcrypt.hash(password, 10)
+              await db.storeUser.update({
+                where: { id: storeUser.id },
+                data: { passwordHash: hashedPassword }
+              })
+            }
+          }
+
+          if (!isValid) return null
+
+          return {
+            id: storeUser.id,
+            email: storeUser.email || undefined,
+            phone: storeUser.phone || undefined,
+            name: storeUser.name || undefined,
+            role: storeUser.role,
+            permissions: storeUser.permissions,
+            storeId: storeUser.storeId,
+            context: 'store',
+          }
         }
 
-        if (!isValid) return null
-
-        return {
-          id: user.id,
-          email: user.email || undefined,
-          phone: user.phone || undefined,
-          name: user.name || undefined,
-          role: user.role,
-          permissions: user.permissions,
-        }
+        return null
       }
     })
   ],
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role
-        token.permissions = (user as any).permissions
+        token.role = user.role
+        token.permissions = user.permissions
         token.id = user.id
-        token.phone = (user as any).phone
+        token.phone = user.phone
+        token.storeId = user.storeId
+        token.context = user.context
       }
       return token
     },
@@ -90,12 +137,14 @@ export const authConfig: NextAuthConfig = {
         session.user.permissions = (token.permissions as string[]) || []
         session.user.id = token.id as string
         session.user.phone = token.phone as string
+        session.user.storeId = token.storeId as string
+        session.user.context = token.context as ('platform' | 'store')
       }
       return session
     }
   },
   pages: {
-    signIn: '/login',
+    signIn: '/login', // Store login (Platform login will be at /platform/login)
   },
   session: {
     strategy: "jwt"

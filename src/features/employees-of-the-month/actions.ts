@@ -3,6 +3,7 @@
 import { db as prisma } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { resolveStoreId } from "@/lib/store-context"
 
 const employeeSchema = z.object({
   name: z.string().min(1, "الاسم مطلوب"),
@@ -14,7 +15,8 @@ const employeeSchema = z.object({
 
 export async function getEmployeesOfTheMonth(search?: string, month?: number, year?: number) {
   try {
-    const where: any = {}
+    const storeId = await resolveStoreId()
+    const where: any = { storeId }
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
@@ -41,8 +43,9 @@ export async function getEmployeesOfTheMonth(search?: string, month?: number, ye
 
 export async function getEmployeeOfTheMonth(id: string) {
   try {
-    return await prisma.employeeOfTheMonth.findUnique({
-      where: { id }
+    const storeId = await resolveStoreId()
+    return await prisma.employeeOfTheMonth.findFirst({
+      where: { id, storeId }
     })
   } catch (error) {
     console.error("Error fetching employee of the month:", error)
@@ -52,15 +55,15 @@ export async function getEmployeeOfTheMonth(id: string) {
 
 export async function createEmployeeOfTheMonth(data: z.infer<typeof employeeSchema>) {
   try {
+    const storeId = await resolveStoreId()
     const parsedData = employeeSchema.parse(data)
     
     // Check if one already exists for this month and year
-    const existing = await prisma.employeeOfTheMonth.findUnique({
+    const existing = await prisma.employeeOfTheMonth.findFirst({
       where: {
-        month_year: {
-          month: parsedData.month,
-          year: parsedData.year
-        }
+        month: parsedData.month,
+        year: parsedData.year,
+        storeId
       }
     })
     
@@ -69,7 +72,7 @@ export async function createEmployeeOfTheMonth(data: z.infer<typeof employeeSche
     }
 
     const employee = await prisma.employeeOfTheMonth.create({
-      data: parsedData
+      data: { ...parsedData, storeId }
     })
 
     revalidatePath("/admin/employees-of-the-month")
@@ -85,15 +88,15 @@ export async function createEmployeeOfTheMonth(data: z.infer<typeof employeeSche
 
 export async function updateEmployeeOfTheMonth(id: string, data: z.infer<typeof employeeSchema>) {
   try {
+    const storeId = await resolveStoreId()
     const parsedData = employeeSchema.parse(data)
     
     // Check if one already exists for this month and year, excluding current
-    const existing = await prisma.employeeOfTheMonth.findUnique({
+    const existing = await prisma.employeeOfTheMonth.findFirst({
       where: {
-        month_year: {
-          month: parsedData.month,
-          year: parsedData.year
-        }
+        month: parsedData.month,
+        year: parsedData.year,
+        storeId
       }
     })
     
@@ -102,7 +105,7 @@ export async function updateEmployeeOfTheMonth(id: string, data: z.infer<typeof 
     }
 
     const employee = await prisma.employeeOfTheMonth.update({
-      where: { id },
+      where: { id, storeId } as any,
       data: parsedData
     })
 
@@ -119,8 +122,9 @@ export async function updateEmployeeOfTheMonth(id: string, data: z.infer<typeof 
 
 export async function deleteEmployeeOfTheMonth(id: string) {
   try {
+    const storeId = await resolveStoreId()
     await prisma.employeeOfTheMonth.delete({
-      where: { id }
+      where: { id, storeId } as any
     })
 
     revalidatePath("/admin/employees-of-the-month")
