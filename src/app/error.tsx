@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useEffect } from "react"
@@ -18,22 +17,21 @@ export default function GlobalError({
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-50 p-4 text-center">
       <div className="mx-auto max-w-md space-y-6">
-        <h1 className="text-4xl font-bold tracking-tighter text-gray-900">ÚĞÑÇğ!</h1>
+        <h1 className="text-4xl font-bold tracking-tighter text-gray-900">Ø¹Ø°Ø±Ø§Ù‹!</h1>
         <p className="text-lg text-gray-600">
           {error.message === "Not in a store context" || error.message.includes("Store is suspended")
-            ? "åĞÇ ÇáãÊÌÑ ÛíÑ ãæÌæÏ Ãæ Êã ÅíŞÇİå."
-            : "ÍÏË ÎØÃ ÛíÑ ãÊæŞÚ İí ÇáÎÇÏã."}
+            ? "Ù‡Ø°Ø§ Ø§Ù„Ù…ØªØ¬Ø± ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯ Ø£Ùˆ ØªÙ… Ø¥ÙŠÙ‚Ø§ÙÙ‡."
+            : "Ø­Ø¯Ø« Ø®Ø·Ø£ ØºÙŠØ± Ù…ØªÙˆÙ‚Ø¹ ÙÙŠ Ø§Ù„Ø®Ø§Ø¯Ù…."}
         </p>
         <div className="flex justify-center gap-4">
           <Link
             href="/login"
             className="inline-flex h-10 items-center justify-center rounded-md bg-indigo-600 px-6 text-sm font-medium text-white shadow transition-colors hover:bg-indigo-700"
           >
-            ÊÓÌíá ÇáÏÎæá
+            ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„
           </Link>
         </div>
       </div>
     </div>
   )
 }
-
