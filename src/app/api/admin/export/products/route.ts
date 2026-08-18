@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { requireAdmin } from "@/lib/auth/require-admin"
+import { requireStoreAdmin } from "@/lib/auth/require-admin"
+import { resolveStoreId } from "@/lib/store-context"
 import * as XLSX from "xlsx"
 
 export async function GET(request: Request) {
   try {
-    await requireAdmin()
+    await requireStoreAdmin()
   } catch (e: any) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -19,7 +20,8 @@ export async function GET(request: Request) {
 
   const categoryIds = categoryIdsParam ? categoryIdsParam.split(',') : []
 
-  const where: any = {}
+  const storeId = await resolveStoreId()
+  const where: any = { storeId }
   
   if (search) {
     where.OR = [
