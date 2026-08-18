@@ -7,6 +7,7 @@ import { AuthModal } from "@/components/auth/auth-modal"
 import { MobileSidebar } from "@/components/storefront/mobile-sidebar"
 import { MobileBottomNav } from "@/components/storefront/mobile-bottom-nav"
 import { auth } from "@/lib/auth"
+import { resolveStoreId } from "@/lib/store-context"
 import { FloatingWhatsApp } from "@/components/storefront/floating-whatsapp"
 import { PromoPopup } from "@/components/storefront/promo-popup"
 import { PushNotificationPrompt } from "@/components/admin/push-notification-prompt"
@@ -26,7 +27,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
     categories,
     branches,
     departments
-  } = await getCachedLayoutData()
+  } = await getCachedLayoutData(await resolveStoreId())
 
   const topNavItems = headerMenu?.items || fallbackMenu?.items || []
   const footerItems = footerMenu?.items || fallbackMenu?.items || []
