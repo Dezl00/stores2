@@ -51,7 +51,7 @@ export async function getArticleBySlug(slug: string) {
 export async function getArticleById(id: string) {
   const storeId = await resolveStoreId()
   try {
-    const article = await db.article.findFirst({ where: { id, storeId }$2)
+    const article = await db.article.findFirst({ where: { id, storeId } })
     return { success: true, article }
   } catch (error) {
     console.error("Error fetching article:", error)
