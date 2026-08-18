@@ -15,16 +15,19 @@ type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
+import { resolveStoreId } from "@/lib/store-context"
+
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const resolvedParams = await searchParams;
-  const theme = await db.themeConfig.findUnique({ where: { id: "default" } });
+  const storeId = await resolveStoreId()
+  const theme = await db.themeConfig.findUnique({ where: { storeId } });
   const storeName = theme?.storeName || "العسال";
   const logo = theme?.logoUrl || "/favicon.ico";
   
   let title = "جميع المنتجات"
   const brandSlug = resolvedParams?.brand as string
   if (brandSlug) {
-    const brand = await db.brand.findUnique({ where: { slug: brandSlug } })
+    const brand = await db.brand.findFirst({ where: { slug: brandSlug, storeId } })
     if (brand) title = `منتجات ${brand.name}`
   }
 
@@ -49,6 +52,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
 export default async function AllProductsPage({ searchParams }: Props) {
   const resolvedParams = await searchParams;
+  const storeId = await resolveStoreId()
   const brandSlugs = resolvedParams?.brand ? (resolvedParams.brand as string).split(",") : []
   const categorySlug = resolvedParams?.category as string
   const minPrice = resolvedParams?.minPrice ? parseFloat(resolvedParams.minPrice as string) : undefined
@@ -58,11 +62,11 @@ export default async function AllProductsPage({ searchParams }: Props) {
   const limit = 20
 
   let currentBrand = null
-  let whereClause: any = { isActive: true }
+  let whereClause: any = { isActive: true, storeId }
 
   // Apply filters
   if (brandSlugs.length === 1) {
-    currentBrand = await db.brand.findUnique({ where: { slug: brandSlugs[0] } })
+    currentBrand = await db.brand.findFirst({ where: { slug: brandSlugs[0], storeId } })
   }
 
   if (brandSlugs.length > 0) {
@@ -73,7 +77,7 @@ export default async function AllProductsPage({ searchParams }: Props) {
   }
 
   if (categorySlug) {
-    const category = await db.category.findUnique({ where: { slug: categorySlug } })
+    const category = await db.category.findFirst({ where: { slug: categorySlug, storeId } })
     if (category) {
       whereClause.categoryId = category.id
     }
@@ -119,11 +123,12 @@ export default async function AllProductsPage({ searchParams }: Props) {
         category: true,
       }
     }),
-    db.category.findMany({ select: { id: true, name: true, slug: true } }),
+    db.category.findMany({ where: { storeId }, select: { id: true, name: true, slug: true } }),
     db.brand.findMany({ 
       where: categorySlug ? {
+        storeId,
         products: { some: { category: { slug: categorySlug } } }
-      } : undefined,
+      } : { storeId },
       select: { id: true, name: true, slug: true } 
     }),
     db.product.aggregate({

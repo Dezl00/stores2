@@ -11,10 +11,13 @@ import Link from "next/link"
 
 import { cache } from "react"
 
+import { resolveStoreId } from "@/lib/store-context"
+
 export const revalidate = 3600
 
 const getBrand = cache(async (slug: string) => {
-  return db.brand.findUnique({ where: { slug } })
+  const storeId = await resolveStoreId()
+  return db.brand.findFirst({ where: { slug, storeId } })
 })
 
 type Props = {
@@ -26,7 +29,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const brandSlug = decodeURIComponent(params.slug);
   const brand = await getBrand(brandSlug)
-  const theme = await db.themeConfig.findUnique({ where: { id: "default" } })
+  const theme = await db.themeConfig.findUnique({ where: { storeId: await resolveStoreId() } })
   
   if (!brand) return { title: "الماركة غير موجودة" }
   
@@ -68,10 +71,10 @@ export default async function BrandPage(props: Props) {
   const page = searchParams?.page ? parseInt(searchParams.page as string) : 1
   const limit = 20
 
-  let whereClause: any = { brandId: brand.id, isActive: true }
+  let whereClause: any = { brandId: brand.id, isActive: true, storeId: await resolveStoreId() }
 
   if (categorySlug) {
-    const category = await db.category.findUnique({ where: { slug: categorySlug } })
+    const category = await db.category.findFirst({ where: { slug: categorySlug, storeId: await resolveStoreId() } })
     if (category) {
       whereClause.categoryId = category.id
     }
@@ -100,6 +103,7 @@ export default async function BrandPage(props: Props) {
       }
     }),
     db.category.findMany({ 
+      where: { storeId: await resolveStoreId() },
       select: { id: true, name: true, slug: true } 
     }),
   ])
