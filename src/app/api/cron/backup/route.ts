@@ -39,7 +39,7 @@ export async function GET(req: Request) {
       prisma.department.findMany(),
       prisma.brand.findMany(),
       prisma.order.findMany({ include: { items: true } }),
-      prisma.user.findMany(),
+      prisma.storeUser.findMany(),
       prisma.themeConfig.findUnique({ where: { id: "default" } }),
       prisma.branch.findMany(),
       prisma.widget.findMany({ include: { items: true } }),

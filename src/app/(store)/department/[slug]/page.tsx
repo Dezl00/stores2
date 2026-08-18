@@ -10,9 +10,11 @@ import { cache } from "react"
 
 export const revalidate = 3600
 
+import { resolveStoreId } from "@/lib/store-context"
+
 const getDepartment = cache(async (slug: string) => {
-  return db.department.findUnique({
-    where: { slug },
+  return db.department.findFirst({
+    where: { slug, storeId: await resolveStoreId() },
     include: {
       categories: { 
         where: { parentId: null },
@@ -31,7 +33,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const [department, theme] = await Promise.all([
     getDepartment(decodeURIComponent(params.slug)),
-    db.themeConfig.findUnique({ where: { id: "default" } })
+    db.themeConfig.findUnique({ where: { storeId: await resolveStoreId() } })
   ])
   
   if (!department) return { title: "المجال غير موجود" }

@@ -127,7 +127,7 @@ export async function deleteWidget(id: string) {
 export async function updateWidget(id: string, data: any) {
   try {
     const storeId = await resolveStoreId()
-    const oldWidget = await db.widget.findUnique({ where: { id, storeId }, include: { items: true } })
+    const oldWidget = await db.widget.findFirst({ where: { id, storeId }, include: { items: true } })
     const widget = await db.widget.update({
       where: { id, storeId },
       data
@@ -171,7 +171,7 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
     const sortOrder = parseInt(formData.get("sortOrder") as string) || 0
 
     // Check if widget is BrandSlider
-    const widget = await db.widget.findUnique({ where: { id: widgetId, storeId } })
+    const widget = await db.widget.findFirst({ where: { id: widgetId, storeId } })
     const disableRouting = (widget?.settings as any)?.disableRouting === true
     
     if (widget?.type === "BrandSlider" && title && !disableRouting) {
@@ -185,7 +185,7 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
       let counter = 1;
       
       // Ensure unique slug
-      while (await db.brand.findUnique({ where: { slug_storeId: { slug, storeId } } })) {
+      while (await db.brand.findFirst({ where: { slug_storeId: { slug, storeId } } })) {
         slug = `${baseSlug}-${counter}`;
         counter++;
       }
@@ -210,7 +210,7 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
       
       let slug = baseSlug;
       let counter = 1;
-      while (await db.collection.findUnique({ where: { slug_storeId: { slug, storeId } } })) {
+      while (await db.collection.findFirst({ where: { slug_storeId: { slug, storeId } } })) {
         slug = `${baseSlug}-${counter}`;
         counter++;
       }
@@ -271,7 +271,7 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
 export async function deleteWidgetContentItem(id: string) {
   try {
     const storeId = await resolveStoreId()
-    const item = await db.widgetContentItem.findUnique({
+    const item = await db.widgetContentItem.findFirst({
       where: { id, storeId },
       include: { widget: true }
     })
@@ -334,7 +334,7 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
 
     const title = dataToUpdate.title
 
-    const oldItem = await db.widgetContentItem.findUnique({
+    const oldItem = await db.widgetContentItem.findFirst({
       where: { id, storeId },
       include: { widget: true }
     })
@@ -466,7 +466,7 @@ export async function getCollections() {
 
 export async function getCollectionProducts(collectionId: string) {
   const storeId = await resolveStoreId()
-  const collection = await db.collection.findUnique({
+  const collection = await db.collection.findFirst({
     where: { id: collectionId, storeId },
     include: { products: { select: { id: true } } }
   })

@@ -13,7 +13,7 @@ export async function PATCH(req: Request) {
     const { orderUpdatesEnabled } = await req.json();
 
     if (typeof orderUpdatesEnabled === "boolean") {
-      await prisma.user.update({
+      await prisma.storeUser.update({
         where: { id: session.user.id },
         data: { orderUpdatesEnabled }
       });

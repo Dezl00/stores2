@@ -14,9 +14,11 @@ import { cache } from "react"
 
 export const revalidate = 3600
 
+import { resolveStoreId } from "@/lib/store-context"
+
 const getCategory = cache(async (slug: string) => {
-  return db.category.findUnique({
-    where: { slug },
+  return db.category.findFirst({
+    where: { slug, storeId: await resolveStoreId() },
     include: {
       parent: { include: { department: true } },
       department: true,
@@ -34,7 +36,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const [category, theme] = await Promise.all([
     getCategory(decodeURIComponent(params.slug)),
-    db.themeConfig.findUnique({ where: { id: "default" } })
+    db.themeConfig.findUnique({ where: { storeId: await resolveStoreId() } })
   ])
   
   if (!category) return { title: "القسم غير موجود" }
@@ -81,10 +83,10 @@ export default async function CategoryPage(props: Props) {
   const page = searchParams?.page ? parseInt(searchParams.page as string) : 1
   const limit = 20
 
-  let whereClause: any = { categoryId: category.id, isActive: true }
+  let whereClause: any = { categoryId: category.id, isActive: true, storeId: await resolveStoreId() }
 
   if (brandSlugs.length > 0) {
-    const brands = await db.brand.findMany({ where: { slug: { in: brandSlugs } } })
+    const brands = await db.brand.findMany({ where: { slug: { in: brandSlugs }, storeId: await resolveStoreId() } })
     if (brands.length > 0) {
       whereClause.brandId = { in: brands.map(b => b.id) }
     }
@@ -113,11 +115,11 @@ export default async function CategoryPage(props: Props) {
       }
     }),
     db.brand.findMany({ 
-      where: { products: { some: { categoryId: category.id } } },
+      where: { storeId: await resolveStoreId(), products: { some: { categoryId: category.id } } },
       select: { id: true, name: true, slug: true } 
     }),
     db.product.aggregate({
-      where: { categoryId: category.id },
+      where: { categoryId: category.id, storeId: await resolveStoreId() },
       _min: { price: true },
       _max: { price: true }
     })

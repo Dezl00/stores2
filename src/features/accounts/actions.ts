@@ -21,7 +21,7 @@ export async function createAccount(data: FormData) {
     const passwordHash = rawPassword ? await bcrypt.hash(rawPassword, 10) : null
     const storeId = await resolveStoreId()
 
-    await prisma.user.create({
+    await prisma.storeUser.create({
       data: {
         name: data.get('name') as string,
         phone: data.get('phone') as string,
@@ -55,7 +55,7 @@ export async function updateAccount(id: string, data: FormData) {
     const storeId = await resolveStoreId()
     
     // Check current user to preserve ADMIN role if they are an admin
-    const currentUser = await prisma.user.findUnique({ where: { id, storeId } })
+    const currentUser = await prisma.storeUser.findFirst({ where: { id, storeId } })
     const targetRole = currentUser?.role === 'ADMIN' ? 'ADMIN' : (data.get('role') || 'MANAGER')
 
     const updateData: any = {
@@ -69,7 +69,7 @@ export async function updateAccount(id: string, data: FormData) {
       updateData.passwordHash = await bcrypt.hash(password, 10)
     }
 
-    await prisma.user.update({
+    await prisma.storeUser.update({
       where: { id, storeId },
       data: updateData
     })
@@ -89,7 +89,7 @@ export async function updateAccountStatus(id: string, isActive: boolean) {
 
   try {
     const storeId = await resolveStoreId()
-    await prisma.user.update({
+    await prisma.storeUser.update({
       where: { id, storeId },
       data: { isActive }
     })
@@ -108,7 +108,7 @@ export async function deleteAccount(id: string) {
 
   try {
     const storeId = await resolveStoreId()
-    await prisma.user.delete({ where: { id, storeId } })
+    await prisma.storeUser.delete({ where: { id, storeId } })
     revalidatePath('/admin/accounts')
     return { success: true, error: undefined }
   } catch(e) {
@@ -131,7 +131,7 @@ export async function updateProfile(data: FormData) {
     }
 
     const storeId = await resolveStoreId()
-    await prisma.user.update({
+    await prisma.storeUser.update({
       where: { id: session.user.id, storeId },
       data: updateData
     })

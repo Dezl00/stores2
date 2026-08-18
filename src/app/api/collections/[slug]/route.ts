@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { resolveStoreId } from "@/lib/store-context"
 import { db } from "@/lib/db"
 
 export async function GET(
@@ -7,9 +8,10 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
+    const storeId = await resolveStoreId()
 
-    const collection = await db.collection.findUnique({
-      where: { slug },
+    const collection = await db.collection.findFirst({
+      where: { slug, storeId },
       include: {
         products: {
           include: {

@@ -16,9 +16,11 @@ import { logProductView } from "@/features/analytics/actions"
 
 import { cache } from "react"
 
+import { resolveStoreId } from "@/lib/store-context"
+
 const getProduct = cache(async (slug: string) => {
-  return db.product.findUnique({
-    where: { slug, isActive: true },
+  return db.product.findFirst({
+    where: { slug, isActive: true, storeId: await resolveStoreId() },
     include: { 
       images: { orderBy: { sortOrder: 'asc' } },
       category: {
@@ -37,7 +39,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   const params = await props.params;
   const [product, theme] = await Promise.all([
     getProduct(decodeURIComponent(params.slug)),
-    db.themeConfig.findUnique({ where: { id: "default" } })
+    db.themeConfig.findUnique({ where: { storeId: await resolveStoreId() } })
   ])
   
   if (!product) return { title: "المنتج غير موجود" }
@@ -86,7 +88,8 @@ export default async function ProductDetailsPage(props: { params: Promise<{ slug
     where: { 
       categoryId: product.categoryId,
       id: { not: product.id },
-      isActive: true
+      isActive: true,
+      storeId: await resolveStoreId()
     },
     take: 4,
     include: { images: true, category: true }

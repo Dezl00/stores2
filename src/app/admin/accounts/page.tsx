@@ -14,7 +14,7 @@ export default async function AccountsPage() {
     redirect('/admin')
   }
 
-  const accounts = await prisma.user.findMany({
+  const accounts = await prisma.storeUser.findMany({
     where: { 
       role: { in: ['ADMIN', 'MANAGER'] },
       phone: { not: 'admin@assal.com' }

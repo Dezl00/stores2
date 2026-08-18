@@ -1,6 +1,7 @@
 import React from "react"
 import Link from "next/link"
 import { db } from "@/lib/db"
+import { resolveStoreId } from "@/lib/store-context"
 import { ChevronLeft } from "lucide-react"
 import { ProductListClient } from "./product-list-client"
 
@@ -11,8 +12,9 @@ export async function ProductList({ widget }: { widget: any }) {
   if (collectionItem?.buttonUrl) {
     const slug = collectionItem.buttonUrl.replace('/collection/', '')
     try {
-      const collection = await db.collection.findUnique({
-        where: { slug },
+      const storeId = await resolveStoreId()
+      const collection = await db.collection.findFirst({
+        where: { slug, storeId },
         include: {
           products: {
             include: {

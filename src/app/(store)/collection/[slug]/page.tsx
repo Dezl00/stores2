@@ -7,11 +7,14 @@ import { notFound } from "next/navigation"
 
 export const revalidate = 3600
 
+import { resolveStoreId } from "@/lib/store-context"
+
 export default async function CollectionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const storeId = await resolveStoreId()
   
-  const collection = await db.collection.findUnique({
-    where: { slug: slug },
+  const collection = await db.collection.findFirst({
+    where: { slug: slug, storeId },
     include: {
       products: {
         include: {
