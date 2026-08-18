@@ -56,6 +56,11 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
+  // Redirect root to platform dashboard if on platform domain
+  if (isPlatform && url.pathname === '/') {
+    return NextResponse.redirect(new URL('/platform/stores', request.url))
+  }
+
   // The actual auth session check is done via Auth.js in layouts or via a lightweight JWT check here if needed.
   // For now, we inject headers and proceed. The auth layout will enforce login.
 

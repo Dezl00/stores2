@@ -5,9 +5,16 @@ import { db } from "@/lib/db"
 export const revalidate = 3600
 
 export async function generateMetadata() {
-  const themeConfig = await db.themeConfig.findUnique({
-    where: { id: "default" }
-  })
+  let themeConfig = null
+  try {
+    const { resolveStoreId } = await import("@/lib/store-context")
+    const storeId = await resolveStoreId()
+    themeConfig = await db.themeConfig.findUnique({
+      where: { storeId }
+    })
+  } catch (e) {
+    // Ignore error if store not found
+  }
   
   const logo = themeConfig?.logoUrl || "/logo.png" // Fallback to a default logo if none exists
   
