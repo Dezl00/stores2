@@ -65,7 +65,7 @@ export async function submitOrder(data: {
       orderData.userId = data.userId
       
       // Update user's address/phone for future uses
-      await db.user.update({
+      await db.storeUser.update({
         where: { id: data.userId },
         data: {
           phone: data.customerPhone,

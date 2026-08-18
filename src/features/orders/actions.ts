@@ -39,7 +39,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
 
     // Send notification to customer if they exist and want updates
     if (order.userId) {
-      const user = await db.user.findUnique({ where: { id: order.userId } })
+      const user = await db.storeUser.findUnique({ where: { id: order.userId } })
       if (user?.orderUpdatesEnabled) {
         let statusAr = status === "CONFIRMED" ? "تم تأكيد الطلب" : status === "SHIPPED" ? "جاري الشحن" : status === "OUT_FOR_DELIVERY" ? "خرج للتوصيل" : status === "DELIVERED" ? "تم التوصيل" : status === "CANCELLED" ? "تم الإلغاء" : status
         

@@ -36,7 +36,7 @@ export async function GET() {
       db.department.findMany(),
       db.brand.findMany(),
       db.order.findMany({ include: { items: true } }),
-      db.user.findMany(),
+      db.storeUser.findMany(),
       db.themeConfig.findUnique({ where: { id: "default" } }),
       db.branch.findMany(),
       db.widget.findMany({ include: { items: true } }),

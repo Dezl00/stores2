@@ -22,7 +22,7 @@ export async function GET(req: Request) {
         take: 5,
         orderBy: { createdAt: 'desc' }
       }),
-      db.user.findMany({
+      db.storeUser.findMany({
         where: {
           OR: [
             { name: { contains: q, mode: 'insensitive' } },

@@ -27,7 +27,7 @@ export default async function AdminCustomersPage({
   }
 
   const [customers, totalCount] = await Promise.all([
-    db.user.findMany({
+    db.storeUser.findMany({
       where: whereClause,
       orderBy: { createdAt: "desc" },
       skip,
@@ -41,7 +41,7 @@ export default async function AdminCustomersPage({
         }
       }
     }),
-    db.user.count({ where: whereClause })
+    db.storeUser.count({ where: whereClause })
   ])
 
   const totalPages = Math.ceil(totalCount / limit)

@@ -14,7 +14,7 @@ export default async function AdminDashboardPage() {
     db.order.count({
       where: { status: "PENDING" }
     }),
-    db.user.count({
+    db.storeUser.count({
       where: { role: "CUSTOMER" }
     }),
     db.product.count(),

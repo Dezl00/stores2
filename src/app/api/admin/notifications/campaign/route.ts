@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "غير مصرح لك بالوصول" }, { status: 401 })
     }
 
-    const user = await db.user.findUnique({ where: { id: session.user.id } })
+    const user = await db.storeUser.findUnique({ where: { id: session.user.id } })
     if (user?.role !== "ADMIN" && user?.role !== "MANAGER") {
       return NextResponse.json({ error: "لا تملك صلاحية لإرسال الإشعارات" }, { status: 403 })
     }
