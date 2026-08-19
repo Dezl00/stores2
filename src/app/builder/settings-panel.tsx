@@ -2,7 +2,6 @@
 import React, { useState } from "react"
 import { ChevronRight, Settings, Image as ImageIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
 export function SettingsPanel({ widget, categories, onBack, onUpdateWidget }: any) {
@@ -40,7 +39,7 @@ export function SettingsPanel({ widget, categories, onBack, onUpdateWidget }: an
           </div>
           
           <div className="space-y-2">
-            <Label className="text-xs font-bold text-slate-600">عنوان القسم</Label>
+            <label className="text-xs font-bold text-slate-600 block">عنوان القسم</label>
             <Input 
               value={localTitle} 
               onChange={handleTitleChange} 
@@ -59,7 +58,7 @@ export function SettingsPanel({ widget, categories, onBack, onUpdateWidget }: an
             </div>
             
             <div className="space-y-2">
-              <Label className="text-xs font-bold text-slate-600">التصنيف المرتبط</Label>
+              <label className="text-xs font-bold text-slate-600 block">التصنيف المرتبط</label>
               <select className="w-full h-10 px-3 py-2 text-sm bg-slate-50 border border-input rounded-md outline-none focus:border-[#2453E3]">
                 <option value="">كل المنتجات</option>
                 {categories?.map((cat: any) => (

@@ -1,6 +1,6 @@
 import React from "react"
 import { db } from "@/lib/db"
-import { resolveStoreId } from "@/lib/utils/resolve-store"
+import { resolveStoreId } from "@/lib/store-context"
 import { BuilderClient } from "./builder-client"
 import { getWidgets } from "@/features/widget-builder/actions"
 

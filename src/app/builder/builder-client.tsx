@@ -4,7 +4,7 @@ import { BuilderHeader } from "./builder-header"
 import { BuilderSidebar } from "./builder-sidebar"
 import { SettingsPanel } from "./settings-panel"
 import { Loader2 } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 
 // Zid-like Architecture Context & State
 export function BuilderClient({ initialWidgets, categories, themeConfig, store }: any) {
@@ -14,8 +14,6 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store }
   const [deviceMode, setDeviceMode] = useState<"desktop" | "mobile">("desktop")
   const [isSaving, setIsSaving] = useState(false)
   
-  const { toast } = useToast()
-
   // Find the currently selected widget
   const selectedWidget = widgets.find((w: any) => w.id === selectedWidgetId)
 
@@ -24,9 +22,9 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store }
     try {
       // In a real app we'd save to API here
       // await saveThemeSettings(widgets)
-      toast({ title: "تم الحفظ", description: "تم حفظ التعديلات بنجاح." })
+      toast.success("تم حفظ التعديلات بنجاح.")
     } catch (e) {
-      toast({ title: "خطأ", description: "حدث خطأ أثناء الحفظ.", variant: "destructive" })
+      toast.error("حدث خطأ أثناء الحفظ.")
     } finally {
       setIsSaving(false)
     }

@@ -1,11 +1,10 @@
 import React from "react"
 import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
-import { Toaster } from "@/components/ui/toaster"
+import { auth } from "@/lib/auth"
+import { Toaster } from "sonner"
 
 export default async function BuilderLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession(authOptions)
+  const session = await auth()
   if (!session?.user) {
     redirect("/login")
   }
