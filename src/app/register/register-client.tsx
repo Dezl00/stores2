@@ -93,7 +93,7 @@ export function RegisterClient() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">رابط المتجر (إنجليزي فقط)</label>
             <div className="flex items-center gap-2" dir="ltr">
-              <Input type="text" name="slug" required className="h-12" placeholder="my-store" pattern="[a-zA-Z0-9-]+" title="حروف إنجليزية وأرقام وعلامة الناقص فقط" />
+              <Input type="text" name="slug" required className="h-12" placeholder="my-store" pattern="[a-zA-Z0-9\-]+" title="حروف إنجليزية وأرقام وعلامة الناقص فقط" />
               <span className="text-muted-foreground text-sm">.yourdomain.com</span>
             </div>
           </div>
