@@ -29,7 +29,7 @@ const WIDGET_TYPES = [
   { id: "EmployeeOfTheMonth", name: "موظف الشهر", icon: Award, desc: "عرض موظف الشهر ببطاقة مميزة" },
 ]
 
-export function WidgetsClient({ initialWidgets, categories, departments }: { initialWidgets: any[], categories: any[], departments: any[] }) {
+export function WidgetsClient({ initialWidgets, categories }: { initialWidgets: any[], categories: any[] }) {
   const { hasPermission } = usePermissions()
   const canEdit = hasPermission("widgets.edit")
 
@@ -274,7 +274,6 @@ export function WidgetsClient({ initialWidgets, categories, departments }: { ini
     if (editingWidget.type === "BannerGrid" || editingWidget.type === "HeroSlider") {
       let finalUrl = linkValue;
       if (linkType === "category") finalUrl = `/category/${linkValue}`;
-      else if (linkType === "department") finalUrl = `/department/${linkValue}`;
       else if (linkType === "product") finalUrl = `/product/${linkValue}`;
       else if (linkType === "collection") finalUrl = `/collection/${linkValue}`;
       formData.set("buttonUrl", finalUrl);
@@ -328,7 +327,6 @@ export function WidgetsClient({ initialWidgets, categories, departments }: { ini
     let type = "custom";
     let val = item.buttonUrl || "";
     if (val.startsWith("/category/")) { type = "category"; val = val.replace("/category/", ""); }
-    else if (val.startsWith("/department/")) { type = "department"; val = val.replace("/department/", ""); }
     else if (val.startsWith("/product/")) { type = "product"; val = val.replace("/product/", ""); }
     else if (val.startsWith("/collection/")) { type = "collection"; val = val.replace("/collection/", ""); }
     
@@ -816,7 +814,6 @@ export function WidgetsClient({ initialWidgets, categories, departments }: { ini
                               >
                                 <option value="custom">رابط مخصص</option>
                                 <option value="category">قسم (Category)</option>
-                                <option value="department">مجال (Department)</option>
                                 <option value="product">منتج (Product)</option>
                                 <option value="collection">قائمة منتجات (Collection)</option>
                               </select>
@@ -846,19 +843,6 @@ export function WidgetsClient({ initialWidgets, categories, departments }: { ini
                                     {collections.map(c => <option key={c.slug} value={c.slug}>{c.name}</option>)}
                                   </select>
                                   <input type="hidden" name="buttonUrl" value={linkValue ? `/collection/${linkValue}` : ""} required />
-                                </>
-                              ) : linkType === "department" ? (
-                                <>
-                                  <select
-                                    value={linkValue}
-                                    onChange={(e) => setLinkValue(e.target.value)}
-                                    className="h-9 w-2/3 rounded border border-input bg-background px-2 text-xs"
-                                    required
-                                  >
-                                    <option value="">اختر المجال</option>
-                                    {departments.map(d => <option key={d.slug} value={d.slug}>{d.name}</option>)}
-                                  </select>
-                                  <input type="hidden" name="buttonUrl" value={linkValue ? `/department/${linkValue}` : ""} required />
                                 </>
                               ) : linkType === "product" ? (
                                 <div className="w-2/3">

@@ -13,8 +13,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url)
   const search = searchParams.get('search') || ''
-  const departmentId = searchParams.get('departmentId') || ''
-  const brandId = searchParams.get('brandId') || ''
+    const brandId = searchParams.get('brandId') || ''
   const categoryIdsParam = searchParams.get('categoryIds') || ''
   const status = searchParams.get('status') || 'all'
 
@@ -30,15 +29,7 @@ export async function GET(request: Request) {
     ]
   }
 
-  if (departmentId) {
-    const deptCats = await db.category.findMany({ where: { departmentId }, select: { id: true } })
-    const deptCatIds = deptCats.map(c => c.id)
-    if (categoryIds.length > 0) {
-      where.categoryId = { in: categoryIds.filter(id => deptCatIds.includes(id)) }
-    } else {
-      where.categoryId = { in: deptCatIds }
-    }
-  } else if (categoryIds.length > 0) {
+  if (categoryIds.length > 0) {
     where.categoryId = { in: categoryIds }
   }
 

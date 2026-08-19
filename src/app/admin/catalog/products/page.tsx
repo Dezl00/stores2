@@ -12,8 +12,7 @@ export default async function AdminProductsPage({
   const resolvedParams = await searchParams
   const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page) : 1
   const search = typeof resolvedParams.search === 'string' ? resolvedParams.search : ''
-  const departmentId = typeof resolvedParams.departmentId === 'string' ? resolvedParams.departmentId : ''
-  const brandId = typeof resolvedParams.brandId === 'string' ? resolvedParams.brandId : ''
+    const brandId = typeof resolvedParams.brandId === 'string' ? resolvedParams.brandId : ''
   const categoryIds = typeof resolvedParams.categoryIds === 'string' ? resolvedParams.categoryIds.split(',') : []
   const status = typeof resolvedParams.status === 'string' ? resolvedParams.status : 'all'
 
@@ -30,16 +29,7 @@ export default async function AdminProductsPage({
     ]
   }
 
-  if (departmentId) {
-    // If department filter is active, get categories belonging to this department
-    const deptCats = await db.category.findMany({ where: { departmentId }, select: { id: true } })
-    const deptCatIds = deptCats.map(c => c.id)
-    if (categoryIds.length > 0) {
-      where.categoryId = { in: categoryIds.filter(id => deptCatIds.includes(id)) }
-    } else {
-      where.categoryId = { in: deptCatIds }
-    }
-  } else if (categoryIds.length > 0) {
+  if (categoryIds.length > 0) {
     where.categoryId = { in: categoryIds }
   }
 
@@ -81,11 +71,11 @@ export default async function AdminProductsPage({
       products={products} 
       categories={categories} 
       brands={brands} 
-      departments={departments}
+      
       currentPage={page}
       totalPages={totalPages}
       initialSearch={search}
-      initialDept={departmentId}
+      
       initialBrand={brandId}
       initialCats={categoryIds}
       initialStatus={status}

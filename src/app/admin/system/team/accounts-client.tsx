@@ -40,16 +40,6 @@ const PERMISSIONS_SCHEMA = [
     ]
   },
   { 
-    id: 'departments', 
-    label: 'المجالات',
-    subPermissions: [
-      { id: 'view', label: 'الوصول للمجالات' },
-      { id: 'add', label: 'إضافة مجال' },
-      { id: 'edit', label: 'تعديل مجال' },
-      { id: 'delete', label: 'حذف مجال' }
-    ]
-  },
-  { 
     id: 'categories', 
     label: 'الأقسام',
     subPermissions: [

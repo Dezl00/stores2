@@ -134,7 +134,6 @@ export default async function AnalyticsPage() {
     if (p === '/checkout') return 'إتمام الطلب'
     if (p === '/account') return 'حسابي'
     if (p.startsWith('/category/')) return 'قسم: ' + decodeURIComponent(p.split('/category/')[1].split('?')[0])
-    if (p.startsWith('/department/')) return 'مجال: ' + decodeURIComponent(p.split('/department/')[1].split('?')[0])
     if (p.startsWith('/product/')) return 'منتج: ' + decodeURIComponent(p.split('/product/')[1].split('?')[0])
     if (p.startsWith('/search')) return 'نتائج البحث'
     if (p.startsWith('/brands')) return 'الماركات'

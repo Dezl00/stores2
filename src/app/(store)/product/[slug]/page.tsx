@@ -25,8 +25,7 @@ const getProduct = cache(async (slug: string) => {
       images: { orderBy: { sortOrder: 'asc' } },
       category: {
         include: {
-          department: true,
-          parent: { include: { department: true } }
+          parent: true
         }
       },
       brand: true,
@@ -99,7 +98,6 @@ export default async function ProductDetailsPage(props: { params: Promise<{ slug
   const hasDiscount = product.discountPrice !== null && product.discountPrice < product.price
 
   const category = product.category
-  const dept = category.department || (category.parent as any)?.department
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-12">
@@ -107,15 +105,6 @@ export default async function ProductDetailsPage(props: { params: Promise<{ slug
       <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8 overflow-hidden whitespace-nowrap">
         <Link prefetch={false} href="/" className="hover:text-primary transition-colors flex-shrink-0">الرئيسية</Link>
         <ChevronRight className="w-4 h-4 rtl-flip flex-shrink-0" />
-        
-        {dept && (
-          <>
-            <Link prefetch={false} href={`/department/${dept.slug}`} className="hover:text-primary transition-colors truncate max-w-[80px] sm:max-w-[120px] md:max-w-none">
-              {dept.name}
-            </Link>
-            <ChevronRight className="w-4 h-4 rtl-flip flex-shrink-0" />
-          </>
-        )}
         
         {category.parent && (
           <>
