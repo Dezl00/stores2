@@ -136,15 +136,7 @@ function AdminLayoutInner({
   return (
     <div className="flex min-h-screen bg-background admin-theme">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-72 border-l border-border bg-white text-[#2453E3] transition-all flex-col fixed inset-y-0 right-0 z-50">
-        <div className="flex h-16 items-center px-6 border-b border-border shrink-0">
-          {/* Logo or Title */}
-          {logoUrl ? (
-            <img src={logoUrl} alt={storeName} className="h-8 w-auto object-contain" />
-          ) : (
-            <span className="text-xl font-bold text-[#2453E3]">{storeName}</span>
-          )}
-        </div>
+      <aside className="hidden md:flex w-72 border-l border-border bg-white text-[#2453E3] transition-all flex-col fixed top-16 bottom-0 right-0 z-40">
         <nav className="p-4 space-y-6 flex-1 overflow-y-auto">
           {navGroups.map((group) => {
             const groupItems = group.items.filter(i => i.show)
@@ -257,24 +249,31 @@ function AdminLayoutInner({
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col md:mr-72 min-h-screen min-w-0">
-        <header className="flex h-14 md:h-16 items-center justify-between border-b border-border bg-background px-4 md:px-8 shrink-0 fixed top-0 left-0 right-0 md:right-72 z-40">
+        <header className="flex h-14 md:h-16 items-center justify-between border-b border-[#2453E3]/10 bg-[#2453E3] text-white px-4 md:px-6 shrink-0 fixed top-0 left-0 right-0 z-50 shadow-sm">
           
-          {/* Mobile Header Left */}
-          <div className="flex items-center gap-3 md:hidden">
-            {logoUrl ? (
-              <img src={logoUrl} alt={storeName} className="h-8 w-auto object-contain" />
-            ) : (
-              <span className="text-base font-bold bg-clip-text text-transparent bg-primary">{storeName}</span>
-            )}
-          </div>
+          {/* Right Side (Logo + Nav Items) - Note: In RTL, this is the rightmost part of the screen */}
+          <div className="flex items-center gap-6">
+            
+            {/* Logo Area (Matches sidebar width) */}
+            <div className="flex items-center md:w-64 shrink-0">
+              {logoUrl ? (
+                <img src={logoUrl} alt={storeName} className="h-8 w-auto object-contain brightness-0 invert" />
+              ) : (
+                <span className="text-xl font-bold text-white">{storeName}</span>
+              )}
+            </div>
 
-          {/* Desktop Header Left (Nav items) */}
-          <div className="hidden md:flex items-center gap-6">
-             <div className="flex items-center gap-4">
-               <Link prefetch={false} href="/admin" className={cn("text-sm font-medium transition-colors", pathname === "/admin" ? "text-primary" : "text-muted-foreground hover:text-foreground")}>الرئيسية</Link>
-               <Link prefetch={false} href="/admin/orders" className={cn("text-sm font-medium transition-colors", pathname.startsWith("/admin/orders") ? "text-primary" : "text-muted-foreground hover:text-foreground")}>الطلبات</Link>
-               <Link prefetch={false} href="/admin/customers" className={cn("text-sm font-medium transition-colors", pathname.startsWith("/admin/customers") ? "text-primary" : "text-muted-foreground hover:text-foreground")}>العملاء</Link>
-             </div>
+            {/* Mobile Nav Toggle */}
+            <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2 -mr-2 rounded-md hover:bg-white/10 text-white">
+              <MenuIcon className="h-5 w-5" />
+            </button>
+
+            {/* Desktop Nav items */}
+            <div className="hidden md:flex items-center gap-4">
+               <Link prefetch={false} href="/admin" className={cn("text-sm font-medium transition-colors", pathname === "/admin" ? "text-white font-bold" : "text-white/80 hover:text-white")}>الرئيسية</Link>
+               <Link prefetch={false} href="/admin/orders" className={cn("text-sm font-medium transition-colors", pathname.startsWith("/admin/orders") ? "text-white font-bold" : "text-white/80 hover:text-white")}>الطلبات</Link>
+               <Link prefetch={false} href="/admin/customers" className={cn("text-sm font-medium transition-colors", pathname.startsWith("/admin/customers") ? "text-white font-bold" : "text-white/80 hover:text-white")}>العملاء</Link>
+            </div>
           </div>
 
           {/* Central Search Bar */}
@@ -282,8 +281,8 @@ function AdminLayoutInner({
             <AdminGlobalSearch />
           </div>
 
-          {/* Header Right (Profile) */}
-          <div className="flex items-center gap-3 md:gap-4 justify-end">
+          {/* Header Left (Profile/Actions) - Note: In RTL, this is the leftmost part of the screen */}
+          <div className="flex items-center gap-2 md:gap-3 justify-end">
             <div className="md:hidden flex-1">
               <AdminGlobalSearch />
             </div>
@@ -291,12 +290,15 @@ function AdminLayoutInner({
             <Link prefetch={false} 
               href="/" 
               target="_blank" 
-              className="hidden sm:flex items-center gap-1.5 md:gap-2 text-xs md:text-sm font-medium text-muted-foreground hover:text-primary transition-colors bg-muted/30 px-3 py-1.5 rounded-full"
+              className="hidden sm:flex items-center gap-1.5 md:gap-2 text-xs md:text-sm font-medium text-white hover:text-white transition-colors bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full border border-white/10"
             >
               <span className="hidden sm:inline">عرض المتجر</span>
               <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4" />
             </Link>
-            <NotificationsDropdown isAdmin={true} />
+            <NotificationsDropdown 
+              isAdmin={true} 
+              buttonClassName="relative text-white/90 hover:text-white hover:bg-white/10 rounded-full w-9 h-9 md:w-10 md:h-10 transition-colors flex items-center justify-center" 
+            />
           </div>
         </header>
         {/* Spacer for fixed header */}

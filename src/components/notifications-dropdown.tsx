@@ -11,7 +11,7 @@ import { ar } from "date-fns/locale";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function NotificationsDropdown({ isAdmin = false }: { isAdmin?: boolean }) {
+export function NotificationsDropdown({ isAdmin = false, buttonClassName }: { isAdmin?: boolean, buttonClassName?: string }) {
   const { data, mutate } = useSWR("/api/notifications", fetcher, {
     refreshInterval: 10000, // Poll every 10 seconds
   });
@@ -62,7 +62,7 @@ export function NotificationsDropdown({ isAdmin = false }: { isAdmin?: boolean }
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full w-10 h-10 transition-colors">
+        <Button variant="ghost" size="icon" className={buttonClassName || "relative text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full w-10 h-10 transition-colors"}>
           <Bell className="w-5 h-5" />
           {data?.unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[11px] font-black text-white border-[3px] border-background shadow-md animate-in zoom-in">

@@ -58,7 +58,7 @@ export function AdminGlobalSearch() {
     <div ref={containerRef} className="relative w-full flex-1 md:flex-none max-w-2xl">
       {/* Mobile Search Icon & Input */}
       <div className="relative group">
-        <Search className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60 peer-focus:text-slate-400" />
         <input 
           type="text" 
           value={query}
@@ -68,10 +68,10 @@ export function AdminGlobalSearch() {
           }}
           onFocus={() => setIsOpen(true)}
           placeholder="ابحث في المتجر والطلبات والعملاء..." 
-          className="w-full h-11 bg-background border border-border hover:border-primary/50 focus:border-primary focus:bg-background rounded-full pr-12 pl-4 text-sm outline-none transition-all shadow-sm"
+          className="peer w-full h-10 md:h-11 bg-white/10 border border-white/20 hover:bg-white/20 focus:bg-white focus:text-slate-900 text-white placeholder:text-white/60 rounded-full pr-11 pl-4 text-sm outline-none transition-all shadow-sm"
         />
         {isLoading && (
-          <Loader2 className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+          <Loader2 className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-primary" />
         )}
       </div>
 
