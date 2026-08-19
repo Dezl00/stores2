@@ -45,37 +45,50 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
-  const store = await getCurrentStore()
-  
-  if (!store) {
-    throw new Error('Not in a store context - AdminLayout')
-  }
+  try {
+    const session = await auth()
+    const store = await getCurrentStore()
+    
+    if (!store) {
+      throw new Error('Not in a store context - AdminLayout')
+    }
 
-  if (!session?.user?.id || session.user.context !== 'store') {
-    redirect('/login')
-  }
+    if (!session?.user?.id || session.user.context !== 'store') {
+      redirect('/login')
+    }
 
-  if (session.user.role !== "STORE_OWNER" && session.user.role !== "MANAGER") {
-    redirect('/')
-  }
+    if (session.user.role !== "STORE_OWNER" && session.user.role !== "MANAGER") {
+      redirect('/')
+    }
 
-  const dbUser = await db.storeUser.findUnique({
-    where: { id: session.user.id },
-    select: { isActive: true }
-  })
-  
-  if (!dbUser || dbUser.isActive === false) {
-    redirect('/login?locked=true')
-  }
+    const dbUser = await db.storeUser.findUnique({
+      where: { id: session.user.id },
+      select: { isActive: true }
+    })
+    
+    if (!dbUser || dbUser.isActive === false) {
+      redirect('/login?locked=true')
+    }
 
-  const config = await db.themeConfig.findUnique({
-    where: { storeId: store.storeId }
-  })
-  
-  return (
-    <AdminLayoutClient storeName={config?.storeName || store.storeName || "إدارة المتجر"} logoUrl={config?.logoUrl || null}>
-      {children}
-    </AdminLayoutClient>
-  )
+    const config = await db.themeConfig.findUnique({
+      where: { storeId: store.storeId }
+    })
+    
+    return (
+      <AdminLayoutClient storeName={config?.storeName || store.storeName || "إدارة المتجر"} logoUrl={config?.logoUrl || null}>
+        {children}
+      </AdminLayoutClient>
+    )
+  } catch (error: any) {
+    if (error?.message?.includes('NEXT_REDIRECT')) {
+      throw error
+    }
+    return (
+      <div style={{ padding: 20, color: 'red', backgroundColor: '#fee' }}>
+        <h1>CRITICAL ADMIN LAYOUT ERROR</h1>
+        <pre>{error?.message}</pre>
+        <pre>{error?.stack}</pre>
+      </div>
+    )
+  }
 }
