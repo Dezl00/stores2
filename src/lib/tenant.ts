@@ -10,7 +10,8 @@ export interface TenantInfo {
 }
 
 function getPlatformDomain(): string {
-  return process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || 'localhost:3000'
+  const raw = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || 'localhost:3000'
+  return raw.replace(/^https?:\/\//, '')
 }
 
 export function isPlatformDomain(hostname: string): boolean {
@@ -37,20 +38,30 @@ export const getCurrentStore = cache(async (): Promise<TenantInfo | null> => {
   const hostname = headersList.get('x-hostname') || ''
   const storeSlugHeader = headersList.get('x-store-slug')
   
-  if (!hostname) return null
+  if (!hostname) {
+    console.log("getCurrentStore: no hostname")
+    return null
+  }
 
   let store = null
 
   // 1. If it's a custom domain
   if (!isPlatformDomain(hostname) && !storeSlugHeader) {
     store = await getStoreByDomain(hostname.split(':')[0])
+    console.log("getCurrentStore: custom domain lookup:", hostname, store?.id)
   } 
   // 2. If it's a subdomain (middleware set x-store-slug)
   else if (storeSlugHeader) {
     store = await getStoreBySlug(storeSlugHeader)
+    console.log("getCurrentStore: slug lookup:", storeSlugHeader, store?.id)
+  } else {
+    console.log("getCurrentStore: isPlatformDomain:", isPlatformDomain(hostname), "storeSlugHeader:", storeSlugHeader)
   }
 
-  if (!store) return null
+  if (!store) {
+    console.log("getCurrentStore: store is null. Returning null.")
+    return null
+  }
 
   return {
     storeId: store.id,

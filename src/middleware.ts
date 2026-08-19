@@ -24,7 +24,8 @@ export default async function middleware(request: NextRequest) {
   const hostname = request.headers.get("host") || ""
 
   // 2. Identify Context (Platform vs Store)
-  const platformDomain = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || "localhost:3000"
+  const platformDomainRaw = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || "localhost:3000"
+  const platformDomain = platformDomainRaw.replace(/^https?:\/\//, '')
   // Remove port for comparison if needed
   const cleanHost = hostname.split(':')[0]
   const cleanPlatform = platformDomain.split(':')[0]

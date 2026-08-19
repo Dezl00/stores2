@@ -49,21 +49,24 @@ export default async function AdminLayout({
   const store = await getCurrentStore()
   
   if (!store) {
+    throw new Error('Not in a store context - AdminLayout')
+  }
+
+  if (!session?.user?.id || session.user.context !== 'store') {
+    redirect('/login')
+  }
+
+  if (session.user.role !== "STORE_OWNER" && session.user.role !== "MANAGER") {
     redirect('/')
   }
 
-  if (session?.user?.id && session.user.context === 'store') {
-    const dbUser = await db.storeUser.findUnique({
-      where: { id: session.user.id },
-      select: { isActive: true }
-    })
-    
-    if (!dbUser || dbUser.isActive === false) {
-      redirect('/login?locked=true')
-    }
-  } else {
-    // If not authenticated, let the inner route handlers deal with it or redirect here.
-    // For now we rely on the specific page guards or middleware.
+  const dbUser = await db.storeUser.findUnique({
+    where: { id: session.user.id },
+    select: { isActive: true }
+  })
+  
+  if (!dbUser || dbUser.isActive === false) {
+    redirect('/login?locked=true')
   }
 
   const config = await db.themeConfig.findUnique({
