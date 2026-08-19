@@ -2,62 +2,71 @@ import React from "react"
 import Link from "next/link"
 import { Activity, Users, ShoppingBag, DollarSign } from "lucide-react"
 import { db } from "@/lib/db"
+import { requireStoreId } from "@/lib/tenant"
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboardPage() {
-  const [totalSalesResult, newOrders, customers, activeProducts, topProductsData, latestOrders, theme] = await Promise.all([
-    db.order.aggregate({
-      _sum: { totalAmount: true },
-      where: { status: { not: "CANCELLED" } }
-    }),
-    db.order.count({
-      where: { status: "PENDING" }
-    }),
-    db.storeUser.count({
-      where: { role: "CUSTOMER" }
-    }),
-    db.product.count(),
-    db.productView.groupBy({
-      by: ['productId'],
-      _count: { productId: true },
-      orderBy: { _count: { productId: 'desc' } },
-      take: 5
-    }),
-    db.order.findMany({
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      include: { user: true }
-    }),
-    db.themeConfig.findUnique({ where: { id: "default" } })
-  ])
+  try {
+    const storeId = await requireStoreId()
 
-  // Get product details for topProducts — single batch query instead of N+1
-  const topProductIds = topProductsData.map(tp => tp.productId)
-  const topProductDetails = topProductIds.length > 0
-    ? await db.product.findMany({
-        where: { id: { in: topProductIds } },
-        select: { id: true, name: true, images: { where: { isPrimary: true }, take: 1 } }
-      })
-    : []
-  const productMap = new Map(topProductDetails.map(p => [p.id, p]))
-  const topProducts = topProductsData.map(tp => ({
-    ...tp,
-    product: productMap.get(tp.productId) || { name: 'منتج محذوف', images: [] }
-  }))
+    const [totalSalesResult, newOrders, customers, activeProducts, topProductsData, latestOrders, theme] = await Promise.all([
+      db.order.aggregate({
+        _sum: { totalAmount: true },
+        where: { storeId, status: { not: "CANCELLED" } }
+      }),
+      db.order.count({
+        where: { storeId, status: "PENDING" }
+      }),
+      db.storeUser.count({
+        where: { storeId, role: "CUSTOMER" }
+      }),
+      db.product.count({
+        where: { storeId }
+      }),
+      db.productView.groupBy({
+        by: ['productId'],
+        where: { storeId },
+        _count: { productId: true },
+        orderBy: { _count: { productId: 'desc' } },
+        take: 5
+      }),
+      db.order.findMany({
+        where: { storeId },
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        include: { user: true }
+      }),
+      db.themeConfig.findUnique({ where: { storeId } })
+    ])
 
-  const totalSales = totalSalesResult._sum.totalAmount || 0
-  const adminColor = theme?.adminColor || "#2453E3"
+    // Get product details for topProducts — single batch query instead of N+1
+    const topProductIds = topProductsData.map(tp => tp.productId)
+    const topProductDetails = topProductIds.length > 0
+      ? await db.product.findMany({
+          where: { id: { in: topProductIds } },
+          select: { id: true, name: true, images: { where: { isPrimary: true }, take: 1 } }
+        })
+      : []
+    const productMap = new Map(topProductDetails.map(p => [p.id, p]))
+    const topProducts = topProductsData.map(tp => ({
+      ...tp,
+      product: productMap.get(tp.productId) || { name: 'منتج محذوف', images: [] }
+    }))
 
-  return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-        <span className="text-foreground">الرئيسية</span>
-      </nav>
+    const totalSales = totalSalesResult._sum.totalAmount || 0
+    const adminColor = theme?.adminColor || "#2453E3"
 
-      <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border-0 p-4 sm:p-6 shadow-md transition-all hover:scale-[1.02] bg-indigo-50 text-indigo-950">
-          <div className="flex items-center gap-4">
+    return (
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <span className="text-foreground">الرئيسية</span>
+        </nav>
+
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-2xl border-0 p-4 sm:p-6 shadow-md transition-all hover:scale-[1.02] bg-indigo-50 text-indigo-950">
+            <div className="flex items-center gap-4">
+
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-200 text-indigo-700 shadow-sm">
               <DollarSign className="h-6 w-6" />
             </div>
@@ -158,4 +167,13 @@ export default async function AdminDashboardPage() {
       </div>
     </div>
   )
+  } catch (error: any) {
+    return (
+      <div className="p-8 text-center border rounded-lg bg-red-50 text-red-700">
+        <h2 className="text-xl font-bold mb-4">حدث خطأ في تحميل لوحة التحكم</h2>
+        <p dir="ltr" className="font-mono text-sm">{error.message}</p>
+        <p dir="ltr" className="font-mono text-xs mt-2 text-red-500">{error.stack}</p>
+      </div>
+    )
+  }
 }
