@@ -34,26 +34,13 @@ export function RegisterClient() {
       }
 
       if (result.success) {
-        // Automatically log them into their new store context
-        const signInResult = await signIn("credentials", {
-          redirect: false,
-          phone,
-          password,
-          context: "store",
-          storeId: result.store?.id,
-        })
-
-        if (signInResult?.error) {
-          setError("تم إنشاء المتجر بنجاح، يرجى تسجيل الدخول من رابط متجرك الجديد.")
-        } else {
-          // Redirect them to their new store's admin dashboard
-          const platformDomain = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || "localhost:3000"
-          const cleanPlatform = platformDomain.split(':')[0]
-          const protocol = window.location.protocol
-          const port = window.location.port ? `:${window.location.port}` : ""
-          
-          window.location.href = `${protocol}//${slug}.${cleanPlatform}${port}/admin`
-        }
+        // Redirect them to their new store's login page
+        const platformDomain = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || "localhost:3000"
+        const cleanPlatform = platformDomain.split(':')[0]
+        const protocol = window.location.protocol
+        const port = window.location.port ? `:${window.location.port}` : ""
+        
+        window.location.href = `${protocol}//${slug}.${cleanPlatform}${port}/login?registered=true`
       }
     } catch (err) {
       setError("حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى")

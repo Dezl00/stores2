@@ -15,10 +15,15 @@ function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatfor
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
+  const [success, setSuccess] = useState("")
+
   React.useEffect(() => {
     if (searchParams?.get("locked") === "true") {
       setError("تم تعطيل حسابك من قبل الإدارة. يرجى التواصل مع الدعم.")
       import("next-auth/react").then(({ signOut }) => signOut({ redirect: false }))
+    }
+    if (searchParams?.get("registered") === "true") {
+      setSuccess("تم إنشاء المتجر بنجاح! يمكنك الآن تسجيل الدخول إلى لوحة تحكم متجرك.")
     }
   }, [searchParams])
 
@@ -148,6 +153,12 @@ function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatfor
               <h4 className="font-bold mb-1">جلسة مغلقة</h4>
               <p className="text-sm">تم تعطيل حسابك من قبل الإدارة.</p>
             </div>
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-4 p-3 rounded-md bg-green-500/10 text-green-600 text-sm font-medium border border-green-500/20 text-center">
+            {success}
           </div>
         )}
 
