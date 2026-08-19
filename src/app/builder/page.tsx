@@ -18,9 +18,16 @@ export default async function BuilderPage() {
     }),
     db.store.findUnique({
       where: { id: storeId },
-      select: { name: true, logoUrl: true }
+      select: { name: true, logoUrl: true, slug: true, customDomain: true }
     })
   ])
+
+  const platformDomain = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || 'localhost:3000'
+  const cleanPlatform = platformDomain.replace(/^https?:\/\//, '').replace(/\/$/, '')
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+  const previewUrl = store?.customDomain 
+    ? `${protocol}://${store.customDomain}/?preview=true`
+    : `${protocol}://${store?.slug}.${cleanPlatform}/?preview=true`
 
   return (
     <BuilderClient 
@@ -28,6 +35,7 @@ export default async function BuilderPage() {
       categories={categories}
       themeConfig={themeConfig}
       store={store}
+      previewUrl={previewUrl}
     />
   )
 }

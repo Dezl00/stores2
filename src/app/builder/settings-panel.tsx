@@ -50,7 +50,7 @@ export function SettingsPanel({ widget, categories, onBack, onUpdateWidget }: an
         </div>
 
         {/* Dynamic Data (If Product List) */}
-        {widget.type.includes("Product") && (
+        {widget?.type?.includes("Product") && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-[#2453E3] border-b border-border/50 pb-2">
               <Settings className="w-4 h-4" />

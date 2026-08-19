@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 // Zid-like Architecture Context & State
-export function BuilderClient({ initialWidgets, categories, themeConfig, store }: any) {
+export function BuilderClient({ initialWidgets, categories, themeConfig, store, previewUrl }: any) {
   const [widgets, setWidgets] = useState(initialWidgets)
   const [activeTab, setActiveTab] = useState<"sections" | "theme">("sections")
   const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null)
@@ -15,7 +15,11 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store }
   const [isSaving, setIsSaving] = useState(false)
   
   // Find the currently selected widget
-  const selectedWidget = widgets.find((w: any) => w.id === selectedWidgetId)
+  const selectedWidget = selectedWidgetId === "HEADER" 
+    ? { id: "HEADER", type: "Header", title: "الترويسة", config: {} }
+    : selectedWidgetId === "FOOTER"
+    ? { id: "FOOTER", type: "Footer", title: "التذييل", config: {} }
+    : widgets.find((w: any) => w.id === selectedWidgetId)
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -76,7 +80,7 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store }
           >
             {/* The Iframe to the store frontend preview */}
             <iframe 
-              src="/?preview=true" 
+              src={previewUrl || "/?preview=true"}
               className="w-full h-full border-none"
               title="Store Preview"
             />

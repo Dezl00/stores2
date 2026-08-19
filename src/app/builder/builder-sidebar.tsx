@@ -48,7 +48,10 @@ export function BuilderSidebar({ widgets, setWidgets, activeTab, setActiveTab, o
         <div className="flex-1 overflow-y-auto flex flex-col p-4 space-y-4">
           
           {/* Static Header Section */}
-          <div className="bg-slate-50 border border-border/50 rounded-lg p-3 flex items-center gap-3 shadow-sm">
+          <div 
+            onClick={() => onSelectWidget("HEADER")}
+            className="bg-slate-50 border border-border/50 rounded-lg p-3 flex items-center gap-3 shadow-sm cursor-pointer hover:border-[#2453E3]/50 hover:shadow-md transition-all"
+          >
             <Settings2 className="w-4 h-4 text-slate-400" />
             <span className="text-sm font-semibold text-slate-700">الترويسة (Header)</span>
           </div>
@@ -82,13 +85,30 @@ export function BuilderSidebar({ widgets, setWidgets, activeTab, setActiveTab, o
             ))}
           </div>
 
-          <button className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#2453E3]/30 text-[#2453E3] font-bold py-3 rounded-lg hover:bg-[#2453E3]/5 transition-colors">
+          <button 
+            onClick={() => {
+              const newWidget = {
+                id: `new-${Date.now()}`,
+                type: "ProductList",
+                title: "قسم منتجات جديد",
+                status: true,
+                sortOrder: widgets.length,
+                config: {}
+              }
+              setWidgets([...widgets, newWidget])
+              onSelectWidget(newWidget.id)
+            }}
+            className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#2453E3]/30 text-[#2453E3] font-bold py-3 rounded-lg hover:bg-[#2453E3]/5 transition-colors"
+          >
             <Plus className="w-5 h-5" />
             إضافة قسم جديد
           </button>
 
           {/* Static Footer Section */}
-          <div className="bg-slate-50 border border-border/50 rounded-lg p-3 flex items-center gap-3 shadow-sm mt-auto">
+          <div 
+            onClick={() => onSelectWidget("FOOTER")}
+            className="bg-slate-50 border border-border/50 rounded-lg p-3 flex items-center gap-3 shadow-sm mt-auto cursor-pointer hover:border-[#2453E3]/50 hover:shadow-md transition-all"
+          >
             <Settings2 className="w-4 h-4 text-slate-400" />
             <span className="text-sm font-semibold text-slate-700">التذييل (Footer)</span>
           </div>
