@@ -103,7 +103,7 @@ export const authConfig: NextAuthConfig = {
             where: {
               OR: [{ email: identifier }, { phone: identifier }],
               isActive: true,
-              role: { in: ['STORE_OWNER', 'MANAGER', 'STAFF'] }
+              role: { in: ['STORE_OWNER', 'MANAGER'] }
             }
           })
 
