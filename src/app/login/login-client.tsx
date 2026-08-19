@@ -28,23 +28,23 @@ function LoginContent({ themeConfig, isPlatform, storeId, isSuperAdmin }: { them
     
     // Auto login logic
     const autoLoginToken = searchParams?.get("autoLoginToken")
-    if (autoLoginToken && !isPlatform) {
+    if (autoLoginToken) {
       setLoading(true)
       signIn("credentials", {
         redirect: false,
         autoLoginToken,
-        context: "store",
+        context: isSuperAdmin ? "superadmin" : "store",
       }).then((result) => {
         if (result?.error) {
-          setError("انتهت صلاحية رابط الدخول التلقائي. يرجى تسجيل الدخول يدوياً.")
+          setError("انتهت صلاحية الجلسة أو غير صالحة. يرجى تسجيل الدخول مرة أخرى.")
           setLoading(false)
         } else {
-          router.push("/admin")
+          router.push(isSuperAdmin ? "/platform" : "/admin")
           router.refresh()
         }
       })
     }
-  }, [searchParams])
+  }, [searchParams, isPlatform, isSuperAdmin, router])
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

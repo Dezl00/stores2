@@ -39,6 +39,7 @@ export const authConfig: NextAuthConfig = {
       },
       async authorize(credentials) {
         const autoLoginToken = credentials?.autoLoginToken as string;
+        const context = credentials?.context as string;
 
         if (autoLoginToken) {
           try {
@@ -49,6 +50,18 @@ export const authConfig: NextAuthConfig = {
             
             if (hash !== expectedHash || Date.now() - parseInt(timestamp) > 5 * 60 * 1000) {
               return null;
+            }
+
+            if (context === "superadmin") {
+              const platformUser = await db.platformUser.findUnique({ where: { id: userId } });
+              if (!platformUser || !platformUser.isActive) return null;
+              return {
+                id: platformUser.id,
+                email: platformUser.email,
+                name: platformUser.name,
+                role: platformUser.role,
+                context: 'platform',
+              }
             }
 
             const storeUser = await db.storeUser.findUnique({ where: { id: userId } });
@@ -73,14 +86,14 @@ export const authConfig: NextAuthConfig = {
           return null
         }
 
-        const context = (credentials.context as string) || 'store'
+        const resolvedContext = context || 'store'
         const password = credentials.password as string
         const identifier = credentials.phone as string // can be email or phone
 
         // ----------------------------------------------------
         // SUPER ADMIN AUTHENTICATION
         // ----------------------------------------------------
-        if (context === 'superadmin') {
+        if (resolvedContext === 'superadmin') {
           const platformUser = await db.platformUser.findUnique({
             where: { email: identifier }
           })
@@ -103,7 +116,7 @@ export const authConfig: NextAuthConfig = {
         // ----------------------------------------------------
         // PLATFORM CENTRAL LOGIN (MERCHANTS ONLY)
         // ----------------------------------------------------
-        if (context === 'platform') {
+        if (resolvedContext === 'platform') {
           // Check if they are a Store Owner logging in via the platform
           const storeUser = await db.storeUser.findFirst({
             where: {
@@ -141,7 +154,7 @@ export const authConfig: NextAuthConfig = {
         // ----------------------------------------------------
         // STORE AUTHENTICATION (OWNER / MANAGER / CUSTOMER)
         // ----------------------------------------------------
-        if (context === 'store') {
+        if (resolvedContext === 'store') {
           const storeId = credentials.storeId as string
           if (!storeId) return null
 
