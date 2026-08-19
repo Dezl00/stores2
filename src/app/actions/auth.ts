@@ -7,10 +7,10 @@ import { resolveStoreId } from "@/lib/store-context"
 
 export async function registerUser(formData: FormData) {
   const name = formData.get("name") as string
-  const phone = formData.get("phone") as string
+  const email = formData.get("email") as string
   const password = formData.get("password") as string
 
-  if (!name || !phone || !password) {
+  if (!name || !email || !password) {
     return { error: "جميع الحقول مطلوبة" }
   }
 
@@ -18,11 +18,11 @@ export async function registerUser(formData: FormData) {
     const storeId = await resolveStoreId()
 
     const existingUser = await db.storeUser.findUnique({
-      where: { phone_storeId: { phone, storeId } }
+      where: { email_storeId: { email, storeId } }
     })
 
     if (existingUser) {
-      return { error: "رقم الهاتف مسجل مسبقاً في هذا المتجر" }
+      return { error: "البريد الإلكتروني مسجل مسبقاً في هذا المتجر" }
     }
 
     const passwordHash = await bcrypt.hash(password, 10)
@@ -30,7 +30,7 @@ export async function registerUser(formData: FormData) {
     const user = await db.storeUser.create({
       data: {
         name,
-        phone,
+        email,
         passwordHash,
         role: "CUSTOMER",
         storeId
@@ -42,7 +42,7 @@ export async function registerUser(formData: FormData) {
       await sendNotification({
         targetRole: "MANAGER", // Or STORE_OWNER
         title: "عميل جديد!",
-        message: `تم تسجيل عميل جديد: ${name} (${phone})`,
+        message: `تم تسجيل عميل جديد: ${name} (${email})`,
         type: "NEW_CUSTOMER",
         link: "/admin/customers",
         storeId

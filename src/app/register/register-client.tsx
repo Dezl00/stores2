@@ -20,8 +20,6 @@ export function RegisterClient() {
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
-    const phone = formData.get("ownerPhone") as string
-    const password = formData.get("ownerPassword") as string
     const slug = formData.get("slug") as string
 
     try {
@@ -33,14 +31,16 @@ export function RegisterClient() {
         return
       }
 
-      if (result.success) {
-        // Redirect them to their new store's login page
+      if (result.success && result.autoLoginToken) {
+        // Redirect them to their new store's login page WITH the auto login token!
         const platformDomain = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || "localhost:3000"
         const cleanPlatform = platformDomain.split(':')[0]
         const protocol = window.location.protocol
         const port = window.location.port ? `:${window.location.port}` : ""
         
-        window.location.href = `${protocol}//${slug}.${cleanPlatform}${port}/login?registered=true`
+        // This will redirect to store.matgry.tech/login?autoLoginToken=XYZ
+        // The login page will automatically log them in and redirect to /admin
+        window.location.href = `${protocol}//${slug}.${cleanPlatform}${port}/login?autoLoginToken=${encodeURIComponent(result.autoLoginToken)}`
       }
     } catch (err) {
       setError("حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى")
@@ -71,7 +71,7 @@ export function RegisterClient() {
           </div>
         )}
 
-        <form className="space-y-4" onSubmit={handleRegister}>
+        <form className="space-y-4" onSubmit={handleRegister} method="POST" action="#">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">اسم المتجر</label>
             <Input type="text" name="name" required className="h-12" placeholder="مثال: متجر الأناقة" />
@@ -91,8 +91,8 @@ export function RegisterClient() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">رقم الهاتف (للدخول)</label>
-            <Input type="tel" name="ownerPhone" required placeholder="010..." className="h-12" dir="ltr" />
+            <label className="text-sm font-medium text-foreground">البريد الإلكتروني (للدخول)</label>
+            <Input type="email" name="ownerEmail" required placeholder="admin@example.com" className="h-12" dir="ltr" />
           </div>
 
           <div className="space-y-2">

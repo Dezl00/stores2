@@ -33,9 +33,41 @@ export const authConfig: NextAuthConfig = {
         phone: { label: "Phone/Email", type: "text" },
         password: { label: "Password", type: "password" },
         context: { label: "Context", type: "text" }, // 'platform' or 'store'
-        storeId: { label: "Store ID", type: "text" } // required if context === 'store'
+        storeId: { label: "Store ID", type: "text" }, // required if context === 'store'
+        autoLoginToken: { label: "Auto Login Token", type: "text" }
       },
       async authorize(credentials) {
+        const autoLoginToken = credentials?.autoLoginToken as string;
+
+        if (autoLoginToken) {
+          try {
+            const [userId, timestamp, hash] = autoLoginToken.split(":");
+            const crypto = await import("crypto");
+            const secret = process.env.AUTH_SECRET || "matjark-platform-secret-key-change-me";
+            const expectedHash = crypto.createHmac("sha256", secret).update(`${userId}:${timestamp}`).digest("hex");
+            
+            if (hash !== expectedHash || Date.now() - parseInt(timestamp) > 5 * 60 * 1000) {
+              return null;
+            }
+
+            const storeUser = await db.storeUser.findUnique({ where: { id: userId } });
+            if (!storeUser || !storeUser.isActive) return null;
+
+            return {
+              id: storeUser.id,
+              email: storeUser.email || undefined,
+              phone: storeUser.phone || undefined,
+              name: storeUser.name || undefined,
+              role: storeUser.role,
+              permissions: storeUser.permissions,
+              storeId: storeUser.storeId,
+              context: 'store',
+            }
+          } catch (e) {
+            return null;
+          }
+        }
+
         if (!credentials?.phone || !credentials?.password) {
           return null
         }

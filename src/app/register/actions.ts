@@ -8,10 +8,10 @@ export async function registerStorePublic(formData: FormData) {
     const name = formData.get("name") as string
     const slug = formData.get("slug") as string
     const ownerName = formData.get("ownerName") as string
-    const ownerPhone = formData.get("ownerPhone") as string
+    const ownerEmail = formData.get("ownerEmail") as string
     const ownerPassword = formData.get("ownerPassword") as string
     
-    if (!name || !slug || !ownerName || !ownerPhone || !ownerPassword) {
+    if (!name || !slug || !ownerName || !ownerEmail || !ownerPassword) {
       return { success: false, error: "جميع الحقول مطلوبة" }
     }
     
@@ -21,6 +21,9 @@ export async function registerStorePublic(formData: FormData) {
       return { success: false, error: "هذا الرابط (Slug) مستخدم بالفعل، يرجى اختيار رابط آخر" }
     }
 
+    // Check if email is already taken for platform or globally? 
+    // In our multi-tenant setup, email is scoped per store, but here it's a new store so it's fine.
+    
     const passwordHash = await bcrypt.hash(ownerPassword, 10)
 
     // Transaction to create store, theme config, and owner user
@@ -44,7 +47,7 @@ export async function registerStorePublic(formData: FormData) {
         data: {
           storeId: newStore.id,
           name: ownerName,
-          phone: ownerPhone,
+          email: ownerEmail,
           passwordHash,
           role: "STORE_OWNER",
         }
@@ -58,7 +61,17 @@ export async function registerStorePublic(formData: FormData) {
       return newStore
     })
 
-    return { success: true, store }
+    // Generate auto-login token
+    const crypto = await import("crypto")
+    const secret = process.env.AUTH_SECRET || "matjark-platform-secret-key-change-me"
+    
+    // We need the newOwner ID, let's fetch it since transaction didn't return it
+    const newOwner = await db.storeUser.findFirst({ where: { storeId: store.id, role: "STORE_OWNER" } })
+    const timestamp = Date.now()
+    const hash = crypto.createHmac("sha256", secret).update(`${newOwner?.id}:${timestamp}`).digest("hex")
+    const autoLoginToken = `${newOwner?.id}:${timestamp}:${hash}`
+
+    return { success: true, store, autoLoginToken }
   } catch (error: any) {
     console.error("Public Create Store Error:", error)
     return { success: false, error: "حدث خطأ أثناء إنشاء المتجر" }

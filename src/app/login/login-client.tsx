@@ -25,6 +25,25 @@ function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatfor
     if (searchParams?.get("registered") === "true") {
       setSuccess("تم إنشاء المتجر بنجاح! يمكنك الآن تسجيل الدخول إلى لوحة تحكم متجرك.")
     }
+    
+    // Auto login logic
+    const autoLoginToken = searchParams?.get("autoLoginToken")
+    if (autoLoginToken && !isPlatform) {
+      setLoading(true)
+      signIn("credentials", {
+        redirect: false,
+        autoLoginToken,
+        context: "store",
+      }).then((result) => {
+        if (result?.error) {
+          setError("انتهت صلاحية رابط الدخول التلقائي. يرجى تسجيل الدخول يدوياً.")
+          setLoading(false)
+        } else {
+          router.push("/admin")
+          router.refresh()
+        }
+      })
+    }
   }, [searchParams])
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -65,7 +84,7 @@ function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatfor
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
-    const phone = formData.get("phone") as string
+    const email = formData.get("email") as string
     const password = formData.get("password") as string
 
     try {
@@ -80,8 +99,10 @@ function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatfor
       if (result.success) {
         const signInResult = await signIn("credentials", {
           redirect: false,
-          phone,
+          phone: email,
           password,
+          context: "store",
+          storeId: (window as any).__STORE_ID__,
         })
 
         if (signInResult?.error) {
@@ -170,10 +191,10 @@ function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatfor
 
         {/* Forms */}
         {(tab === "login" || isPlatform) ? (
-          <form className="space-y-4" onSubmit={handleLogin}>
+          <form className="space-y-4" onSubmit={handleLogin} method="POST" action="#">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">{isPlatform ? "البريد الإلكتروني" : "رقم الهاتف"}</label>
-              <Input type={isPlatform ? "email" : "tel"} name="phone" required placeholder={isPlatform ? "admin@example.com" : "010..."} className="h-12" dir="ltr" />
+              <label className="text-sm font-medium text-foreground">{isPlatform ? "البريد الإلكتروني" : "البريد الإلكتروني أو رقم الهاتف"}</label>
+              <Input type="text" name="phone" required placeholder={isPlatform ? "admin@example.com" : "admin@example.com"} className="h-12" dir="ltr" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">كلمة المرور</label>
@@ -184,14 +205,14 @@ function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatfor
             </Button>
           </form>
         ) : (
-          <form className="space-y-4" onSubmit={handleRegister}>
+          <form className="space-y-4" onSubmit={handleRegister} method="POST" action="#">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">الاسم كامل</label>
               <Input type="text" name="name" required className="h-12" placeholder="الاسم ثلاثي" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">رقم الهاتف</label>
-              <Input type="tel" name="phone" required placeholder="010..." className="h-12" dir="ltr" />
+              <label className="text-sm font-medium text-foreground">البريد الإلكتروني</label>
+              <Input type="email" name="email" required placeholder="user@example.com" className="h-12" dir="ltr" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">كلمة المرور</label>
