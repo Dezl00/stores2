@@ -11,7 +11,7 @@ export interface TenantInfo {
 
 function getPlatformDomain(): string {
   const raw = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || 'localhost:3000'
-  return raw.replace(/^https?:\/\//, '')
+  return raw.replace(/^https?:\/\//, '').replace(/\/$/, '')
 }
 
 export function isPlatformDomain(hostname: string): boolean {

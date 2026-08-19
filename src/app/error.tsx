@@ -19,7 +19,7 @@ export default function GlobalError({
       <div className="mx-auto max-w-md space-y-6">
         <h1 className="text-4xl font-bold tracking-tighter text-gray-900">عذراً!</h1>
         <p className="text-lg text-gray-600">
-          {error.message === "Not in a store context" || error.message.includes("Store is suspended")
+          {error?.message === "Not in a store context" || error?.message?.includes?.("Store is suspended") || error?.message?.includes?.("Not in a store context - AdminLayout")
             ? "هذا المتجر غير موجود أو تم إيقافه."
             : "حدث خطأ غير متوقع في الخادم."}
         </p>

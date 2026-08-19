@@ -34,7 +34,7 @@ export function RegisterClient() {
       if (result.success && result.autoLoginToken) {
         // Redirect them to their new store's login page WITH the auto login token!
         const platformDomainRaw = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || "localhost:3000"
-        const platformDomain = platformDomainRaw.replace(/^https?:\/\//, '')
+        const platformDomain = platformDomainRaw.replace(/^https?:\/\//, '').replace(/\/$/, '')
         const cleanPlatform = platformDomain.split(':')[0]
         const protocol = window.location.protocol
         const port = window.location.port ? `:${window.location.port}` : ""
