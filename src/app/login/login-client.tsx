@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { AlertCircle, Loader2 } from "lucide-react"
 import { registerUser } from "@/app/actions/auth"
 
-function LoginContent({ themeConfig, isPlatform, storeId, isSuperAdmin }: { themeConfig: any; isPlatform: boolean; storeId: string | null; isSuperAdmin?: boolean }) {
+function LoginContent({ themeConfig, isPlatform, storeId }: { themeConfig: any; isPlatform: boolean; storeId: string | null }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [tab, setTab] = useState<"login" | "register">("login")
@@ -33,18 +33,18 @@ function LoginContent({ themeConfig, isPlatform, storeId, isSuperAdmin }: { them
       signIn("credentials", {
         redirect: false,
         autoLoginToken,
-        context: isSuperAdmin ? "superadmin" : "store",
+        context: "store", // Simplified as we no longer do cross-domain Super Admin
       }).then((result) => {
         if (result?.error) {
           setError("انتهت صلاحية الجلسة أو غير صالحة. يرجى تسجيل الدخول مرة أخرى.")
           setLoading(false)
         } else {
-          router.push(isSuperAdmin ? "/platform" : "/admin")
+          router.push("/admin")
           router.refresh()
         }
       })
     }
-  }, [searchParams, isPlatform, isSuperAdmin, router])
+  }, [searchParams, isPlatform, router])
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -60,7 +60,7 @@ function LoginContent({ themeConfig, isPlatform, storeId, isSuperAdmin }: { them
         redirect: false,
         phone,
         password,
-        context: isSuperAdmin ? "superadmin" : isPlatform ? "platform" : "store",
+        context: isPlatform ? "platform" : "store",
         storeId: isPlatform ? undefined : storeId,
       })
 
@@ -131,17 +131,14 @@ function LoginContent({ themeConfig, isPlatform, storeId, isSuperAdmin }: { them
             <img src={themeConfig.logoUrl} alt="Store Logo" className="h-16 w-auto object-contain mb-4" />
           ) : (
             <span className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl shadow-lg mb-4">
-              {isSuperAdmin ? "🔧" : isPlatform ? "🛍️" : "ع"}
+              {isPlatform ? "🛍️" : "ع"}
             </span>
           )}
           <h2 className="text-2xl font-bold text-foreground">
-            {isSuperAdmin ? "لوحة تحكم المنصة" : isPlatform ? (process.env.NEXT_PUBLIC_PLATFORM_NAME || "منصة المتاجر") : (themeConfig?.storeName || "العسال")}
+            {isPlatform ? (process.env.NEXT_PUBLIC_PLATFORM_NAME || "منصة المتاجر") : (themeConfig?.storeName || "العسال")}
           </h2>
-          {isSuperAdmin && (
-            <p className="text-sm text-muted-foreground mt-1">تسجيل دخول الإدارة العليا</p>
-          )}
-          {isPlatform && !isSuperAdmin && (
-            <p className="text-sm text-muted-foreground mt-1">تسجيل دخول التجار المركزية</p>
+          {isPlatform && (
+            <p className="text-sm text-muted-foreground mt-1">تسجيل الدخول للمنصة</p>
           )}
         </div>
 
@@ -198,8 +195,8 @@ function LoginContent({ themeConfig, isPlatform, storeId, isSuperAdmin }: { them
         {(tab === "login" || isPlatform) ? (
           <form className="space-y-4" onSubmit={handleLogin} method="POST" action="#">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">{isSuperAdmin ? "البريد الإلكتروني" : "البريد الإلكتروني أو رقم الهاتف"}</label>
-              <Input type="text" name="phone" required placeholder={isSuperAdmin ? "admin@example.com" : "merchant@example.com"} className="h-12" dir="ltr" />
+              <label className="text-sm font-medium text-foreground">البريد الإلكتروني أو رقم الهاتف</label>
+              <Input type="text" name="phone" required placeholder={isPlatform ? "admin@example.com" : "merchant@example.com"} className="h-12" dir="ltr" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">كلمة المرور</label>
@@ -233,10 +230,10 @@ function LoginContent({ themeConfig, isPlatform, storeId, isSuperAdmin }: { them
   )
 }
 
-export function LoginClient({ themeConfig, isPlatform = false, storeId = null, isSuperAdmin = false }: { themeConfig: any; isPlatform?: boolean; storeId?: string | null; isSuperAdmin?: boolean }) {
+export function LoginClient({ themeConfig, isPlatform = false, storeId = null }: { themeConfig: any; isPlatform?: boolean; storeId?: string | null }) {
   return (
     <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-black/5 p-4"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
-      <LoginContent themeConfig={themeConfig} isPlatform={isPlatform} storeId={storeId} isSuperAdmin={isSuperAdmin} />
+      <LoginContent themeConfig={themeConfig} isPlatform={isPlatform} storeId={storeId} />
     </Suspense>
   )
 }

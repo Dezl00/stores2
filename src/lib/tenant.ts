@@ -77,6 +77,13 @@ export const getCurrentStore = cache(async (): Promise<TenantInfo | null> => {
 })
 
 export async function requireStoreId(): Promise<string> {
+  const { auth } = await import('@/lib/auth')
+  const session = await auth()
+  
+  if (session?.user?.storeId) {
+    return session.user.storeId
+  }
+
   const store = await getCurrentStore()
   if (!store) {
     throw new Error('Not in a store context')
@@ -90,9 +97,4 @@ export async function requireStoreId(): Promise<string> {
 export async function isPlatformContext(): Promise<boolean> {
   const headersList = await headers()
   return headersList.get('x-platform-context') === 'true'
-}
-
-export async function isSuperAdminDomain(): Promise<boolean> {
-  const headersList = await headers()
-  return headersList.get('x-superadmin-domain') === 'true'
 }

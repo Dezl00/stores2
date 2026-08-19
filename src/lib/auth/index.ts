@@ -52,18 +52,6 @@ export const authConfig: NextAuthConfig = {
               return null;
             }
 
-            if (context === "superadmin") {
-              const platformUser = await db.platformUser.findUnique({ where: { id: userId } });
-              if (!platformUser || !platformUser.isActive) return null;
-              return {
-                id: platformUser.id,
-                email: platformUser.email,
-                name: platformUser.name,
-                role: platformUser.role,
-                context: 'platform',
-              }
-            }
-
             const storeUser = await db.storeUser.findUnique({ where: { id: userId } });
             if (!storeUser || !storeUser.isActive) return null;
 
@@ -89,29 +77,6 @@ export const authConfig: NextAuthConfig = {
         const resolvedContext = context || 'store'
         const password = credentials.password as string
         const identifier = credentials.phone as string // can be email or phone
-
-        // ----------------------------------------------------
-        // SUPER ADMIN AUTHENTICATION
-        // ----------------------------------------------------
-        if (resolvedContext === 'superadmin') {
-          const platformUser = await db.platformUser.findUnique({
-            where: { email: identifier }
-          })
-          
-          if (platformUser && platformUser.passwordHash && platformUser.isActive) {
-            const isValid = await bcrypt.compare(password, platformUser.passwordHash)
-            if (isValid) {
-              return {
-                id: platformUser.id,
-                email: platformUser.email,
-                name: platformUser.name,
-                role: platformUser.role,
-                context: 'platform',
-              }
-            }
-          }
-          return null
-        }
 
         // ----------------------------------------------------
         // PLATFORM CENTRAL LOGIN (MERCHANTS & SUPER ADMINS)

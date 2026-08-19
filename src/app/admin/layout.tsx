@@ -48,17 +48,17 @@ export default async function AdminLayout({
 }) {
   try {
     const session = await auth()
-    const store = await getCurrentStore()
     
-    if (!store) {
-      const headersList = await headers()
-      const hostname = headersList.get('x-hostname')
-      const storeSlugHeader = headersList.get('x-store-slug')
-      throw new Error(`Not in a store context - AdminLayout. Hostname: ${hostname}, Slug: ${storeSlugHeader}, ENV: ${process.env.NEXT_PUBLIC_PLATFORM_DOMAIN}`)
+    if (!session?.user?.id || session.user.context !== 'store' || !session.user.storeId) {
+      redirect('/login')
     }
 
-    if (!session?.user?.id || session.user.context !== 'store') {
-      redirect('/login')
+    const store = await db.store.findUnique({
+      where: { id: session.user.storeId }
+    })
+
+    if (!store) {
+      throw new Error(`Store not found for session storeId: ${session.user.storeId}`)
     }
 
     if (session.user.role !== "STORE_OWNER" && session.user.role !== "MANAGER") {
@@ -75,12 +75,12 @@ export default async function AdminLayout({
     }
 
     const config = await db.themeConfig.findUnique({
-      where: { storeId: store.storeId }
+      where: { storeId: store.id }
     })
     
     return (
       <AdminLayoutClient 
-        storeName={config?.storeName || store.storeName || "إدارة المتجر"} 
+        storeName={config?.storeName || store.name || "منصة المتاجر"} 
         logoUrl={config?.logoUrl || null}
         initialRole={session.user.role || "MANAGER"}
         initialPermissions={(session.user.permissions as string[]) || []}

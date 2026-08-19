@@ -15,7 +15,6 @@ export const dynamic = "force-dynamic"
 export default async function LoginPage() {
   const session = await auth()
   const onPlatform = await isPlatformContext()
-  const isSuperAdmin = await isSuperAdminDomain()
   
   if (session?.user) {
     const { getRedirectUrlAfterLogin } = await import("@/app/actions/auth")
@@ -32,7 +31,7 @@ export default async function LoginPage() {
       if (adminCount === 0) {
         await db.platformUser.create({
           data: {
-            name: 'مدير المنصة',
+            name: 'المدير العام',
             email: 'admin@matjark.com',
             passwordHash: '$2b$10$nlpQ5F525mYZp3H424lQfu.AgTzaQnK6yBSdrTH9/rP.Bhi9X9eS.', // Admin@2026
             role: 'SUPER_ADMIN',
