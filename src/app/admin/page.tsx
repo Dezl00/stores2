@@ -26,7 +26,7 @@ export default async function AdminDashboardPage() {
       }),
       db.productView.groupBy({
         by: ['productId'],
-        where: { storeId },
+        where: { product: { storeId } },
         _count: { productId: true },
         orderBy: { _count: { productId: 'desc' } },
         take: 5
