@@ -11,7 +11,6 @@ import { StoreFeatures } from "./widgets/store-features"
 import { ProductList } from "./widgets/product-list"
 import { FeaturedProductWidget } from "./widgets/featured-product"
 import { LatestArticlesWidget } from "./widgets/latest-articles"
-import { EmployeeOfTheMonthWidget } from "./widgets/employee-of-the-month-widget"
 export function WidgetRenderer({ widget }: { widget: any }) {
   // Common visibility classes based on settings
   let visibilityClass = ""
@@ -90,12 +89,6 @@ export function WidgetRenderer({ widget }: { widget: any }) {
         <section className={`w-full py-16 ${visibilityClass}`}>
           <LatestArticlesWidget widget={widget} />
         </section>
-      )
-    case "EmployeeOfTheMonth":
-      return (
-        <div className={`w-full ${visibilityClass}`}>
-          <EmployeeOfTheMonthWidget widget={widget} />
-        </div>
       )
     default:
       return null

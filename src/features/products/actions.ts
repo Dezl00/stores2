@@ -1,4 +1,4 @@
-"use server"
+﻿"use server"
 
 import { requireStoreAdmin, requirePermission } from "@/lib/auth/require-admin"
 import { db } from "@/lib/db"
@@ -108,16 +108,7 @@ export async function deleteProduct(id: string) {
       where: { id: product.id }
     })
     
-    await db.activityLog.create({
-      data: {
-        action: "DELETE",
-        entityType: "Product",
-        entityId: product.id,
-        details: { message: `تم حذف المنتج: ${product.name}` },
-        userId: session?.user?.id || null,
-        storeId
-      }
-    })
+    
 
     revalidatePath("/admin/products")
     revalidatePath("/")

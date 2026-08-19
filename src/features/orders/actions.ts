@@ -1,4 +1,4 @@
-"use server"
+﻿"use server"
 
 import { requireStoreAdmin, requirePermission } from "@/lib/auth/require-admin"
 import { db } from "@/lib/db"
@@ -24,16 +24,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
 
     const session = await auth()
     if (session?.user?.id) {
-      await db.activityLog.create({
-        data: {
-          storeId,
-          userId: session.user.id,
-          action: "UPDATE_ORDER_STATUS",
-          entityType: "Order",
-          entityId: orderId,
-          details: { status }
-        }
-      })
+      
     }
 
     // Send notification to customer if they exist and want updates
@@ -96,15 +87,7 @@ export async function deleteOrder(orderId: string) {
     await db.order.delete({ where: { id: orderId }})
 
     if (session?.user?.id) {
-      await db.activityLog.create({
-        data: {
-          storeId,
-          userId: session.user.id,
-          action: "DELETE_ORDER",
-          entityType: "Order",
-          entityId: orderId
-        }
-      })
+      
     }
     revalidatePath("/admin/orders")
     return { success: true }

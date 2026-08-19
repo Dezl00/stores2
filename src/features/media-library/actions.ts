@@ -1,4 +1,4 @@
-"use server"
+﻿"use server"
 
 import { requireStoreAdmin, requirePermission } from "@/lib/auth/require-admin"
 import { resolveStoreId } from "@/lib/store-context"
@@ -40,15 +40,7 @@ export async function uploadMediaAction(formData: FormData) {
     })
 
     // Log the activity
-    await db.activityLog.create({
-      data: {
-        action: "Create",
-        entityType: "MediaAsset",
-        entityId: mediaAsset.id,
-        details: { fileName: file.name, size: file.size },
-        storeId,
-      }
-    })
+    
 
     revalidatePath("/admin/media")
     return { success: true, asset: mediaAsset }
@@ -73,15 +65,7 @@ export async function deleteMediaAction(id: string) {
     await db.mediaAsset.delete({ where: { id, storeId } as any })
 
     // Log the activity
-    await db.activityLog.create({
-      data: {
-        action: "Delete",
-        entityType: "MediaAsset",
-        entityId: id,
-        details: { publicId: asset.publicId },
-        storeId,
-      }
-    })
+    
 
     revalidatePath("/admin/media")
     return { success: true }

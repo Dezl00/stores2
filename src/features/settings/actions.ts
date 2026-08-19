@@ -1,4 +1,4 @@
-"use server"
+﻿"use server"
 
 import { requireStoreAdmin, requirePermission } from "@/lib/auth/require-admin"
 import { db } from "@/lib/db"
@@ -51,14 +51,7 @@ export async function updateThemeConfig(formData: FormData) {
 
     const session = await auth()
     if (session?.user?.id) {
-      await db.activityLog.create({
-        data: {
-          storeId,
-          userId: session.user.id,
-          action: "UPDATE_SETTINGS",
-          entityType: "Settings"
-        }
-      })
+      
     }
 
     revalidatePath("/admin/settings")
@@ -90,16 +83,7 @@ export async function createBranch(formData: FormData) {
 
     const session = await auth()
     if (session?.user?.id) {
-      await db.activityLog.create({
-        data: {
-          storeId,
-          userId: session.user.id,
-          action: "CREATE_BRANCH",
-          entityType: "Branch",
-          entityId: branch.id,
-          details: { name: branch.name }
-        }
-      })
+      
     }
     revalidatePath("/admin/settings")
     return { success: true }
@@ -128,16 +112,7 @@ export async function updateBranch(id: string, formData: FormData) {
 
     const session = await auth()
     if (session?.user?.id) {
-      await db.activityLog.create({
-        data: {
-          storeId,
-          userId: session.user.id,
-          action: "UPDATE_BRANCH",
-          entityType: "Branch",
-          entityId: branch.id,
-          details: { name: branch.name }
-        }
-      })
+      
     }
     revalidatePath("/admin/settings")
     return { success: true }
@@ -157,16 +132,7 @@ export async function deleteBranch(id: string) {
     const branch = await db.branch.delete({ where: { id }})
     const session = await auth()
     if (session?.user?.id) {
-      await db.activityLog.create({
-        data: {
-          storeId,
-          userId: session.user.id,
-          action: "DELETE_BRANCH",
-          entityType: "Branch",
-          entityId: branch.id,
-          details: { name: branch.name }
-        }
-      })
+      
     }
     revalidatePath("/admin/settings")
     return { success: true }
@@ -192,8 +158,7 @@ export async function resetStoreStats() {
     await db.productView.deleteMany({ where: { product: { storeId } } })
     // Delete notifications and activity logs
     await db.notification.deleteMany({ where: { storeId } })
-    await db.activityLog.deleteMany({ where: { storeId } })
-    
+        
     revalidatePath("/admin/analytics")
     revalidatePath("/admin/orders")
     revalidatePath("/admin/settings")

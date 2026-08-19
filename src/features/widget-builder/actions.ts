@@ -1,4 +1,4 @@
-"use server"
+﻿"use server"
 
 import { db } from "@/lib/db"
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache"
@@ -37,15 +37,7 @@ export async function createWidget(data: z.infer<typeof WidgetSchema>) {
     // We should compute sortOrder if it's not provided explicitly, but for now we trust the client.
     const widget = await db.widget.create({ data: { ...parsed, storeId } })
     
-    await db.activityLog.create({
-      data: {
-        storeId,
-        action: "Create",
-        entityType: "Widget",
-        entityId: widget.id,
-        details: { type: widget.type, title: widget.title }
-      }
-    })
+    
     
     revalidatePath("/admin/widgets")
     revalidatePath("/")
@@ -68,14 +60,7 @@ export async function updateWidgetOrder(updates: { id: string, sortOrder: number
       )
     )
     
-    await db.activityLog.create({
-      data: {
-        storeId,
-        action: "UpdateOrder",
-        entityType: "Widget",
-        details: { count: updates.length }
-      }
-    })
+    
     
     revalidatePath("/admin/widgets")
     revalidatePath("/")
@@ -105,14 +90,7 @@ export async function deleteWidget(id: string) {
     const storeId = await resolveStoreId()
     await db.widget.delete({ where: { id }})
     
-    await db.activityLog.create({
-      data: {
-        storeId,
-        action: "Delete",
-        entityType: "Widget",
-        entityId: id,
-      }
-    })
+    
     
     revalidatePath("/admin/widgets")
     revalidatePath("/")

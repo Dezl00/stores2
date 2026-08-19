@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -25,9 +25,7 @@ const WIDGET_TYPES = [
   { id: "ValuesSlider", name: "قيمنا (سلايدر)", icon: ImageIcon, desc: "سلايدر متحرك لعرض قيم ومميزات الشركة" },
   { id: "StoreFeatures", name: "مميزات المتجر", icon: ShieldCheck, desc: "عرض مميزات المتجر مثل الشحن السريع وضمان الجودة" },
   { id: "FeaturedProduct", name: "منتج مميز", icon: ShoppingBag, desc: "عرض منتج واحد بتصميم بارز" },
-  { id: "LatestArticles", name: "أحدث المقالات", icon: BookOpen, desc: "عرض أحدث المقالات من المدونة" },
-  { id: "EmployeeOfTheMonth", name: "موظف الشهر", icon: Award, desc: "عرض موظف الشهر ببطاقة مميزة" },
-]
+  { id: "LatestArticles", name: "أحدث المقالات", icon: BookOpen, desc: "عرض أحدث المقالات من المدونة" },]
 
 export function WidgetsClient({ initialWidgets, categories }: { initialWidgets: any[], categories: any[] }) {
   const { hasPermission } = usePermissions()

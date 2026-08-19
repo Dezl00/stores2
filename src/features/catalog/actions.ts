@@ -1,4 +1,4 @@
-"use server"
+﻿"use server"
 
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
@@ -18,15 +18,7 @@ export async function createCategory(data: z.infer<typeof CategorySchema>) {
     const parsed = CategorySchema.parse(data)
     const category = await db.category.create({ data: { ...parsed, storeId } })
     
-    await db.activityLog.create({
-      data: {
-        storeId,
-        action: "Create",
-        entityType: "Category",
-        entityId: category.id,
-        details: { name: category.name }
-      }
-    })
+    
     
     revalidatePath("/admin/categories")
     revalidatePath("/")
@@ -55,14 +47,7 @@ export async function deleteCategory(id: string) {
     const storeId = await resolveStoreId()
     await db.category.delete({ where: { id }})
     
-    await db.activityLog.create({
-      data: {
-        storeId,
-        action: "Delete",
-        entityType: "Category",
-        entityId: id,
-      }
-    })
+    
     
     revalidatePath("/admin/categories")
     revalidatePath("/")
@@ -115,15 +100,7 @@ export async function createProduct(data: z.infer<typeof ProductSchema>, imageId
       }
     })
     
-    await db.activityLog.create({
-      data: {
-        storeId,
-        action: "Create",
-        entityType: "Product",
-        entityId: product.id,
-        details: { name: product.name, sku: product.sku }
-      }
-    })
+    
     
     revalidatePath("/admin/products")
     revalidatePath("/")
