@@ -24,7 +24,7 @@ export async function registerStorePublic(formData: FormData) {
     const passwordHash = await bcrypt.hash(ownerPassword, 10)
 
     // Transaction to create store, theme config, and owner user
-    const store = await db.(async (tx) => {
+    const store = await db.$transaction(async (tx) => {
       const newStore = await tx.store.create({
         data: {
           name,
