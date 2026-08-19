@@ -11,54 +11,39 @@ interface IntegrationModalProps {
 }
 
 const PROVIDER_FIELDS: Record<string, { key: string; label: string; type: string }[]> = {
-  aramex: [
-    { key: "AccountNumber", label: "رقم الحساب", type: "text" },
-    { key: "AccountPin", label: "الرقم السري", type: "password" },
-    { key: "AccountEntity", label: "كيان الحساب", type: "text" },
-    { key: "AccountCountryCode", label: "كود الدولة", type: "text" },
-  ],
-  smsa: [
-    { key: "Passkey", label: "مفتاح المرور", type: "password" },
-  ],
-  saee: [
+  bosta: [
     { key: "APIKey", label: "مفتاح API", type: "password" },
   ],
-  tap: [
-    { key: "SecretAPIKey", label: "مفتاح API السري", type: "password" },
+  mylerz: [
+    { key: "Username", label: "اسم المستخدم", type: "text" },
+    { key: "Password", label: "كلمة المرور", type: "password" },
   ],
-  payfort: [
-    { key: "MerchantIdentifier", label: "معرف التاجر", type: "text" },
-    { key: "AccessCode", label: "رمز الوصول", type: "text" },
-    { key: "SHARequestPhrase", label: "عبارة طلب SHA", type: "password" },
-    { key: "SHAResponsePhrase", label: "عبارة استجابة SHA", type: "password" },
+  sprint: [
+    { key: "APIKey", label: "مفتاح API", type: "password" },
   ],
-  stripe: [
-    { key: "PublishableKey", label: "مفتاح النشر", type: "text" },
-    { key: "SecretKey", label: "المفتاح السري", type: "password" },
+  paymob: [
+    { key: "APIKey", label: "مفتاح API", type: "password" },
+    { key: "IntegrationID", label: "معرف الربط (Integration ID)", type: "text" },
+    { key: "IframeID", label: "معرف النافذة (Iframe ID)", type: "text" },
+    { key: "HMAC", label: "مفتاح HMAC", type: "password" },
+  ],
+  fawry: [
+    { key: "MerchantCode", label: "كود التاجر", type: "text" },
+    { key: "SecurityKey", label: "مفتاح الأمان", type: "password" },
+  ],
+  kashier: [
+    { key: "MerchantID", label: "معرف التاجر", type: "text" },
+    { key: "APIKey", label: "مفتاح API", type: "password" },
     { key: "WebhookSecret", label: "سر الويب هوك", type: "password" },
+  ],
+  facebook_pixel: [
+    { key: "PixelID", label: "معرف بيكسل (Pixel ID)", type: "text" },
   ],
   snapchat: [
     { key: "PixelID", label: "معرف بيكسل", type: "text" },
   ],
   google_analytics: [
     { key: "MeasurementID", label: "معرف القياس", type: "text" },
-  ],
-  mailchimp: [
-    { key: "APIKey", label: "مفتاح API", type: "password" },
-    { key: "AudienceID", label: "معرف الجمهور", type: "text" },
-  ],
-  qoyod: [
-    { key: "APIKey", label: "مفتاح API", type: "password" },
-  ],
-  daftra: [
-    { key: "APIKey", label: "مفتاح API", type: "password" },
-    { key: "Subdomain", label: "النطاق الفرعي", type: "text" },
-  ],
-  odoo: [
-    { key: "URL", label: "الرابط", type: "text" },
-    { key: "DBName", label: "اسم قاعدة البيانات", type: "text" },
-    { key: "Username", label: "اسم المستخدم", type: "text" },
-    { key: "Password", label: "كلمة المرور", type: "password" },
   ],
 };
 

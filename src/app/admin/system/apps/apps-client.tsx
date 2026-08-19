@@ -22,40 +22,31 @@ interface AppsClientProps {
 const CATEGORIES = [
   {
     id: "shipping",
-    label: "الشحن",
+    label: "الشحن والتوصيل",
     apps: [
-      { id: "aramex", name: "Aramex", provider: "aramex" },
-      { id: "smsa", name: "SMSA", provider: "smsa" },
-      { id: "saee", name: "Saee", provider: "saee" },
+      { id: "bosta", name: "Bosta (بوسطة)", provider: "bosta" },
+      { id: "mylerz", name: "Mylerz (مايلرز)", provider: "mylerz" },
+      { id: "sprint", name: "Sprint (سبرينت)", provider: "sprint" },
     ],
   },
   {
     id: "payment",
-    label: "الدفع",
+    label: "بوابات الدفع",
     apps: [
-      { id: "tap", name: "Tap", provider: "tap" },
-      { id: "payfort", name: "Payfort", provider: "payfort" },
-      { id: "stripe", name: "Stripe", provider: "stripe" },
+      { id: "paymob", name: "Paymob (باي موب)", provider: "paymob" },
+      { id: "fawry", name: "Fawry (فوري)", provider: "fawry" },
+      { id: "kashier", name: "Kashier (كاشير)", provider: "kashier" },
     ],
   },
   {
     id: "marketing",
-    label: "التسويق",
+    label: "التحليلات والتسويق",
     apps: [
+      { id: "facebook", name: "Facebook Pixel", provider: "facebook_pixel" },
       { id: "snapchat", name: "Snapchat Pixel", provider: "snapchat" },
       { id: "google-analytics", name: "Google Analytics", provider: "google_analytics" },
-      { id: "mailchimp", name: "Mailchimp", provider: "mailchimp" },
     ],
-  },
-  {
-    id: "accounting",
-    label: "المحاسبة",
-    apps: [
-      { id: "qoyod", name: "Qoyod", provider: "qoyod" },
-      { id: "daftra", name: "Daftra", provider: "daftra" },
-      { id: "odoo", name: "Odoo", provider: "odoo" },
-    ],
-  },
+  }
 ];
 
 export function AppsClient({ initialIntegrations, storeId }: AppsClientProps) {
