@@ -65,7 +65,6 @@ export async function createProduct(formData: FormData) {
         discountPrice,
         stock: isNaN(stock) ? 0 : stock,
         categoryId,
-        departmentId,
         brandId,
         description: description || null,
         storeId,
@@ -199,7 +198,6 @@ export async function updateProduct(id: string, formData: FormData) {
         discountPrice,
         stock: isNaN(stock) ? 0 : stock,
         categoryId,
-        departmentId,
         brandId,
         description: description || null,
         ...(images.length > 0 && {

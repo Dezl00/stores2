@@ -20,8 +20,7 @@ const getCategory = cache(async (slug: string) => {
   return db.category.findFirst({
     where: { slug, storeId: await resolveStoreId() },
     include: {
-      parent: { include: { department: true } },
-      department: true,
+      parent: true,
       children: { orderBy: { createdAt: "asc" } },
     }
   })
