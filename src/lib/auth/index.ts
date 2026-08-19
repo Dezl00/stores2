@@ -85,18 +85,51 @@ export const authConfig: NextAuthConfig = {
             where: { email: identifier }
           })
           
-          if (!platformUser || !platformUser.passwordHash || !platformUser.isActive) return null
-
-          const isValid = await bcrypt.compare(password, platformUser.passwordHash)
-          if (!isValid) return null
-
-          return {
-            id: platformUser.id,
-            email: platformUser.email,
-            name: platformUser.name,
-            role: platformUser.role,
-            context: 'platform',
+          if (platformUser && platformUser.passwordHash && platformUser.isActive) {
+            const isValid = await bcrypt.compare(password, platformUser.passwordHash)
+            if (isValid) {
+              return {
+                id: platformUser.id,
+                email: platformUser.email,
+                name: platformUser.name,
+                role: platformUser.role,
+                context: 'platform',
+              }
+            }
           }
+
+          // Fallback: Check if they are a Store Owner logging in via the platform
+          const storeUser = await db.storeUser.findFirst({
+            where: {
+              OR: [{ email: identifier }, { phone: identifier }],
+              isActive: true,
+              role: { in: ['STORE_OWNER', 'MANAGER', 'STAFF'] }
+            }
+          })
+
+          if (storeUser && storeUser.passwordHash) {
+            let isValid = false
+            if (storeUser.passwordHash.startsWith("$2")) {
+              isValid = await bcrypt.compare(password, storeUser.passwordHash)
+            } else {
+              isValid = password === storeUser.passwordHash
+            }
+
+            if (isValid) {
+              return {
+                id: storeUser.id,
+                email: storeUser.email || undefined,
+                phone: storeUser.phone || undefined,
+                name: storeUser.name || undefined,
+                role: storeUser.role,
+                permissions: storeUser.permissions,
+                storeId: storeUser.storeId,
+                context: 'store', // They belong to a store
+              }
+            }
+          }
+
+          return null
         }
 
         // ----------------------------------------------------

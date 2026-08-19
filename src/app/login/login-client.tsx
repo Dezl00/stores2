@@ -68,8 +68,9 @@ function LoginContent({ themeConfig, isPlatform, storeId }: { themeConfig: any; 
         setError(isPlatform ? "بيانات الدخول غير صحيحة" : "بيانات الدخول غير صحيحة")
         setLoading(false)
       } else {
-        router.push(isPlatform ? "/platform" : "/admin")
-        router.refresh()
+        const { getRedirectUrlAfterLogin } = await import("@/app/actions/auth")
+        const redirectUrl = await getRedirectUrlAfterLogin()
+        window.location.href = redirectUrl
       }
     } catch (err) {
       console.error(err)
@@ -108,8 +109,9 @@ function LoginContent({ themeConfig, isPlatform, storeId }: { themeConfig: any; 
         if (signInResult?.error) {
           setError("تم إنشاء الحساب بنجاح، ولكن حدث خطأ أثناء تسجيل الدخول التلقائي")
         } else {
-          router.push("/admin")
-          router.refresh()
+          const { getRedirectUrlAfterLogin } = await import("@/app/actions/auth")
+          const redirectUrl = await getRedirectUrlAfterLogin()
+          window.location.href = redirectUrl
         }
       }
     } catch (err) {

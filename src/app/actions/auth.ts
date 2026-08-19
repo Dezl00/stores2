@@ -105,3 +105,38 @@ export async function loginUser(formData: FormData) {
     return { error: "حدث خطأ أثناء تسجيل الدخول" }
   }
 }
+
+export async function getRedirectUrlAfterLogin() {
+  const { auth } = await import("@/lib/auth")
+  const session = await auth()
+  
+  if (!session?.user) return "/login"
+  
+  if (session.user.context === 'platform') {
+    return "/platform"
+  }
+  
+  // It's a store context
+  if (session.user.storeId) {
+    const store = await db.store.findUnique({
+      where: { id: session.user.storeId },
+      select: { slug: true, customDomain: true }
+    })
+    
+    if (store) {
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+      const platformDomain = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || 'localhost:3000'
+      
+      // Prefer custom domain if exists
+      if (store.customDomain) {
+        return `${protocol}://${store.customDomain}/admin`
+      }
+      
+      // Fallback to subdomain
+      const cleanPlatform = platformDomain.replace(/^https?:\/\//, '').replace(/\/$/, '')
+      return `${protocol}://${store.slug}.${cleanPlatform}/admin`
+    }
+  }
+  
+  return "/admin"
+}
