@@ -2,19 +2,22 @@ import React from "react"
 import { db } from "@/lib/db"
 import { SettingsClient } from "./settings-client"
 import { auth } from "@/lib/auth"
+import { requireStoreId } from "@/lib/tenant"
 
 export const dynamic = "force-dynamic"
 
 export default async function SettingsPage() {
+  const storeId = await requireStoreId()
+
   let config = await db.themeConfig.findUnique({
-    where: { id: "default" }
+    where: { storeId }
   })
 
   // Fallback to default if not exists
   if (!config) {
     config = {
       id: "default",
-      storeName: "متجر العسال",
+      storeName: "متجري",
       storeDescription: "",
       logoUrl: null,
       faviconUrl: null,
@@ -35,20 +38,23 @@ export default async function SettingsPage() {
   }
 
   const branches = await db.branch.findMany({
+    where: { storeId },
     orderBy: { sortOrder: 'asc' }
   })
 
   const backups = await db.backup.findMany({
+    where: { storeId },
     orderBy: { createdAt: 'desc' }
   })
 
   const notificationCampaigns = await db.notificationCampaign.findMany({
+    where: { storeId },
     orderBy: { createdAt: 'desc' },
     take: 20
   })
 
   const subscribersCount = await db.pushSubscription.count({
-    where: { OR: [{ role: "CUSTOMER" }, { role: null }] }
+    where: { storeId, OR: [{ role: "CUSTOMER" }, { role: null }] }
   })
 
   const session = await auth()
