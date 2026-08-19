@@ -79,7 +79,12 @@ export default async function AdminLayout({
     })
     
     return (
-      <AdminLayoutClient storeName={config?.storeName || store.storeName || "إدارة المتجر"} logoUrl={config?.logoUrl || null}>
+      <AdminLayoutClient 
+        storeName={config?.storeName || store.storeName || "إدارة المتجر"} 
+        logoUrl={config?.logoUrl || null}
+        initialRole={session.user.role || "MANAGER"}
+        initialPermissions={(session.user.permissions as string[]) || []}
+      >
         {children}
       </AdminLayoutClient>
     )

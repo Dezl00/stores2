@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { AlertCircle, Loader2 } from "lucide-react"
 import { registerUser } from "@/app/actions/auth"
 
-function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatform: boolean }) {
+function LoginContent({ themeConfig, isPlatform, storeId }: { themeConfig: any; isPlatform: boolean; storeId: string | null }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [tab, setTab] = useState<"login" | "register">("login")
@@ -61,7 +61,7 @@ function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatfor
         phone,
         password,
         context: isPlatform ? "platform" : "store",
-        storeId: isPlatform ? undefined : (window as any).__STORE_ID__,
+        storeId: isPlatform ? undefined : storeId,
       })
 
       if (result?.error) {
@@ -102,7 +102,7 @@ function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatfor
           phone: email,
           password,
           context: "store",
-          storeId: (window as any).__STORE_ID__,
+          storeId: storeId,
         })
 
         if (signInResult?.error) {
@@ -228,10 +228,10 @@ function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatfor
   )
 }
 
-export function LoginClient({ themeConfig, isPlatform = false }: { themeConfig: any; isPlatform?: boolean }) {
+export function LoginClient({ themeConfig, isPlatform = false, storeId = null }: { themeConfig: any; isPlatform?: boolean; storeId?: string | null }) {
   return (
     <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-black/5 p-4"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
-      <LoginContent themeConfig={themeConfig} isPlatform={isPlatform} />
+      <LoginContent themeConfig={themeConfig} isPlatform={isPlatform} storeId={storeId} />
     </Suspense>
   )
 }

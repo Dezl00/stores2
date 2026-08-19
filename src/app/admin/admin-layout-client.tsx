@@ -13,11 +13,15 @@ import { GlobalOrderListener } from "@/components/admin/global-order-listener"
 export function AdminLayoutClient({
   children,
   storeName,
-  logoUrl
+  logoUrl,
+  initialRole,
+  initialPermissions,
 }: {
   children: React.ReactNode
   storeName: string
   logoUrl: string | null
+  initialRole: string
+  initialPermissions: string[]
 }) {
   useEffect(() => {
     document.body.classList.add('admin-theme', 'bg-background');
@@ -35,7 +39,7 @@ export function AdminLayoutClient({
 
   return (
     <SessionProvider>
-      <AdminLayoutInner storeName={storeName} logoUrl={logoUrl}>
+      <AdminLayoutInner storeName={storeName} logoUrl={logoUrl} initialRole={initialRole} initialPermissions={initialPermissions}>
         {children}
         <GlobalOrderListener />
       </AdminLayoutInner>
@@ -46,16 +50,21 @@ export function AdminLayoutClient({
 function AdminLayoutInner({
   children,
   storeName,
-  logoUrl
+  logoUrl,
+  initialRole,
+  initialPermissions,
 }: {
   children: React.ReactNode
   storeName: string
   logoUrl: string | null
+  initialRole: string
+  initialPermissions: string[]
 }) {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const permissions = session?.user?.permissions || []
-  const isAdmin = session?.user?.role === "STORE_OWNER"
+  // Use server-provided values immediately (no flash), then update from session once loaded
+  const permissions = session?.user?.permissions ?? initialPermissions
+  const isAdmin = (session?.user?.role ?? initialRole) === "STORE_OWNER"
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
@@ -92,8 +101,7 @@ function AdminLayoutInner({
       title: "التسويق",
       items: [
         { name: "العروض والخصومات", href: "/admin/marketing/offers", icon: Tag, show: hasPerm('offers') },
-        { name: "الحملات", href: "/admin/marketing/campaigns", icon: Tag, show: hasPerm('marketing') || true },
-        { name: "التسويق بالعمولة", href: "/admin/marketing/affiliates", icon: Tag, show: hasPerm('marketing') || true },
+        { name: "الحملات التسويقية", href: "/admin/marketing/campaigns", icon: Tag, show: hasPerm('marketing') || true },
       ]
     },
     {

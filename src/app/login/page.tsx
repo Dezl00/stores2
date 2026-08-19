@@ -25,6 +25,7 @@ export default async function LoginPage() {
 
   let themeConfig = null
   
+  let storeId = null
   if (onPlatform) {
     try {
       const adminCount = await db.platformUser.count({ where: { role: 'SUPER_ADMIN' } })
@@ -46,6 +47,7 @@ export default async function LoginPage() {
       const { getCurrentStore } = await import("@/lib/tenant")
       const store = await getCurrentStore()
       if (store) {
+        storeId = store.storeId
         themeConfig = await db.themeConfig.findUnique({
           where: { storeId: store.storeId }
         })
@@ -53,5 +55,5 @@ export default async function LoginPage() {
     } catch (e) {}
   }
 
-  return <LoginClient themeConfig={themeConfig} isPlatform={onPlatform} />
+  return <LoginClient themeConfig={themeConfig} isPlatform={onPlatform} storeId={storeId} />
 }

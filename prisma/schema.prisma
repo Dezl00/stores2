@@ -129,7 +129,6 @@ model Store {
   // New Relations
   productReviews        ProductReview[]
   carts                 Cart[]
-  affiliates            Affiliate[]
 
   @@index([slug])
   @@index([customDomain])
@@ -374,9 +373,6 @@ model Order {
   couponCode    String?
   paymentMethod String?
   
-  affiliateId   String?
-  affiliate     Affiliate?  @relation(fields: [affiliateId], references: [id])
-
   items         OrderItem[]
   storeId       String
   store         Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
@@ -387,7 +383,6 @@ model Order {
   @@index([status])
   @@index([createdAt])
   @@index([storeId])
-  @@index([affiliateId])
 }
 
 model OrderItem {
@@ -742,27 +737,3 @@ model CartItem {
   @@index([productId])
 }
 
-model Affiliate {
-  id             String   @id @default(cuid())
-  code           String
-  discountValue  Float
-  discountType   String   @default("PERCENTAGE") 
-  commissionRate Float    
-  name           String
-  email          String?
-  phone          String?
-  totalSales     Float    @default(0)
-  totalCommission Float   @default(0)
-  isActive       Boolean  @default(true)
-
-  storeId        String
-  store          Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-  orders         Order[]  
-
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  @@unique([code, storeId])
-  @@index([storeId])
-}
