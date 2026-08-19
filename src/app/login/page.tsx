@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { LoginClient } from "./login-client"
 import { Metadata } from "next"
-import { isPlatformContext, isSuperAdminDomain } from "@/lib/tenant"
+import { isPlatformContext } from "@/lib/tenant"
 
 export const metadata: Metadata = {
   title: "تسجيل الدخول",
@@ -54,5 +54,5 @@ export default async function LoginPage() {
     } catch (e) {}
   }
 
-  return <LoginClient themeConfig={themeConfig} isPlatform={onPlatform} storeId={storeId} isSuperAdmin={isSuperAdmin} />
+  return <LoginClient themeConfig={themeConfig} isPlatform={onPlatform} storeId={storeId} />
 }
