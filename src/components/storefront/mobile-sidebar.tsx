@@ -7,7 +7,7 @@ import { X, ChevronLeft } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { FaFacebookF, FaInstagram, FaXTwitter, FaWhatsapp, FaTiktok, FaSnapchat } from "react-icons/fa6"
 
-export function MobileSidebar({ menuItems, themeConfig, categories = [], departments = [] }: { menuItems?: any[], themeConfig?: any, categories?: any[], departments?: any[] }) {
+export function MobileSidebar({ menuItems, themeConfig, categories = [] }: { menuItems?: any[], themeConfig?: any, categories?: any[] }) {
   const { isMobileMenuOpen, setMobileMenuOpen } = useUIStore()
   const pathname = usePathname()
   const [openCategory, setOpenCategory] = React.useState<string | null>(null)
@@ -95,17 +95,7 @@ export function MobileSidebar({ menuItems, themeConfig, categories = [], departm
                 <ChevronLeft className="w-4 h-4 text-muted-foreground" />
               </Link>
               
-              {departments.map((dept: any) => (
-                <Link prefetch={false} 
-                  key={dept.id}
-                  href={`/department/${dept.slug}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between p-4 font-medium text-foreground hover:bg-secondary/50 transition-colors"
-                >
-                  {dept.name}
-                  <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-                </Link>
-              ))}
+
 
               <Link prefetch={false} 
                 href="/blog"
@@ -138,80 +128,7 @@ export function MobileSidebar({ menuItems, themeConfig, categories = [], departm
 
           {activeTab === 'categories' && (
             <div className="flex flex-col py-2 animate-in fade-in duration-300">
-              {departments.length > 0 ? (
-                departments.map((dept: any) => {
-                  const deptCategories = categories.filter(c => c.departmentId === dept.id && !c.parentId);
-                  return (
-                    <div key={dept.id} className="flex flex-col border-b border-border/50 last:border-0">
-                      <div className="flex items-center justify-between p-2">
-                        {/* Department Link with Image */}
-                        <Link prefetch={false} 
-                          href={`/department/${dept.slug}`}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="flex items-center gap-3 flex-1 p-2 hover:bg-secondary/30 rounded-xl transition-colors"
-                        >
-                          <div className="w-10 h-10 rounded bg-background border border-border shrink-0 flex items-center justify-center overflow-hidden">
-                            {dept.imageUrl ? (
-                              <img src={dept.imageUrl} alt={dept.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-4 h-4 bg-muted/50 rounded-full"></div>
-                            )}
-                          </div>
-                          <span className="font-medium text-foreground">{dept.name}</span>
-                        </Link>
-
-                        {/* Expand/Collapse Chevron (Only if children exist) */}
-                        {deptCategories.length > 0 && (
-                          <button 
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setOpenCategory(openCategory === dept.id ? null : dept.id);
-                            }}
-                            className="p-3 mr-2 bg-muted/50 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
-                          >
-                            <ChevronLeft className={`w-5 h-5 transition-transform duration-300 ${openCategory === dept.id ? '-rotate-90' : 'rtl-flip'}`} />
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Sub-categories (Animated collapse) */}
-                      <div 
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${openCategory === dept.id ? 'max-h-[1000px] opacity-100 mb-2' : 'max-h-0 opacity-0'}`}
-                      >
-                        <div className="flex flex-col gap-1 pr-14 pl-4 pb-2">
-                          {deptCategories.map((mainCat: any) => (
-                            <div key={mainCat.id} className="flex flex-col mb-1 last:mb-0">
-                              <Link prefetch={false} 
-                                href={`/category/${mainCat.slug}`}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="py-2.5 px-3 text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center gap-2 before:content-[''] before:w-1.5 before:h-1.5 before:rounded-full before:bg-primary/50"
-                              >
-                                {mainCat.name}
-                              </Link>
-                              {mainCat.children && mainCat.children.length > 0 && (
-                                <div className="flex flex-col gap-1 pr-4 border-r-2 border-border/30 mr-3 mt-1 mb-2">
-                                  {mainCat.children.map((subCat: any) => (
-                                    <Link prefetch={false} 
-                                      key={subCat.id} 
-                                      href={`/category/${subCat.slug}`}
-                                      onClick={() => setMobileMenuOpen(false)}
-                                      className="py-1.5 px-3 text-xs font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-colors flex items-center gap-2 before:content-[''] before:w-1 before:h-1 before:rounded-full before:bg-muted-foreground/30 hover:before:bg-primary/50"
-                                    >
-                                      {subCat.name}
-                                    </Link>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })
-              ) : (
-                categories.filter(c => !c.parentId).map((cat: any) => (
+                {categories.filter(c => !c.parentId).map((cat: any) => (
                   <div key={cat.id} className="flex flex-col border-b border-border/50 last:border-0">
                     <div className="flex items-center justify-between p-2">
                       {/* Category Link with Image */}
@@ -257,7 +174,7 @@ export function MobileSidebar({ menuItems, themeConfig, categories = [], departm
                     </div>
                   )}
                 </div>
-              )))}
+              ))}
             </div>
           )}
 

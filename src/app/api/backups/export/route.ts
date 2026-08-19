@@ -32,10 +32,9 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const [products, categories, departments, brands, orders, users, themeConfig, branches, widgets, mediaAssets, collections] = await Promise.all([
+    const [products, categories, brands, orders, users, themeConfig, branches, widgets, mediaAssets, collections] = await Promise.all([
       db.product.findMany({ include: { images: true } }),
       db.category.findMany(),
-      db.department.findMany(),
       db.brand.findMany(),
       db.order.findMany({ include: { items: true } }),
       db.storeUser.findMany(),
@@ -54,7 +53,6 @@ export async function GET() {
       data: {
         products,
         categories,
-        departments,
         brands,
         orders,
         users,
@@ -79,7 +77,6 @@ export async function GET() {
     mediaAssets.forEach(m => urlsToDownload.add(m.url))
     products.forEach(p => p.images.forEach(i => urlsToDownload.add(i.url)))
     categories.forEach(c => c.imageUrl && urlsToDownload.add(c.imageUrl))
-    departments.forEach(d => d.imageUrl && urlsToDownload.add(d.imageUrl))
     brands.forEach(b => b.logoUrl && urlsToDownload.add(b.logoUrl))
     
     // Add ThemeConfig images

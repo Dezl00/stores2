@@ -108,7 +108,6 @@ model Store {
   storeUsers            StoreUser[]            @relation("StoreMembers")
   widgets               Widget[]
   mediaAssets           MediaAsset[]
-  departments           Department[]
   categories            Category[]
   brands                Brand[]
   collections           Collection[]
@@ -116,7 +115,6 @@ model Store {
   orders                Order[]
   menus                 Menu[]
   themeConfig           ThemeConfig?
-  activityLogs          ActivityLog[]
   branches              Branch[]
   pageVisits            PageVisit[]
   backups               Backup[]
@@ -127,7 +125,11 @@ model Store {
   pushSubscriptions     PushSubscription[]
   articles              Article[]
   notificationCampaigns NotificationCampaign[]
-  employeesOfTheMonth   EmployeeOfTheMonth[]
+  
+  // New Relations
+  productReviews        ProductReview[]
+  carts                 Cart[]
+  affiliates            Affiliate[]
 
   @@index([slug])
   @@index([customDomain])
@@ -159,7 +161,6 @@ model StoreUser {
   ownedStores         Store[]            @relation("StoreOwnership")
   orders              Order[]
   addresses           Address[]
-  activityLogs        ActivityLog[]
   notifications       Notification[]
   pushSubscriptions   PushSubscription[]
 
@@ -247,24 +248,6 @@ model MediaAsset {
 
 // ---------- Catalog ----------
 
-model Department {
-  id          String     @id @default(cuid())
-  name        String
-  slug        String
-  description String?
-  imageUrl    String?
-  isActive    Boolean    @default(true)
-  categories  Category[]
-  products    Product[]
-  storeId     String
-  store       Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  @@unique([slug, storeId])
-  @@index([storeId])
-}
-
 model Category {
   id           String     @id @default(cuid())
   name         String
@@ -272,9 +255,6 @@ model Category {
   description  String?
   imageUrl     String?
   isActive     Boolean    @default(true)
-
-  departmentId String?
-  department   Department? @relation(fields: [departmentId], references: [id])
 
   parentId     String?
   parent       Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
@@ -290,7 +270,6 @@ model Category {
 
   @@unique([slug, storeId])
   @@index([parentId])
-  @@index([departmentId])
   @@index([storeId])
 }
 
@@ -338,15 +317,15 @@ model Product {
   categoryId         String
   category           Category       @relation(fields: [categoryId], references: [id])
 
-  departmentId       String?
-  department         Department?    @relation(fields: [departmentId], references: [id])
-
   brandId            String?
   brand              Brand?         @relation(fields: [brandId], references: [id])
 
   collections        Collection[]   @relation("CollectionProducts")
 
   images             ProductImage[]
+  
+  reviews            ProductReview[] @relation("ProductReviews")
+  cartItems          CartItem[]
 
   recommendationMode String         @default("Automatic") // Automatic, Manual, Disabled
 
@@ -362,7 +341,6 @@ model Product {
   @@unique([slug, storeId])
   @@index([categoryId])
   @@index([brandId])
-  @@index([departmentId])
   @@index([isActive])
   @@index([storeId])
 }
@@ -395,6 +373,10 @@ model Order {
   discount      Float       @default(0)
   couponCode    String?
   paymentMethod String?
+  
+  affiliateId   String?
+  affiliate     Affiliate?  @relation(fields: [affiliateId], references: [id])
+
   items         OrderItem[]
   storeId       String
   store         Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
@@ -405,6 +387,7 @@ model Order {
   @@index([status])
   @@index([createdAt])
   @@index([storeId])
+  @@index([affiliateId])
 }
 
 model OrderItem {
@@ -510,26 +493,7 @@ model ThemeConfig {
   updatedAt                     DateTime @updatedAt
 }
 
-// ---------- Activity & Analytics ----------
-
-model ActivityLog {
-  id         String     @id @default(cuid())
-  userId     String?
-  user       StoreUser? @relation(fields: [userId], references: [id])
-  action     String     // Create, Update, Delete, Login
-  entityType String     // Product, Widget, etc.
-  entityId   String?
-  details    Json?
-  ipAddress  String?
-  browser    String?
-  storeId    String
-  store      Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  createdAt  DateTime   @default(now())
-
-  @@index([userId])
-  @@index([createdAt])
-  @@index([storeId])
-}
+// ---------- Analytics ----------
 
 model Branch {
   id        String   @id @default(cuid())
@@ -723,18 +687,82 @@ model NotificationCampaign {
   @@index([storeId])
 }
 
-model EmployeeOfTheMonth {
+// ---------- New Models ----------
+
+model ProductReview {
   id        String   @id @default(cuid())
-  name      String
-  jobTitle  String
-  imageUrl  String
-  month     Int
-  year      Int
+  rating    Int
+  comment   String?
+  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  productId String
+  product   Product  @relation("ProductReviews", fields: [productId], references: [id], onDelete: Cascade)
+  userId    String?  
+  userName  String?  
+  
   storeId   String
   store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([month, year, storeId])
+  @@index([productId])
+  @@index([storeId])
+}
+
+model Cart {
+  id          String   @id @default(cuid())
+  sessionId   String?  
+  userId      String?  
+  
+  status      String   @default("ACTIVE") // ACTIVE, ABANDONED, CONVERTED
+  
+  items       CartItem[]
+
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sessionId])
+  @@index([userId])
+  @@index([storeId])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+  price     Float
+
+  @@index([cartId])
+  @@index([productId])
+}
+
+model Affiliate {
+  id             String   @id @default(cuid())
+  code           String
+  discountValue  Float
+  discountType   String   @default("PERCENTAGE") 
+  commissionRate Float    
+  name           String
+  email          String?
+  phone          String?
+  totalSales     Float    @default(0)
+  totalCommission Float   @default(0)
+  isActive       Boolean  @default(true)
+
+  storeId        String
+  store          Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  orders         Order[]  
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([code, storeId])
   @@index([storeId])
 }

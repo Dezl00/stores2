@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation"
 import { searchProductsLive } from "@/features/search/actions"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
 
-export function StorefrontHeader({ menuItems, themeConfig, user, categories = [], departments = [] }: { menuItems?: any[], themeConfig?: any, user?: any, categories?: any[], departments?: any[] }) {
+export function StorefrontHeader({ menuItems, themeConfig, user, categories = [] }: { menuItems?: any[], themeConfig?: any, user?: any, categories?: any[] }) {
   const { getTotals, setIsOpen } = useCartStore()
   const { count, total } = getTotals()
   const [mounted, setMounted] = useState(false)
@@ -79,53 +79,6 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
               <Link prefetch={false} href="/" className="text-sm font-bold text-foreground hover:text-primary transition-colors">الرئيسية</Link>
               <Link prefetch={false} href="/products" className="text-sm font-bold text-foreground hover:text-primary transition-colors">المتجر</Link>
               
-              {departments.length > 0 ? (
-                departments.map((dept: any) => {
-                  const deptCategories = categories.filter(c => c.departmentId === dept.id && !c.parentId);
-                  return (
-                    <div 
-                      key={dept.id}
-                      className="relative py-8 group/deptNav"
-                    >
-                      <Link prefetch={false} href={`/department/${dept.slug}`} className="flex items-center gap-1 text-sm font-bold text-foreground hover:text-primary transition-colors">
-                        {dept.name} {deptCategories.length > 0 && <ChevronDown className="w-4 h-4" />}
-                      </Link>
-                      
-                      {deptCategories.length > 0 && (
-                        <div className="absolute top-[80px] right-0 w-64 bg-card border border-border shadow-xl rounded-2xl py-2 flex flex-col opacity-0 invisible group-hover/deptNav:opacity-100 group-hover/deptNav:visible transition-all duration-200 z-50">
-                          {deptCategories.map((cat: any) => (
-                            <div key={cat.id} className="relative group/subcat">
-                              <Link prefetch={false} 
-                                href={`/category/${cat.slug}`} 
-                                className="flex items-center justify-between px-4 py-3 hover:bg-primary/5 hover:text-primary transition-colors text-sm font-bold text-foreground group/sublink"
-                              >
-                                <span>{cat.name}</span>
-                                {cat.children && cat.children.length > 0 && (
-                                  <ChevronDown className="w-4 h-4 text-muted-foreground rotate-90" />
-                                )}
-                              </Link>
-                              
-                              {cat.children && cat.children.length > 0 && (
-                                <div className="absolute top-0 right-full w-64 bg-card border border-border shadow-xl rounded-2xl py-2 flex flex-col opacity-0 invisible group-hover/subcat:opacity-100 group-hover/subcat:visible transition-all duration-200 z-50">
-                                  {cat.children.map((sub: any) => (
-                                    <Link prefetch={false} 
-                                      key={sub.id} 
-                                      href={`/category/${sub.slug}`} 
-                                      className="flex items-center px-4 py-3 hover:bg-primary/5 hover:text-primary transition-colors text-sm font-bold text-foreground"
-                                    >
-                                      {sub.name}
-                                    </Link>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })
-              ) : (
                 <div className="relative py-8 group/catNav">
                   <div className="flex items-center gap-1 text-sm font-bold text-foreground hover:text-primary transition-colors cursor-pointer">
                     الأقسام <ChevronDown className="w-4 h-4" />
@@ -159,7 +112,6 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                     ))}
                   </div>
                 </div>
-              )}
               
               <Link prefetch={false} href="/blog" className="text-sm font-bold text-foreground hover:text-primary transition-colors">الأدلة والنصائح</Link>
               <Link prefetch={false} href="/brands" className="text-sm font-bold text-foreground hover:text-primary transition-colors">الماركات</Link>

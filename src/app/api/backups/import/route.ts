@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid backup format" }, { status: 400 })
     }
 
-    const { products, categories, departments, brands, themeConfig } = parsedData.data
+    const { products, categories, brands, themeConfig } = parsedData.data
 
     // We do a very basic restore: clear existing and insert new
     // Note: Due to foreign keys, order of deletion and insertion matters
@@ -46,15 +46,11 @@ export async function POST(req: Request) {
       await tx.productImage.deleteMany()
       await tx.product.deleteMany()
       await tx.category.deleteMany()
-      await tx.department.deleteMany()
       await tx.brand.deleteMany()
 
       // Insert data
-      if (departments && departments.length > 0) {
-        await tx.department.createMany({ data: departments.map((d: any) => ({ id: d.id, name: d.name, slug: d.slug, imageUrl: d.imageUrl, isActive: d.isActive })) })
-      }
       if (categories && categories.length > 0) {
-        await tx.category.createMany({ data: categories.map((c: any) => ({ id: c.id, name: c.name, slug: c.slug, imageUrl: c.imageUrl, parentId: c.parentId, departmentId: c.departmentId })) })
+        await tx.category.createMany({ data: categories.map((c: any) => ({ id: c.id, name: c.name, slug: c.slug, imageUrl: c.imageUrl, parentId: c.parentId })) })
       }
       if (brands && brands.length > 0) {
         await tx.brand.createMany({ data: brands.map((b: any) => ({ id: b.id, name: b.name, slug: b.slug, imageUrl: b.imageUrl, isActive: b.isActive })) })
@@ -75,7 +71,6 @@ export async function POST(req: Request) {
             isActive: p.isActive,
             isFeatured: p.isFeatured,
             categoryId: p.categoryId,
-            departmentId: p.departmentId,
             brandId: p.brandId
           })) 
         })

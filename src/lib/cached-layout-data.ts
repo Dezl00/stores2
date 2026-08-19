@@ -9,8 +9,7 @@ export const getCachedLayoutData = unstable_cache(
       fallbackMenu,
       themeConfig,
       categories,
-      branches,
-      departments
+      branches
     ] = await Promise.all([
       db.menu.findFirst({
         where: { name: { contains: "header", mode: "insensitive" }, storeId },
@@ -32,9 +31,6 @@ export const getCachedLayoutData = unstable_cache(
       db.branch.findMany({
         where: { isActive: true },
         orderBy: { sortOrder: 'asc' }
-      }),
-      db.department.findMany({
-        include: { categories: true }
       })
     ])
 
@@ -44,8 +40,7 @@ export const getCachedLayoutData = unstable_cache(
       fallbackMenu,
       themeConfig,
       categories,
-      branches,
-      departments
+      branches
     }
   },
   ['store-layout-data'],

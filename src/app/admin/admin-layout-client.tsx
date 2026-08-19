@@ -69,30 +69,60 @@ function AdminLayoutInner({
     return permissions.some((p: string) => p === permOrPrefix || p.startsWith(`${permOrPrefix}.`));
   }
 
-  const navItems = [
-    { name: "الرئيسية", href: "/admin", icon: LayoutDashboard, show: true },
-    { name: "الطلبات", href: "/admin/orders", icon: ShoppingBag, show: hasPerm('orders') },
-    { name: "العملاء", href: "/admin/customers", icon: FolderTree, show: hasPerm('customers') },
-    { name: "المجالات", href: "/admin/departments", icon: LayoutDashboard, show: hasPerm('departments') },
-    { name: "الأقسام", href: "/admin/categories", icon: ListTree, show: hasPerm('categories') },
-    { name: "المنتجات", href: "/admin/products", icon: ShoppingBag, show: hasPerm('products') },
-    { name: "العروض وأكواد الخصم", href: "/admin/offers", icon: Tag, show: hasPerm('offers') },
-    { name: "طرق الدفع والشحن", href: "/admin/shipping-payment", icon: Truck, show: hasPerm('settings') },
-    { name: "الإحصائيات", href: "/admin/analytics", icon: LayoutDashboard, show: hasPerm('analytics') },
-    { name: "منشئ الواجهات", href: "/admin/widgets", icon: LayoutTemplate, show: hasPerm('widgets') },
-    { name: "المقالات", href: "/admin/articles", icon: BookOpen, show: hasPerm('articles') },
-    { name: "موظفو الشهر", href: "/admin/employees-of-the-month", icon: Award, show: hasPerm('employees_of_the_month') },
-    { name: "الحسابات والصلاحيات", href: "/admin/accounts", icon: FolderTree, show: hasPerm('accounts') },
-    { name: "السجلات", href: "/admin/logs", icon: LayoutDashboard, show: hasPerm('security') },
-    { name: "الإعدادات", href: "/admin/settings", icon: Settings, show: hasPerm('settings') },
-  ].filter(item => item.show)
+  const navGroups = [
+    {
+      title: "المبيعات",
+      items: [
+        { name: "الرئيسية", href: "/admin", icon: LayoutDashboard, show: true },
+        { name: "الطلبات", href: "/admin/sales/orders", icon: ShoppingBag, show: hasPerm('orders') },
+        { name: "السلات المتروكة", href: "/admin/sales/abandoned-carts", icon: ShoppingBag, show: hasPerm('orders') },
+        { name: "العملاء", href: "/admin/sales/customers", icon: FolderTree, show: hasPerm('customers') },
+      ]
+    },
+    {
+      title: "الكتالوج",
+      items: [
+        { name: "المنتجات", href: "/admin/catalog/products", icon: ShoppingBag, show: hasPerm('products') },
+        { name: "التصنيفات", href: "/admin/catalog/categories", icon: ListTree, show: hasPerm('categories') },
+        { name: "التقييمات", href: "/admin/catalog/reviews", icon: Tag, show: hasPerm('products') },
+        { name: "المخزون", href: "/admin/catalog/inventory", icon: FolderTree, show: hasPerm('products') },
+      ]
+    },
+    {
+      title: "التسويق",
+      items: [
+        { name: "العروض والخصومات", href: "/admin/marketing/offers", icon: Tag, show: hasPerm('offers') },
+        { name: "الحملات", href: "/admin/marketing/campaigns", icon: Tag, show: hasPerm('marketing') || true },
+        { name: "التسويق بالعمولة", href: "/admin/marketing/affiliates", icon: Tag, show: hasPerm('marketing') || true },
+      ]
+    },
+    {
+      title: "واجهة المتجر",
+      items: [
+        { name: "تصميم المتجر", href: "/admin/storefront/theme", icon: LayoutTemplate, show: hasPerm('widgets') },
+        { name: "الصفحات والمدونة", href: "/admin/storefront/pages", icon: BookOpen, show: hasPerm('articles') },
+        { name: "القوائم والروابط", href: "/admin/storefront/menus", icon: ListTree, show: hasPerm('widgets') },
+      ]
+    },
+    {
+      title: "النظام",
+      items: [
+        { name: "الإحصائيات", href: "/admin/analytics", icon: LayoutDashboard, show: hasPerm('analytics') },
+        { name: "الإعدادات", href: "/admin/system/settings", icon: Settings, show: hasPerm('settings') },
+        { name: "طرق الشحن والدفع", href: "/admin/system/shipping", icon: Truck, show: hasPerm('settings') },
+        { name: "فريق العمل", href: "/admin/system/team", icon: FolderTree, show: hasPerm('accounts') },
+        { name: "التطبيقات والربط", href: "/admin/system/apps", icon: LayoutTemplate, show: hasPerm('settings') || true },
+        { name: "الباقات والفواتير", href: "/admin/system/billing", icon: Tag, show: hasPerm('settings') || true },
+      ]
+    }
+  ]
 
   // For bottom nav, we only show top 4 most important for mobile
   const bottomNavItems = [
     { name: "الرئيسية", href: "/admin", icon: LayoutDashboard },
-    { name: "الطلبات", href: "/admin/orders", icon: ShoppingBag },
-    { name: "العملاء", href: "/admin/customers", icon: FolderTree },
-    { name: "المنتجات", href: "/admin/products", icon: ShoppingBag },
+    { name: "الطلبات", href: "/admin/sales/orders", icon: ShoppingBag },
+    { name: "العملاء", href: "/admin/sales/customers", icon: FolderTree },
+    { name: "المنتجات", href: "/admin/catalog/products", icon: ShoppingBag },
   ]
 
   return (
@@ -107,21 +137,34 @@ function AdminLayoutInner({
             <span className="text-xl font-bold text-[#2453E3]">{storeName}</span>
           )}
         </div>
-        <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href
+        <nav className="p-4 space-y-6 flex-1 overflow-y-auto">
+          {navGroups.map((group) => {
+            const groupItems = group.items.filter(i => i.show)
+            if (groupItems.length === 0) return null
             return (
-              <Link prefetch={false}
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all active:scale-95",
-                  isActive ? "bg-[#2453E3] text-white" : "hover:bg-slate-100 text-slate-600 hover:text-[#2453E3]"
-                )}
-              >
-                <item.icon className={cn("h-5 w-5 transition-colors rtl-flip", isActive ? "text-white" : "text-slate-500 group-hover:text-[#2453E3]")} />
-                {item.name}
-              </Link>
+              <div key={group.title} className="space-y-2">
+                <h3 className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  {group.title}
+                </h3>
+                <div className="space-y-1">
+                  {groupItems.map((item) => {
+                    const isActive = pathname === item.href
+                    return (
+                      <Link prefetch={false}
+                        key={item.name}
+                        href={item.href}
+                        className={cn(
+                          "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all active:scale-95",
+                          isActive ? "bg-[#2453E3] text-white shadow-sm" : "hover:bg-slate-50 text-slate-600 hover:text-[#2453E3]"
+                        )}
+                      >
+                        <item.icon className={cn("h-4 w-4 transition-colors rtl-flip", isActive ? "text-white" : "text-slate-400 group-hover:text-[#2453E3]")} />
+                        {item.name}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
             )
           })}
         </nav>
@@ -160,22 +203,35 @@ function AdminLayoutInner({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href
+        <nav className="p-4 space-y-6 flex-1 overflow-y-auto">
+          {navGroups.map((group) => {
+            const groupItems = group.items.filter(i => i.show)
+            if (groupItems.length === 0) return null
             return (
-              <Link prefetch={false}
-                key={item.name}
-                href={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={cn(
-                  "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all active:scale-95",
-                  isActive ? "bg-[#2453E3] text-white" : "hover:bg-slate-100 text-slate-600 hover:text-[#2453E3]"
-                )}
-              >
-                <item.icon className={cn("h-5 w-5 transition-colors rtl-flip", isActive ? "text-white" : "text-slate-500 group-hover:text-[#2453E3]")} />
-                {item.name}
-              </Link>
+              <div key={group.title} className="space-y-2">
+                <h3 className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  {group.title}
+                </h3>
+                <div className="space-y-1">
+                  {groupItems.map((item) => {
+                    const isActive = pathname === item.href
+                    return (
+                      <Link prefetch={false}
+                        key={item.name}
+                        href={item.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={cn(
+                          "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all active:scale-95",
+                          isActive ? "bg-[#2453E3] text-white shadow-sm" : "hover:bg-slate-50 text-slate-600 hover:text-[#2453E3]"
+                        )}
+                      >
+                        <item.icon className={cn("h-4 w-4 transition-colors rtl-flip", isActive ? "text-white" : "text-slate-400 group-hover:text-[#2453E3]")} />
+                        {item.name}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
             )
           })}
         </nav>

@@ -25,8 +25,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
     fallbackMenu,
     themeConfig,
     categories,
-    branches,
-    departments
+    branches
   } = await getCachedLayoutData(await resolveStoreId())
 
   const topNavItems = headerMenu?.items || fallbackMenu?.items || []
@@ -35,8 +34,8 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-screen flex flex-col font-sans pb-16 md:pb-0 selection:bg-primary/20">
       <ScrollToTop />
-      <StorefrontHeader menuItems={topNavItems} themeConfig={themeConfig} user={user} categories={categories} departments={departments} />
-      <MobileSidebar menuItems={topNavItems} themeConfig={themeConfig} categories={categories} departments={departments} />
+      <StorefrontHeader menuItems={topNavItems} themeConfig={themeConfig} user={user} categories={categories} />
+      <MobileSidebar menuItems={topNavItems} themeConfig={themeConfig} categories={categories} />
       <CartDrawer />
       <AuthModal themeConfig={themeConfig} />
       <main className="flex-1 min-h-[80vh] flex flex-col">

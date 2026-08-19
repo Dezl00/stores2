@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,7 @@ import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { ImageUploader } from "@/components/ui/image-uploader"
 import { usePermissions } from "@/hooks/use-permissions"
 
-export function CategoriesClient({ categories, departments = [] }: { categories: any[], departments?: any[] }) {
+export function CategoriesClient({ categories }: { categories: any[] }) {
   const { hasPermission } = usePermissions()
   const canAdd = hasPermission("categories.add")
   const canEdit = hasPermission("categories.edit")
@@ -65,10 +65,7 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
           setSelectedParentId(pId)
           setParentSearch(categories.find((c: any) => c.id === pId)?.name || "")
 
-          const deptSelect = document.getElementById('departmentId-select') as HTMLSelectElement
-          if (deptSelect) {
-            deptSelect.value = editingCategory.departmentId || ""
-          }
+
         }
       }, 0);
       setIsFormVisible(true)
@@ -85,10 +82,7 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
       form.categoryType.value = "main"
       setSelectedParentId("")
       setParentSearch("")
-      const deptSelect = document.getElementById('departmentId-select') as HTMLSelectElement
-      if (deptSelect) {
-        deptSelect.value = ""
-      }
+
     }
   }
 
@@ -108,8 +102,6 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
     formData.set("imageUrl", imageUrl)
     if (categoryType === "main") {
       formData.delete("parentId")
-    } else {
-      formData.delete("departmentId")
     }
     
     let res;
@@ -205,9 +197,6 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
     const formData = new FormData(e.currentTarget)
     const data: any = {}
     
-    if (formData.has("departmentId")) {
-      data.departmentId = formData.get("departmentId") as string
-    }
     if (formData.has("parentId")) {
       data.parentId = formData.get("parentId") as string
     }
@@ -231,8 +220,7 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
     }
   }
 
-  const [filterDepartment, setFilterDepartment] = useState<string>("all")
-  const [filterCategory, setFilterCategory] = useState<string>("all")
+
 
   const truncateText = (text: string, maxWords: number = 3) => {
     if (!text) return "";
@@ -257,14 +245,7 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
     const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.slug.toLowerCase().includes(searchQuery.toLowerCase())
     if (!matchesSearch) return false
 
-    if (filterDepartment !== "all") {
-      const parent = localCategories.find(p => p.id === c.parentId)
-      if (c.departmentId !== filterDepartment && parent?.departmentId !== filterDepartment) return false
-    }
 
-    if (filterCategory !== "all") {
-      if (c.id !== filterCategory && c.parentId !== filterCategory) return false
-    }
 
     return true
   })
@@ -324,30 +305,7 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
                   className="h-10 w-full rounded-md border border-input bg-transparent pr-10 pl-3 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <select 
-                  value={filterDepartment}
-                  onChange={(e) => { setFilterDepartment(e.target.value); setFilterCategory("all"); }}
-                  className="h-10 rounded-md border border-input bg-transparent px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring w-full sm:w-auto max-w-[200px]"
-                >
-                  <option value="all">كل المجالات</option>
-                  {departments.map(d => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
-                  ))}
-                </select>
-                {filterDepartment !== "all" && (
-                  <select 
-                    value={filterCategory}
-                    onChange={(e) => setFilterCategory(e.target.value)}
-                    className="h-10 rounded-md border border-input bg-transparent px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring w-full sm:w-auto max-w-[200px]"
-                  >
-                    <option value="all">كل الأقسام للمجال</option>
-                    {localCategories.filter(c => !c.parentId && c.departmentId === filterDepartment).map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                )}
-              </div>
+
             </div>
             
             {/* Bulk Actions Bar */}
@@ -365,7 +323,7 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
                     onClick={() => setIsBulkModalOpen(true)}
                   >
                     <Edit className="w-4 h-4 ml-2" />
-                    {(!localCategories.find(c => c.id === selectedIds[0])?.parentId) ? "تغيير المجال" : "تغيير القسم الرئيسي"}
+                    تغيير القسم الرئيسي
                   </Button>
                   <Button 
                     variant="ghost" 
@@ -392,7 +350,7 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
                       />
                     </th>
                     <th className="px-6 py-4 font-medium">اسم القسم</th>
-                    <th className="px-6 py-4 font-medium">القسم الرئيسي / المجال</th>
+                    <th className="px-6 py-4 font-medium">القسم الرئيسي</th>
                     <th className="px-6 py-4 font-medium">المنتجات</th>
                     <th className="px-6 py-4 font-medium text-center">الحالة</th>
                     <th className="px-6 py-4 font-medium text-center">الإجراءات</th>
@@ -450,9 +408,7 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
                           {category.parent ? (
                             <span className="text-muted-foreground">{category.parent.name}</span>
                           ) : (
-                            <span className="text-muted-foreground" title={departments.find(d => d.id === category.departmentId)?.name || ""}>
-                              {truncateText(departments.find(d => d.id === category.departmentId)?.name || "-", 3)}
-                            </span>
+                            <span className="text-muted-foreground">-</span>
                           )}
                         </td>
                         <td className="px-6 py-4">
@@ -577,11 +533,9 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
                     
                     <div className="flex flex-wrap gap-2 text-sm">
                       <div className="flex items-center gap-1.5 bg-muted/50 px-2.5 py-1 rounded-md">
-                        <span className="text-muted-foreground text-xs">{category.parentId ? 'الرئيسي:' : 'المجال:'}</span>
-                        <span className="font-medium text-xs" title={!category.parent ? (departments.find(d => d.id === category.departmentId)?.name || "") : ""}>
-                          {category.parent 
-                            ? category.parent.name 
-                            : truncateText(departments.find(d => d.id === category.departmentId)?.name || "-", 3)}
+                        <span className="text-muted-foreground text-xs">الرئيسي:</span>
+                        <span className="font-medium text-xs">
+                          {category.parent ? category.parent.name : "-"}
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5 bg-muted/50 px-2.5 py-1 rounded-md">
@@ -755,22 +709,7 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
                   </div>
                 )}
 
-                {categoryType === "main" && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">المجال التابع له <span className="text-red-500">*</span></label>
-                    <select 
-                      id="departmentId-select"
-                      name="departmentId"
-                      required
-                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring appearance-none"
-                    >
-                      <option value="">اختر المجال...</option>
-                      {departments?.map(d => (
-                        <option key={d.id} value={d.id}>{d.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+
 
                 <div className="space-y-2 pt-4 border-t border-border/50">
                   <div className="flex items-center justify-between cursor-pointer" onClick={() => setShowAdvanced(!showAdvanced)}>
@@ -815,7 +754,7 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
           <div className="bg-background rounded-xl border border-border shadow-lg w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="border-b border-border/50 px-6 py-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold tracking-tight">
-                {(!localCategories.find(c => c.id === selectedIds[0])?.parentId) ? "تغيير المجال" : "تغيير القسم الرئيسي"}
+                تغيير القسم الرئيسي
               </h2>
               <Button variant="ghost" size="icon" onClick={() => setIsBulkModalOpen(false)} className="h-8 w-8 text-muted-foreground">
                 <X className="w-4 h-4" />
@@ -824,20 +763,8 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
             <form onSubmit={executeBulkUpdate} className="p-6 space-y-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
-                  {(!localCategories.find(c => c.id === selectedIds[0])?.parentId) ? "اختر المجال الجديد" : "اختر القسم الأب الجديد"}
+                  اختر القسم الأب الجديد
                 </label>
-                {(!localCategories.find(c => c.id === selectedIds[0])?.parentId) ? (
-                  <select 
-                    name="departmentId"
-                    required
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring appearance-none"
-                  >
-                    <option value="">اختر المجال...</option>
-                    {departments?.map(d => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
-                    ))}
-                  </select>
-                ) : (
                   <select 
                     name="parentId"
                     required
@@ -848,7 +775,6 @@ export function CategoriesClient({ categories, departments = [] }: { categories:
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
                   </select>
-                )}
               </div>
               
               <div className="flex items-center gap-3 justify-end pt-4 border-t border-border/50">

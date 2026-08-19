@@ -20,7 +20,6 @@ export async function createCategory(formData: FormData) {
     const categoryType = formData.get("categoryType") as string
     const imageUrl = formData.get("imageUrl") as string
     const parentId = categoryType === "sub" ? (formData.get("parentId") as string) : null
-    const departmentId = formData.get("departmentId") as string
 
     if (!name || !slug) {
       return { success: false, error: "Name and Slug are required" }
@@ -34,7 +33,6 @@ export async function createCategory(formData: FormData) {
         description: description || null,
         imageUrl: imageUrl || null,
         parentId: parentId || null,
-        departmentId: departmentId || null,
       }
     })
 
@@ -101,7 +99,6 @@ export async function updateCategory(id: string, formData: FormData) {
     const categoryType = formData.get("categoryType") as string
     const imageUrl = formData.get("imageUrl") as string
     const parentId = categoryType === "sub" ? (formData.get("parentId") as string) : null
-    const departmentId = formData.get("departmentId") as string
 
     if (!name || !slug) {
       return { success: false, error: "Name and Slug are required" }
@@ -115,7 +112,6 @@ export async function updateCategory(id: string, formData: FormData) {
         description: description || null,
         imageUrl: imageUrl || null,
         parentId: parentId || null,
-        departmentId: departmentId || null,
       }
     })
 
@@ -126,7 +122,7 @@ export async function updateCategory(id: string, formData: FormData) {
   }
 }
 
-export async function bulkUpdateCategories(ids: string[], data: { departmentId?: string, parentId?: string }) {
+export async function bulkUpdateCategories(ids: string[], data: { parentId?: string }) {
   try {
     try {
       await requirePermission("categories.edit")
@@ -139,7 +135,6 @@ export async function bulkUpdateCategories(ids: string[], data: { departmentId?:
     await db.category.updateMany({
       where: { id: { in: ids }, storeId },
       data: {
-        ...(data.departmentId !== undefined && { departmentId: data.departmentId }),
         ...(data.parentId !== undefined && { parentId: data.parentId }),
       }
     })
