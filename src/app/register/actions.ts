@@ -6,7 +6,8 @@ import bcrypt from "bcryptjs"
 export async function registerStorePublic(formData: FormData) {
   try {
     const name = formData.get("name") as string
-    const slug = formData.get("slug") as string
+    const rawSlug = formData.get("slug") as string
+    const slug = rawSlug ? rawSlug.toLowerCase() : ""
     const ownerName = formData.get("ownerName") as string
     const ownerEmail = formData.get("ownerEmail") as string
     const ownerPassword = formData.get("ownerPassword") as string

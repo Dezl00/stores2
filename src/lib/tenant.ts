@@ -22,8 +22,13 @@ export function isPlatformDomain(hostname: string): boolean {
 }
 
 export const getStoreBySlug = cache(async (slug: string) => {
-  return db.store.findUnique({
-    where: { slug }
+  return db.store.findFirst({
+    where: { 
+      slug: {
+        equals: slug,
+        mode: "insensitive"
+      }
+    }
   })
 })
 
