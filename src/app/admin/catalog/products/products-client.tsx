@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useEffect, useMemo, useRef } from "react"
 import { createPortal } from "react-dom"
@@ -14,7 +14,7 @@ import { ImportProductsModal } from "@/components/admin/import-products-modal"
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 
-export function ProductsClient({ products, categories, brands = [], departments = [], currentPage = 1, totalPages = 1, initialSearch = "", initialDept = "", initialBrand = "", initialCats = [], initialStatus = "all" }: { products: any[], categories: any[], brands?: any[], departments?: any[], currentPage?: number, totalPages?: number, initialSearch?: string, initialDept?: string, initialBrand?: string, initialCats?: string[], initialStatus?: string }) {
+export function ProductsClient({ products, categories, brands = [], currentPage = 1, totalPages = 1, initialSearch = "", initialBrand = "", initialCats = [], initialStatus = "all" }: { products: any[], categories: any[], brands?: any[], currentPage?: number, totalPages?: number, initialSearch?: string, initialBrand?: string, initialCats?: string[], initialStatus?: string }) {
   const { hasPermission } = usePermissions()
   const canAdd = hasPermission("products.add")
   const canEdit = hasPermission("products.edit")
@@ -50,7 +50,6 @@ export function ProductsClient({ products, categories, brands = [], departments 
 
   // Filter States (synced with URL)
   const [searchQuery, setSearchQuery] = useState(initialSearch)
-  const [filterDept, setFilterDept] = useState(initialDept)
   const [filterCats, setFilterCats] = useState<string[]>(initialCats)
   const [isFilterCatDropdownOpen, setIsFilterCatDropdownOpen] = useState(false)
   const [filterBrand, setFilterBrand] = useState(initialBrand)
@@ -64,7 +63,6 @@ export function ProductsClient({ products, categories, brands = [], departments 
   const applyFilters = () => {
     const params = new URLSearchParams()
     if (searchQuery) params.set("search", searchQuery)
-    if (filterDept) params.set("departmentId", filterDept)
     if (filterBrand) params.set("brandId", filterBrand)
     if (filterCats.length > 0) params.set("categoryIds", filterCats.join(","))
     if (filterStatus !== "all") params.set("status", filterStatus)
@@ -75,17 +73,15 @@ export function ProductsClient({ products, categories, brands = [], departments 
   // Debounced search & filter sync
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Only apply if they differ from initial to avoid loops, or just apply them and rely on Next.js to not loop.
       applyFilters()
     }, 500)
     return () => clearTimeout(timer)
-  }, [searchQuery, filterDept, filterBrand, filterCats, filterStatus])
+  }, [searchQuery, filterBrand, filterCats, filterStatus])
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return
     const params = new URLSearchParams()
     if (searchQuery) params.set("search", searchQuery)
-    if (filterDept) params.set("departmentId", filterDept)
     if (filterBrand) params.set("brandId", filterBrand)
     if (filterCats.length > 0) params.set("categoryIds", filterCats.join(","))
     if (filterStatus !== "all") params.set("status", filterStatus)
@@ -292,7 +288,7 @@ export function ProductsClient({ products, categories, brands = [], departments 
   async function handleExportExcel() {
     const params = new URLSearchParams()
     if (searchQuery) params.set("search", searchQuery)
-    if (filterDept) params.set("departmentId", filterDept)
+
     if (filterBrand) params.set("brandId", filterBrand)
     if (filterCats.length > 0) params.set("categoryIds", filterCats.join(","))
     if (filterStatus !== "all") params.set("status", filterStatus)
@@ -354,60 +350,51 @@ export function ProductsClient({ products, categories, brands = [], departments 
         </div>
 
         {showFilters && (
-          <div className={`grid grid-cols-1 md:grid-cols-${filterDept ? '4' : '3'} gap-4 mt-4 pt-4 border-t border-border/50 animate-in slide-in-from-top-2`}>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">المجال</label>
-              <select value={filterDept} onChange={e => { setFilterDept(e.target.value); setFilterCats([]); }} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-                <option value="">الكل</option>
-                {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-              </select>
-            </div>
-            {filterDept && (
-              <div className="space-y-1.5 relative">
-                <label className="text-xs font-semibold text-muted-foreground">الأقسام</label>
-                <div 
-                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm flex items-center justify-between cursor-pointer"
-                  onClick={() => setIsFilterCatDropdownOpen(!isFilterCatDropdownOpen)}
-                >
-                  <span className="truncate">
-                    {filterCats.length > 0 ? `تم تحديد ${filterCats.length}` : "الكل"}
-                  </span>
-                  <span className="text-muted-foreground text-xs">▼</span>
-                </div>
-                {isFilterCatDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-card border border-border/50 rounded-md shadow-lg z-50 p-2 space-y-1">
-                    <label className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={filterCats.length === 0}
-                        onChange={() => { setFilterCats([]); setIsFilterCatDropdownOpen(false); }}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-border/50 animate-in slide-in-from-top-2">
+            <div className="space-y-1.5 relative">
+              <label className="text-xs font-semibold text-muted-foreground">الأقسام</label>
+              <div
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm flex items-center justify-between cursor-pointer"
+                onClick={() => setIsFilterCatDropdownOpen(!isFilterCatDropdownOpen)}
+              >
+                <span className="truncate">
+                  {filterCats.length > 0 ? `تم تحديد ${filterCats.length}` : "الكل"}
+                </span>
+                <span className="text-muted-foreground text-xs">▼</span>
+              </div>
+              {isFilterCatDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-card border border-border/50 rounded-md shadow-lg z-50 p-2 space-y-1">
+                  <label className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={filterCats.length === 0}
+                      onChange={() => { setFilterCats([]); setIsFilterCatDropdownOpen(false); }}
+                      className="rounded border-input text-primary focus:ring-primary w-4 h-4 cursor-pointer"
+                    />
+                    <span className="text-sm">الكل</span>
+                  </label>
+                  {categories.map((c: any) => (
+                    <label key={c.id} className={`flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded cursor-pointer ${c.parentId ? 'mr-4' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={filterCats.includes(c.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) setFilterCats([...filterCats, c.id]);
+                          else setFilterCats(filterCats.filter((id: string) => id !== c.id));
+                        }}
                         className="rounded border-input text-primary focus:ring-primary w-4 h-4 cursor-pointer"
                       />
-                      <span className="text-sm">الكل</span>
+                      <span className="text-sm">{c.name}</span>
                     </label>
-                    {categories.filter(c => c.departmentId === filterDept || (c.parentId && categories.find(p => p.id === c.parentId)?.departmentId === filterDept)).map(c => (
-                      <label key={c.id} className={`flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded cursor-pointer ${c.parentId ? 'mr-4' : ''}`}>
-                        <input 
-                          type="checkbox" 
-                          checked={filterCats.includes(c.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) setFilterCats([...filterCats, c.id]);
-                            else setFilterCats(filterCats.filter(id => id !== c.id));
-                          }}
-                          className="rounded border-input text-primary focus:ring-primary w-4 h-4 cursor-pointer"
-                        />
-                        <span className="text-sm">{c.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground">الماركة</label>
               <select value={filterBrand} onChange={e => setFilterBrand(e.target.value)} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
                 <option value="">الكل</option>
-                {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                {brands.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
             <div className="space-y-1.5">
@@ -837,7 +824,8 @@ export function ProductsClient({ products, categories, brands = [], departments 
         categories={categories} 
         brands={brands} 
       />
-      {totalPages > 1 && (
+
+      {totalPages > 1 && (
         <div className="flex items-center justify-between p-4 bg-card border-t border-border/50 rounded-b-xl">
           <Button 
             variant="outline" 
