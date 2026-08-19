@@ -11,15 +11,19 @@ interface IntegrationModalProps {
 }
 
 const PROVIDER_FIELDS: Record<string, { key: string; label: string; type: string }[]> = {
+  aramex: [
+    { key: "AccountNumber", label: "رقم الحساب", type: "text" },
+    { key: "AccountPin", label: "الرقم السري", type: "password" },
+    { key: "AccountEntity", label: "كيان الحساب", type: "text" },
+    { key: "AccountCountryCode", label: "كود الدولة", type: "text" },
+  ],
   bosta: [
     { key: "APIKey", label: "مفتاح API", type: "password" },
   ],
-  mylerz: [
-    { key: "Username", label: "اسم المستخدم", type: "text" },
-    { key: "Password", label: "كلمة المرور", type: "password" },
-  ],
-  sprint: [
+  jt_express: [
+    { key: "CustomerCode", label: "كود العميل", type: "text" },
     { key: "APIKey", label: "مفتاح API", type: "password" },
+    { key: "Password", label: "كلمة المرور", type: "password" },
   ],
   paymob: [
     { key: "APIKey", label: "مفتاح API", type: "password" },

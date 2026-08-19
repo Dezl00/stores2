@@ -24,9 +24,9 @@ const CATEGORIES = [
     id: "shipping",
     label: "الشحن والتوصيل",
     apps: [
+      { id: "aramex", name: "Aramex (أرامكس)", provider: "aramex" },
       { id: "bosta", name: "Bosta (بوسطة)", provider: "bosta" },
-      { id: "mylerz", name: "Mylerz (مايلرز)", provider: "mylerz" },
-      { id: "sprint", name: "Sprint (سبرينت)", provider: "sprint" },
+      { id: "jt_express", name: "J&T Express", provider: "jt_express" },
     ],
   },
   {
