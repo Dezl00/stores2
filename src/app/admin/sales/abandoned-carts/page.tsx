@@ -36,22 +36,22 @@ export default async function AbandonedCartsPage() {
         <h1 className="text-2xl font-bold">السلات المتروكة</h1>
       </div>
 
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="relative w-full overflow-auto">
-          <table className="w-full caption-bottom text-sm">
-            <thead className="[&_tr]:border-b">
-              <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                <th className="h-12 px-4 text-start align-middle font-medium text-muted-foreground">العميل</th>
-                <th className="h-12 px-4 text-start align-middle font-medium text-muted-foreground">عدد المنتجات</th>
-                <th className="h-12 px-4 text-start align-middle font-medium text-muted-foreground">إجمالي القيمة المقدرة</th>
-                <th className="h-12 px-4 text-start align-middle font-medium text-muted-foreground">آخر تحديث</th>
-                <th className="h-12 px-4 text-start align-middle font-medium text-muted-foreground">الإجراءات</th>
+      <div className="bg-card border border-border/50 rounded-lg shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-right text-sm">
+            <thead className="bg-muted/50 border-b border-border/50 text-muted-foreground">
+              <tr>
+                <th className="p-4 font-semibold text-start align-middle">العميل</th>
+                <th className="p-4 font-semibold text-start align-middle">عدد المنتجات</th>
+                <th className="p-4 font-semibold text-start align-middle">إجمالي القيمة المقدرة</th>
+                <th className="p-4 font-semibold text-start align-middle">آخر تحديث</th>
+                <th className="p-4 font-semibold text-center align-middle">الإجراءات</th>
               </tr>
             </thead>
-            <tbody className="[&_tr:last-child]:border-0">
+            <tbody className="divide-y divide-border/50">
               {carts.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-4 text-center text-muted-foreground">
+                  <td colSpan={5} className="p-8 text-center text-muted-foreground">
                     لا توجد سلات متروكة حالياً
                   </td>
                 </tr>
@@ -61,13 +61,13 @@ export default async function AbandonedCartsPage() {
                   const estimatedValue = cart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0)
                   
                   return (
-                    <tr key={cart.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                      <td className="p-4 align-middle">{cart.userId ? "عضو مسجل" : "ضيف (Guest)"}</td>
-                      <td className="p-4 align-middle">{totalItems}</td>
-                      <td className="p-4 align-middle">{estimatedValue.toFixed(2)}</td>
-                      <td className="p-4 align-middle" dir="ltr">{new Date(cart.updatedAt).toLocaleString("ar-EG")}</td>
-                      <td className="p-4 align-middle">
-                        <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
+                    <tr key={cart.id} className="hover:bg-muted/30 transition-colors">
+                      <td className="p-4 align-middle text-foreground font-medium">{cart.userId ? "عضو مسجل" : "ضيف"}</td>
+                      <td className="p-4 align-middle text-muted-foreground">{totalItems}</td>
+                      <td className="p-4 align-middle font-medium text-foreground">{estimatedValue.toFixed(2)} ج.م</td>
+                      <td className="p-4 align-middle text-muted-foreground" dir="ltr">{new Date(cart.updatedAt).toLocaleString("ar-EG")}</td>
+                      <td className="p-4 align-middle text-center">
+                        <button className="inline-flex items-center justify-center rounded-md text-xs font-medium border border-border/50 bg-background text-foreground hover:bg-muted h-8 px-3 transition-colors">
                           عرض التفاصيل
                         </button>
                       </td>

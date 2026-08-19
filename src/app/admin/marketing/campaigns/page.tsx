@@ -18,20 +18,20 @@ export default function CampaignsPage() {
       </p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl text-start">
-        <div className="flex flex-col rounded-xl border bg-card p-6 shadow-sm opacity-70">
-          <h3 className="font-semibold flex items-center mb-2"><Lock className="w-4 h-4 ml-2" /> إشعارات البريد</h3>
+        <div className="flex flex-col rounded-lg border border-border/50 bg-card p-6 shadow-sm opacity-70">
+          <h3 className="font-semibold flex items-center mb-2"><Lock className="w-4 h-4 ml-2 text-muted-foreground" /> إشعارات البريد</h3>
           <p className="text-sm text-muted-foreground">استهدف عملائك برسائل بريدية مخصصة وعروض حصرية.</p>
         </div>
-        <div className="flex flex-col rounded-xl border bg-card p-6 shadow-sm opacity-70">
-          <h3 className="font-semibold flex items-center mb-2"><Lock className="w-4 h-4 ml-2" /> الإشعارات المباشرة</h3>
+        <div className="flex flex-col rounded-lg border border-border/50 bg-card p-6 shadow-sm opacity-70">
+          <h3 className="font-semibold flex items-center mb-2"><Lock className="w-4 h-4 ml-2 text-muted-foreground" /> الإشعارات المباشرة</h3>
           <p className="text-sm text-muted-foreground">أرسل إشعارات Web Push للعملاء حتى عند عدم استخدامهم للموقع.</p>
         </div>
-        <div className="flex flex-col rounded-xl border bg-card p-6 shadow-sm opacity-70">
-          <h3 className="font-semibold flex items-center mb-2"><Lock className="w-4 h-4 ml-2" /> رسائل SMS</h3>
+        <div className="flex flex-col rounded-lg border border-border/50 bg-card p-6 shadow-sm opacity-70">
+          <h3 className="font-semibold flex items-center mb-2"><Lock className="w-4 h-4 ml-2 text-muted-foreground" /> رسائل SMS</h3>
           <p className="text-sm text-muted-foreground">تنبيهات سريعة ومباشرة لعروضك الخاصة وتحديثات الطلبات.</p>
         </div>
-        <div className="flex flex-col rounded-xl border bg-card p-6 shadow-sm opacity-70">
-          <h3 className="font-semibold flex items-center mb-2"><Lock className="w-4 h-4 ml-2" /> أتمتة التسويق</h3>
+        <div className="flex flex-col rounded-lg border border-border/50 bg-card p-6 shadow-sm opacity-70">
+          <h3 className="font-semibold flex items-center mb-2"><Lock className="w-4 h-4 ml-2 text-muted-foreground" /> أتمتة التسويق</h3>
           <p className="text-sm text-muted-foreground">إعداد حملات تعمل تلقائياً بناءً على سلوك العميل في المتجر.</p>
         </div>
       </div>

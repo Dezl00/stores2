@@ -57,113 +57,113 @@ export default async function AdminReviewsPage({
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">إدارة التقييمات</h1>
+        <h1 className="text-2xl font-bold text-foreground">إدارة التقييمات</h1>
       </div>
 
       <div className="mb-6 flex gap-2">
         <Link 
           href="?status=all"
-          className={`px-4 py-2 rounded-md transition-colors ${status === 'all' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+          className={`px-4 py-2 rounded-md transition-colors text-sm font-medium ${status === 'all' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-background border border-border/50 text-foreground hover:bg-muted'}`}
         >
           الكل
         </Link>
         <Link 
           href="?status=PENDING"
-          className={`px-4 py-2 rounded-md transition-colors ${status === 'PENDING' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+          className={`px-4 py-2 rounded-md transition-colors text-sm font-medium ${status === 'PENDING' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-background border border-border/50 text-foreground hover:bg-muted'}`}
         >
           قيد المراجعة
         </Link>
         <Link 
           href="?status=APPROVED"
-          className={`px-4 py-2 rounded-md transition-colors ${status === 'APPROVED' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+          className={`px-4 py-2 rounded-md transition-colors text-sm font-medium ${status === 'APPROVED' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-background border border-border/50 text-foreground hover:bg-muted'}`}
         >
           موافق
         </Link>
         <Link 
           href="?status=REJECTED"
-          className={`px-4 py-2 rounded-md transition-colors ${status === 'REJECTED' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+          className={`px-4 py-2 rounded-md transition-colors text-sm font-medium ${status === 'REJECTED' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-background border border-border/50 text-foreground hover:bg-muted'}`}
         >
           مرفوض
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+      <div className="bg-card rounded-lg shadow-sm overflow-hidden border border-border/50">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-right">
-            <thead className="bg-gray-50 text-gray-700 border-b border-gray-200">
+            <thead className="bg-muted/50 text-muted-foreground border-b border-border/50">
               <tr>
-                <th className="px-6 py-4 font-semibold">اسم المنتج</th>
-                <th className="px-6 py-4 font-semibold">اسم العميل</th>
-                <th className="px-6 py-4 font-semibold">التقييم</th>
-                <th className="px-6 py-4 font-semibold">التعليق</th>
-                <th className="px-6 py-4 font-semibold">الحالة</th>
-                <th className="px-6 py-4 font-semibold">التاريخ</th>
-                <th className="px-6 py-4 font-semibold">الإجراءات</th>
+                <th className="p-4 font-semibold">اسم المنتج</th>
+                <th className="p-4 font-semibold">اسم العميل</th>
+                <th className="p-4 font-semibold">التقييم</th>
+                <th className="p-4 font-semibold">التعليق</th>
+                <th className="p-4 font-semibold">الحالة</th>
+                <th className="p-4 font-semibold">التاريخ</th>
+                <th className="p-4 font-semibold text-center">الإجراءات</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-border/50">
               {reviews.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={7} className="p-8 text-center text-muted-foreground">
                     لا توجد تقييمات مطابقة للبحث
                   </td>
                 </tr>
               ) : reviews.map((review) => (
-                <tr key={review.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4">
+                <tr key={review.id} className="hover:bg-muted/30 transition-colors">
+                  <td className="p-4 align-middle">
                     <div className="flex items-center gap-3">
                       {review.product.images[0]?.url ? (
                         <img 
                           src={review.product.images[0].url} 
                           alt={review.product.name} 
-                          className="w-10 h-10 rounded-md object-cover border border-gray-200" 
+                          className="w-10 h-10 rounded-md object-cover border border-border/50" 
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-md bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs">
+                        <div className="w-10 h-10 rounded-md bg-muted border border-border/50 flex items-center justify-center text-muted-foreground text-xs shrink-0">
                           صورة
                         </div>
                       )}
-                      <span className="font-medium text-gray-900">{review.product.name}</span>
+                      <span className="font-medium text-foreground">{review.product.name}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">
+                  <td className="p-4 align-middle text-muted-foreground">
                     {review.userName || 'عميل مجهول'}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="p-4 align-middle">
                     {renderStars(review.rating)}
                   </td>
-                  <td className="px-6 py-4 text-gray-600 max-w-xs truncate" title={review.comment || ''}>
+                  <td className="p-4 align-middle text-muted-foreground max-w-xs truncate" title={review.comment || ''}>
                     {review.comment || '-'}
                   </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
-                      review.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' :
-                      review.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
-                      'bg-amber-100 text-amber-800'
+                  <td className="p-4 align-middle">
+                    <span className={`inline-flex px-2 py-1 rounded-md text-[11px] font-medium border ${
+                      review.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                      review.status === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-200' :
+                      'bg-amber-50 text-amber-700 border-amber-200'
                     }`}>
                       {review.status === 'APPROVED' ? 'موافق' :
                        review.status === 'REJECTED' ? 'مرفوض' : 'قيد المراجعة'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-600 whitespace-nowrap">
+                  <td className="p-4 align-middle text-muted-foreground whitespace-nowrap">
                     {new Intl.DateTimeFormat('ar-EG', { 
                       year: 'numeric', 
                       month: 'short', 
                       day: 'numeric' 
                     }).format(review.createdAt)}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
+                  <td className="p-4 align-middle">
+                    <div className="flex items-center justify-center gap-3">
                       {review.status !== 'APPROVED' && (
                         <form action={updateReviewStatus.bind(null, review.id, 'APPROVED')}>
-                          <button type="submit" className="text-emerald-600 hover:text-emerald-800 text-sm font-medium transition-colors">
+                          <button type="submit" className="text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">
                             موافقة
                           </button>
                         </form>
                       )}
                       {review.status !== 'REJECTED' && (
                         <form action={updateReviewStatus.bind(null, review.id, 'REJECTED')}>
-                          <button type="submit" className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                          <button type="submit" className="text-red-600 hover:text-red-700 text-sm font-medium transition-colors">
                             رفض
                           </button>
                         </form>

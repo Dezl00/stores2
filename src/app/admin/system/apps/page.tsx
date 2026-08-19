@@ -24,8 +24,8 @@ export default function AppsPage() {
         {categories.map((category, index) => {
           const Icon = category.icon
           return (
-            <div key={index} className="flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden opacity-80 cursor-not-allowed group">
-              <div className="p-6 border-b bg-muted/30">
+            <div key={index} className="flex flex-col rounded-lg border border-border/50 bg-card text-card-foreground shadow-sm overflow-hidden opacity-80 cursor-not-allowed group">
+              <div className="p-6 border-b border-border/50 bg-muted/30">
                 <div className="flex items-center justify-between mb-4">
                   <Icon className="w-8 h-8 text-primary/60" />
                   <div className="rounded-full bg-secondary px-2 py-1 text-[10px] font-semibold text-secondary-foreground flex items-center gap-1">
