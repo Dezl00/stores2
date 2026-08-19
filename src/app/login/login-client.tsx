@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { AlertCircle, Loader2 } from "lucide-react"
 import { registerUser } from "@/app/actions/auth"
 
-function LoginContent({ themeConfig }: { themeConfig: any }) {
+function LoginContent({ themeConfig, isPlatform }: { themeConfig: any; isPlatform: boolean }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [tab, setTab] = useState<"login" | "register">("login")
@@ -18,7 +18,6 @@ function LoginContent({ themeConfig }: { themeConfig: any }) {
   React.useEffect(() => {
     if (searchParams?.get("locked") === "true") {
       setError("تم تعطيل حسابك من قبل الإدارة. يرجى التواصل مع الدعم.")
-      signIn("credentials", { redirect: false }) 
       import("next-auth/react").then(({ signOut }) => signOut({ redirect: false }))
     }
   }, [searchParams])
@@ -37,18 +36,20 @@ function LoginContent({ themeConfig }: { themeConfig: any }) {
         redirect: false,
         phone,
         password,
+        context: isPlatform ? "platform" : "store",
+        storeId: isPlatform ? undefined : (window as any).__STORE_ID__,
       })
 
       if (result?.error) {
-        setError("بيانات الدخول غير صحيحة")
+        setError(isPlatform ? "بيانات الدخول غير صحيحة" : "بيانات الدخول غير صحيحة")
         setLoading(false)
       } else {
-        router.push("/admin")
+        router.push(isPlatform ? "/platform" : "/admin")
         router.refresh()
       }
     } catch (err) {
       console.error(err)
-      setError("حدث خطأ في الاتصال بالخادم، يرجى المحاولة لاحقاً")
+      setError("حدث خطأ في الاتصال بالخادم")
       setLoading(false)
     }
   }
@@ -98,39 +99,46 @@ function LoginContent({ themeConfig }: { themeConfig: any }) {
         
         {/* Logo */}
         <div className="flex flex-col items-center justify-center mb-8">
-          {themeConfig?.logoUrl ? (
+          {!isPlatform && themeConfig?.logoUrl ? (
             <img src={themeConfig.logoUrl} alt="Store Logo" className="h-16 w-auto object-contain mb-4" />
           ) : (
-            <span className="w-16 h-16 rounded-full gold-gradient flex items-center justify-center text-white text-3xl shadow-lg shadow-primary/20 mb-4">ع</span>
+            <span className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl shadow-lg mb-4">
+              {isPlatform ? "🔧" : "ع"}
+            </span>
           )}
           <h2 className="text-2xl font-bold text-foreground">
-            {themeConfig?.storeName || "العسال"}
+            {isPlatform ? (process.env.NEXT_PUBLIC_PLATFORM_NAME || "لوحة تحكم المنصة") : (themeConfig?.storeName || "العسال")}
           </h2>
+          {isPlatform && (
+            <p className="text-sm text-muted-foreground mt-1">تسجيل دخول مدراء المنصة</p>
+          )}
         </div>
 
-        {/* Tabs */}
-        <div className="flex rounded-lg bg-muted p-1 mb-6">
-          <button
-            onClick={() => { setTab("login"); setError(""); }}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
-              tab === "login" 
-                ? "bg-primary text-primary-foreground shadow-md" 
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            تسجيل الدخول
-          </button>
-          <button
-            onClick={() => { setTab("register"); setError(""); }}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
-              tab === "register" 
-                ? "bg-primary text-primary-foreground shadow-md" 
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            إنشاء حساب
-          </button>
-        </div>
+        {/* Tabs - only show register tab for store context */}
+        {!isPlatform && (
+          <div className="flex rounded-lg bg-muted p-1 mb-6">
+            <button
+              onClick={() => { setTab("login"); setError(""); }}
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                tab === "login" 
+                  ? "bg-primary text-primary-foreground shadow-md" 
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              تسجيل الدخول
+            </button>
+            <button
+              onClick={() => { setTab("register"); setError(""); }}
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                tab === "register" 
+                  ? "bg-primary text-primary-foreground shadow-md" 
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              إنشاء حساب
+            </button>
+          </div>
+        )}
 
         {/* Locked Alert */}
         {searchParams?.get("locked") === "true" && (
@@ -138,7 +146,7 @@ function LoginContent({ themeConfig }: { themeConfig: any }) {
             <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
             <div>
               <h4 className="font-bold mb-1">جلسة مغلقة</h4>
-              <p className="text-sm">تم تعطيل حسابك من قبل الإدارة. يرجى التواصل مع المسؤول للحصول على صلاحيات الدخول.</p>
+              <p className="text-sm">تم تعطيل حسابك من قبل الإدارة.</p>
             </div>
           </div>
         )}
@@ -150,18 +158,15 @@ function LoginContent({ themeConfig }: { themeConfig: any }) {
         )}
 
         {/* Forms */}
-        {tab === "login" ? (
+        {(tab === "login" || isPlatform) ? (
           <form className="space-y-4" onSubmit={handleLogin}>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">رقم الهاتف</label>
-              <Input type="tel" name="phone" required placeholder="010..." className="h-12" dir="ltr" />
+              <label className="text-sm font-medium text-foreground">{isPlatform ? "البريد الإلكتروني" : "رقم الهاتف"}</label>
+              <Input type={isPlatform ? "email" : "tel"} name="phone" required placeholder={isPlatform ? "admin@example.com" : "010..."} className="h-12" dir="ltr" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">كلمة المرور</label>
               <Input type="password" name="password" required className="h-12" dir="ltr" />
-            </div>
-            <div className="flex justify-end">
-              <button type="button" className="text-sm text-primary hover:underline">نسيت كلمة المرور؟</button>
             </div>
             <Button type="submit" className="w-full h-12 text-lg" disabled={loading}>
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "دخول"}
@@ -191,10 +196,10 @@ function LoginContent({ themeConfig }: { themeConfig: any }) {
   )
 }
 
-export function LoginClient({ themeConfig }: { themeConfig: any }) {
+export function LoginClient({ themeConfig, isPlatform = false }: { themeConfig: any; isPlatform?: boolean }) {
   return (
     <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-black/5 p-4"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
-      <LoginContent themeConfig={themeConfig} />
+      <LoginContent themeConfig={themeConfig} isPlatform={isPlatform} />
     </Suspense>
   )
 }
