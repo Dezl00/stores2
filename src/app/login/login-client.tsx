@@ -60,7 +60,7 @@ function LoginContent({ themeConfig, isPlatform, storeId, isSuperAdmin }: { them
         redirect: false,
         phone,
         password,
-        context: isPlatform ? "platform" : "store",
+        context: isSuperAdmin ? "superadmin" : isPlatform ? "platform" : "store",
         storeId: isPlatform ? undefined : storeId,
       })
 

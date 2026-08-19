@@ -127,14 +127,21 @@ export async function getRedirectUrlAfterLogin() {
       const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
       const platformDomain = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || 'localhost:3000'
       
+      // Generate Auto Login Token for cross-domain authentication
+      const crypto = await import("crypto")
+      const secret = process.env.AUTH_SECRET || "matjark-platform-secret-key-change-me"
+      const timestamp = Date.now().toString()
+      const hash = crypto.createHmac("sha256", secret).update(`${session.user.id}:${timestamp}`).digest("hex")
+      const token = `${session.user.id}:${timestamp}:${hash}`
+      
       // Prefer custom domain if exists
       if (store.customDomain) {
-        return `${protocol}://${store.customDomain}/admin`
+        return `${protocol}://${store.customDomain}/login?autoLoginToken=${token}`
       }
       
       // Fallback to subdomain
       const cleanPlatform = platformDomain.replace(/^https?:\/\//, '').replace(/\/$/, '')
-      return `${protocol}://${store.slug}.${cleanPlatform}/admin`
+      return `${protocol}://${store.slug}.${cleanPlatform}/login?autoLoginToken=${token}`
     }
   }
   

@@ -78,9 +78,9 @@ export const authConfig: NextAuthConfig = {
         const identifier = credentials.phone as string // can be email or phone
 
         // ----------------------------------------------------
-        // PLATFORM AUTHENTICATION (SUPER ADMIN)
+        // SUPER ADMIN AUTHENTICATION
         // ----------------------------------------------------
-        if (context === 'platform') {
+        if (context === 'superadmin') {
           const platformUser = await db.platformUser.findUnique({
             where: { email: identifier }
           })
@@ -97,8 +97,14 @@ export const authConfig: NextAuthConfig = {
               }
             }
           }
+          return null
+        }
 
-          // Fallback: Check if they are a Store Owner logging in via the platform
+        // ----------------------------------------------------
+        // PLATFORM CENTRAL LOGIN (MERCHANTS ONLY)
+        // ----------------------------------------------------
+        if (context === 'platform') {
+          // Check if they are a Store Owner logging in via the platform
           const storeUser = await db.storeUser.findFirst({
             where: {
               OR: [{ email: identifier }, { phone: identifier }],
