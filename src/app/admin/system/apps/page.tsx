@@ -12,7 +12,11 @@ export default async function AppsPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto" dir="rtl">
-      <h1 className="text-3xl font-bold mb-8">التطبيقات والربط</h1>
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+        <span>الرئيسية</span>
+        <span>/</span>
+        <span className="text-foreground">التطبيقات والربط</span>
+      </nav>
       <AppsClient 
         initialIntegrations={initialIntegrations} 
         storeId={storeId} 

@@ -5,15 +5,20 @@ export const dynamic = "force-dynamic"
 
 export default function CampaignsPage() {
   return (
-    <div className="flex h-[80vh] flex-col items-center justify-center p-6 text-center">
-      <div className="relative mb-6 rounded-full bg-primary/10 p-6">
-        <Megaphone className="h-12 w-12 text-primary" />
-        <div className="absolute -right-2 -top-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 border border-amber-200">
-          قريباً
+    <div className="p-6 h-[80vh] flex flex-col" dir="rtl">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+        <span>الرئيسية</span>
+        <span>/</span>
+        <span className="text-foreground">الحملات التسويقية</span>
+      </nav>
+      <div className="flex-1 flex flex-col items-center justify-center text-center">
+        <div className="relative mb-6 rounded-full bg-primary/10 p-6">
+          <Megaphone className="h-12 w-12 text-primary" />
+          <div className="absolute -right-2 -top-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 border border-amber-200">
+            قريباً
+          </div>
         </div>
-      </div>
-      <h1 className="mb-4 text-3xl font-bold tracking-tight">الحملات التسويقية</h1>
-      <p className="max-w-md text-muted-foreground mb-8">
+        <p className="max-w-md text-muted-foreground mb-8">
         أدوات متقدمة لإنشاء وإدارة الحملات التسويقية، رسائل البريد الإلكتروني، والإشعارات المخصصة لعملائك لزيادة المبيعات والولاء.
       </p>
       
@@ -34,6 +39,7 @@ export default function CampaignsPage() {
           <h3 className="font-semibold flex items-center mb-2"><Lock className="w-4 h-4 ml-2 text-muted-foreground" /> أتمتة التسويق</h3>
           <p className="text-sm text-muted-foreground">إعداد حملات تعمل تلقائياً بناءً على سلوك العميل في المتجر.</p>
         </div>
+      </div>
       </div>
     </div>
   )

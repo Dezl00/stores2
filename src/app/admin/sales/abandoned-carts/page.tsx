@@ -32,9 +32,11 @@ export default async function AbandonedCartsPage() {
 
   return (
     <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">السلات المتروكة</h1>
-      </div>
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+        <span>الرئيسية</span>
+        <span>/</span>
+        <span className="text-foreground">السلات المتروكة</span>
+      </nav>
 
       <div className="bg-card border border-border/50 rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">

@@ -5,12 +5,12 @@ export const dynamic = "force-dynamic"
 
 export default function BillingPage() {
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-10 text-center">
-        <h1 className="text-3xl font-bold mb-2">الباقات والفواتير</h1>
-        <p className="text-muted-foreground">قم بإدارة اشتراكك، فواتيرك، وترقية باقتك للحصول على ميزات متقدمة.</p>
-      </div>
-
+    <div className="p-6 max-w-5xl mx-auto space-y-6">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+        <span>الرئيسية</span>
+        <span>/</span>
+        <span className="text-foreground">الباقات والفواتير</span>
+      </nav>
       <div className="mb-12 rounded-lg border border-border/50 bg-card p-6 shadow-sm">
         <h2 className="text-xl font-semibold mb-4">الاشتراك الحالي</h2>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-lg bg-muted/50 border border-border/50">

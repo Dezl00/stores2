@@ -56,9 +56,11 @@ export default async function AdminReviewsPage({
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-foreground">إدارة التقييمات</h1>
-      </div>
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+        <span>الرئيسية</span>
+        <span>/</span>
+        <span className="text-foreground">إدارة التقييمات</span>
+      </nav>
 
       <div className="mb-6 flex gap-2">
         <Link 
