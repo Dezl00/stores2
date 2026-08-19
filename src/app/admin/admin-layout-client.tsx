@@ -70,7 +70,7 @@ function AdminLayoutInner({
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
-    await signOut({ callbackUrl: '/' })
+    await signOut({ callbackUrl: '/login' })
   }
 
   const hasPerm = (permOrPrefix: string) => {

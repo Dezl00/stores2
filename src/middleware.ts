@@ -43,6 +43,7 @@ export default async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set("x-hostname", hostname)
   requestHeaders.set("x-platform-context", isPlatform ? "true" : "false")
+  requestHeaders.set("x-superadmin-domain", (cleanHost.startsWith('app.') || cleanHost.startsWith('admin.')) ? "true" : "false")
   if (storeSlug) {
     requestHeaders.set("x-store-slug", storeSlug)
   }
@@ -55,6 +56,11 @@ export default async function middleware(request: NextRequest) {
   // Prevent accessing platform routes from a store domain
   if (isPlatformAdminPath && !isPlatform) {
     return NextResponse.redirect(new URL('/', request.url))
+  }
+
+  // Prevent accessing store admin routes directly from the platform root domain
+  if (isStoreAdminPath && isPlatform && cleanHost === cleanPlatform) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   // Redirect root to public landing page if on platform domain

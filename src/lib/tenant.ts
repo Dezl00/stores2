@@ -91,3 +91,8 @@ export async function isPlatformContext(): Promise<boolean> {
   const headersList = await headers()
   return headersList.get('x-platform-context') === 'true'
 }
+
+export async function isSuperAdminDomain(): Promise<boolean> {
+  const headersList = await headers()
+  return headersList.get('x-superadmin-domain') === 'true'
+}

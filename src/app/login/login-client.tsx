@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { AlertCircle, Loader2 } from "lucide-react"
 import { registerUser } from "@/app/actions/auth"
 
-function LoginContent({ themeConfig, isPlatform, storeId }: { themeConfig: any; isPlatform: boolean; storeId: string | null }) {
+function LoginContent({ themeConfig, isPlatform, storeId, isSuperAdmin }: { themeConfig: any; isPlatform: boolean; storeId: string | null; isSuperAdmin?: boolean }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [tab, setTab] = useState<"login" | "register">("login")
@@ -131,14 +131,17 @@ function LoginContent({ themeConfig, isPlatform, storeId }: { themeConfig: any; 
             <img src={themeConfig.logoUrl} alt="Store Logo" className="h-16 w-auto object-contain mb-4" />
           ) : (
             <span className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl shadow-lg mb-4">
-              {isPlatform ? "🔧" : "ع"}
+              {isSuperAdmin ? "🔧" : isPlatform ? "🛍️" : "ع"}
             </span>
           )}
           <h2 className="text-2xl font-bold text-foreground">
-            {isPlatform ? (process.env.NEXT_PUBLIC_PLATFORM_NAME || "لوحة تحكم المنصة") : (themeConfig?.storeName || "العسال")}
+            {isSuperAdmin ? "لوحة تحكم المنصة" : isPlatform ? (process.env.NEXT_PUBLIC_PLATFORM_NAME || "منصة المتاجر") : (themeConfig?.storeName || "العسال")}
           </h2>
-          {isPlatform && (
-            <p className="text-sm text-muted-foreground mt-1">تسجيل دخول مدراء المنصة</p>
+          {isSuperAdmin && (
+            <p className="text-sm text-muted-foreground mt-1">تسجيل دخول الإدارة العليا</p>
+          )}
+          {isPlatform && !isSuperAdmin && (
+            <p className="text-sm text-muted-foreground mt-1">تسجيل دخول التجار المركزية</p>
           )}
         </div>
 
@@ -195,8 +198,8 @@ function LoginContent({ themeConfig, isPlatform, storeId }: { themeConfig: any; 
         {(tab === "login" || isPlatform) ? (
           <form className="space-y-4" onSubmit={handleLogin} method="POST" action="#">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">{isPlatform ? "البريد الإلكتروني" : "البريد الإلكتروني أو رقم الهاتف"}</label>
-              <Input type="text" name="phone" required placeholder={isPlatform ? "admin@example.com" : "admin@example.com"} className="h-12" dir="ltr" />
+              <label className="text-sm font-medium text-foreground">{isSuperAdmin ? "البريد الإلكتروني" : "البريد الإلكتروني أو رقم الهاتف"}</label>
+              <Input type="text" name="phone" required placeholder={isSuperAdmin ? "admin@example.com" : "merchant@example.com"} className="h-12" dir="ltr" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">كلمة المرور</label>
@@ -230,10 +233,10 @@ function LoginContent({ themeConfig, isPlatform, storeId }: { themeConfig: any; 
   )
 }
 
-export function LoginClient({ themeConfig, isPlatform = false, storeId = null }: { themeConfig: any; isPlatform?: boolean; storeId?: string | null }) {
+export function LoginClient({ themeConfig, isPlatform = false, storeId = null, isSuperAdmin = false }: { themeConfig: any; isPlatform?: boolean; storeId?: string | null; isSuperAdmin?: boolean }) {
   return (
     <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-black/5 p-4"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
-      <LoginContent themeConfig={themeConfig} isPlatform={isPlatform} storeId={storeId} />
+      <LoginContent themeConfig={themeConfig} isPlatform={isPlatform} storeId={storeId} isSuperAdmin={isSuperAdmin} />
     </Suspense>
   )
 }
