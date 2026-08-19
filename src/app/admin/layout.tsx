@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import type { Metadata } from "next"
 import { getCurrentStore } from "@/lib/tenant"
+import { headers } from "next/headers"
 
 export const dynamic = 'force-dynamic'
 
@@ -50,7 +51,10 @@ export default async function AdminLayout({
     const store = await getCurrentStore()
     
     if (!store) {
-      throw new Error('Not in a store context - AdminLayout')
+      const headersList = await headers()
+      const hostname = headersList.get('x-hostname')
+      const storeSlugHeader = headersList.get('x-store-slug')
+      throw new Error(`Not in a store context - AdminLayout. Hostname: ${hostname}, Slug: ${storeSlugHeader}, ENV: ${process.env.NEXT_PUBLIC_PLATFORM_DOMAIN}`)
     }
 
     if (!session?.user?.id || session.user.context !== 'store') {
