@@ -1,1 +1,1 @@
-export default function Page() { return <div className='p-8'><h1>ÞÑíÈÇð - reviews</h1></div> }
+ï»¿export default function Page() { return <div>Ù‚Ø±ÙŠØ¨Ø§Ù‹</div> }
