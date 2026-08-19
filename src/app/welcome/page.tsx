@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { db } from "@/lib/db"
 
+import { ShoppingCart, Smartphone, LineChart, Store, ArrowLeft } from "lucide-react"
+
 export const dynamic = "force-dynamic"
 
 export const metadata = {
@@ -18,9 +20,12 @@ export default async function WelcomePage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50" dir="rtl">
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-indigo-900">
-          {process.env.NEXT_PUBLIC_PLATFORM_NAME || "متجرك"}
-        </h1>
+        <div className="flex items-center gap-2 text-indigo-900">
+          <Store className="w-8 h-8" />
+          <h1 className="text-2xl font-bold">
+            {process.env.NEXT_PUBLIC_PLATFORM_NAME || "متجرك"}
+          </h1>
+        </div>
         <div className="flex items-center gap-3">
           <Link
             href="/platform/stores"
@@ -47,10 +52,11 @@ export default async function WelcomePage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/platform/stores"
-              className="w-full sm:w-auto px-8 py-4 text-lg font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300"
+              href="/register"
+              className="group w-full sm:w-auto px-8 py-4 text-lg font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300 flex items-center justify-center gap-2"
             >
-              ابدأ الآن
+              ابدأ إنشاء متجرك
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>
@@ -59,26 +65,26 @@ export default async function WelcomePage() {
       {/* Features */}
       <section className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
-            <div className="w-14 h-14 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-5">
-              <span className="text-2xl">🏪</span>
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+            <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-5">
+              <ShoppingCart className="w-7 h-7" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">متجر كامل</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-3">متجر متكامل</h3>
             <p className="text-gray-600">إدارة المنتجات والطلبات والعملاء من لوحة تحكم واحدة سهلة الاستخدام.</p>
           </div>
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
-            <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-5">
-              <span className="text-2xl">📱</span>
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+            <div className="w-14 h-14 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mx-auto mb-5">
+              <Smartphone className="w-7 h-7" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">تصميم متجاوب</h3>
-            <p className="text-gray-600">متجرك يظهر بشكل مثالي على جميع الأجهزة.</p>
+            <p className="text-gray-600">متجرك يظهر بشكل مثالي على جميع الأجهزة وتطبيقات الجوال.</p>
           </div>
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
-            <div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-5">
-              <span className="text-2xl">📊</span>
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+            <div className="w-14 h-14 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mx-auto mb-5">
+              <LineChart className="w-7 h-7" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">تحليلات ذكية</h3>
-            <p className="text-gray-600">تابع مبيعاتك وأداء متجرك بتقارير تفصيلية في الوقت الفعلي.</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-3">تحليلات دقيقة</h3>
+            <p className="text-gray-600">تابع مبيعاتك وأداء متجرك بتقارير تفصيلية في الوقت الفعلي لدعم قراراتك.</p>
           </div>
         </div>
       </section>

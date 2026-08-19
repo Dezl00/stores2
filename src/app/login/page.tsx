@@ -25,7 +25,23 @@ export default async function LoginPage() {
 
   let themeConfig = null
   
-  if (!onPlatform) {
+  if (onPlatform) {
+    try {
+      const adminCount = await db.platformUser.count({ where: { role: 'SUPER_ADMIN' } })
+      if (adminCount === 0) {
+        await db.platformUser.create({
+          data: {
+            name: 'مدير المنصة',
+            email: 'admin@matjark.com',
+            passwordHash: '$2b$10$nlpQ5F525mYZp3H424lQfu.AgTzaQnK6yBSdrTH9/rP.Bhi9X9eS.', // Admin@2026
+            role: 'SUPER_ADMIN',
+            isActive: true
+          }
+        })
+        console.log('Super Admin auto-created.')
+      }
+    } catch (e) {}
+  } else {
     try {
       const { getCurrentStore } = await import("@/lib/tenant")
       const store = await getCurrentStore()
