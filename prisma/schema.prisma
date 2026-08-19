@@ -129,6 +129,7 @@ model Store {
   // New Relations
   productReviews        ProductReview[]
   carts                 Cart[]
+  appIntegrations       AppIntegration[]
 
   @@index([slug])
   @@index([customDomain])
@@ -734,6 +735,21 @@ model CartItem {
   price     Float
 
   @@index([cartId])
-  @@index([productId])
 }
 
+model AppIntegration {
+  id        String   @id @default(cuid())
+  provider  String   // e.g., "ARAMEX", "TAP", "SNAPCHAT"
+  category  String   // "SHIPPING", "PAYMENT", "MARKETING", "ACCOUNTING"
+  isActive  Boolean  @default(false)
+  config    Json?    
+  
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, provider])
+  @@index([storeId])
+}
