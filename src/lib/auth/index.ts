@@ -114,10 +114,28 @@ export const authConfig: NextAuthConfig = {
         }
 
         // ----------------------------------------------------
-        // PLATFORM CENTRAL LOGIN (MERCHANTS ONLY)
+        // PLATFORM CENTRAL LOGIN (MERCHANTS & SUPER ADMINS)
         // ----------------------------------------------------
         if (resolvedContext === 'platform') {
-          // Check if they are a Store Owner logging in via the platform
+          // 1. Try Platform Admin first, so they don't get trapped if they don't have the app. subdomain
+          const platformUser = await db.platformUser.findUnique({
+            where: { email: identifier }
+          })
+          
+          if (platformUser && platformUser.passwordHash && platformUser.isActive) {
+            const isValid = await bcrypt.compare(password, platformUser.passwordHash)
+            if (isValid) {
+              return {
+                id: platformUser.id,
+                email: platformUser.email,
+                name: platformUser.name,
+                role: platformUser.role,
+                context: 'platform',
+              }
+            }
+          }
+
+          // 2. Fallback: Check if they are a Store Owner logging in via the platform
           const storeUser = await db.storeUser.findFirst({
             where: {
               OR: [{ email: identifier }, { phone: identifier }],

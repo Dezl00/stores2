@@ -124,7 +124,7 @@ export async function getRedirectUrlAfterLogin() {
     const hash = crypto.createHmac("sha256", secret).update(`${session.user.id}:${timestamp}`).digest("hex")
     const token = `${session.user.id}:${timestamp}:${hash}`
     
-    return `${protocol}://app.${cleanPlatform}/platform?autoLoginToken=${token}`
+    return `${protocol}://app.${cleanPlatform}/login?autoLoginToken=${token}`
   }
   
   // It's a store context
