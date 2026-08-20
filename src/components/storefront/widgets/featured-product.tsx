@@ -8,7 +8,21 @@ import { Badge } from "@/components/ui/badge"
 export async function FeaturedProductWidget({ widget }: { widget: any }) {
   const productIdOrSlug = widget.settings?.productId
 
-  if (!productIdOrSlug) return null
+  if (!productIdOrSlug) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col items-center justify-center p-12 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+            <span className="text-2xl opacity-50">🏷️</span>
+          </div>
+          <h3 className="text-lg font-bold text-slate-700 mb-2">{widget.title || "منتج مميز"}</h3>
+          <p className="text-sm text-slate-500 text-center max-w-sm">
+            الرجاء اختيار منتج من إعدادات القسم لعرضه هنا.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   // Since it was saved as slug by the ProductPickerModal with returnSlug={true}, we fetch by slug or ID
   const product = await db.product.findFirst({
@@ -27,7 +41,21 @@ export async function FeaturedProductWidget({ widget }: { widget: any }) {
     }
   })
 
-  if (!product) return null
+  if (!product) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col items-center justify-center p-12 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+            <span className="text-2xl opacity-50">🏷️</span>
+          </div>
+          <h3 className="text-lg font-bold text-slate-700 mb-2">{widget.title || "منتج مميز"}</h3>
+          <p className="text-sm text-slate-500 text-center max-w-sm">
+            المنتج المحدد غير موجود. يرجى اختيار منتج آخر من الإعدادات.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   const themeConfig = await db.themeConfig.findUnique({ where: { id: "default" } })
   const fallbackLogo = themeConfig?.logoUrl

@@ -6,8 +6,8 @@ import { auth } from "@/lib/auth"
 import { resolveStoreId } from "@/lib/store-context"
 
 export async function getArticles() {
-  const storeId = await resolveStoreId()
   try {
+    const storeId = await resolveStoreId()
     const articles = await db.article.findMany({
       where: { storeId },
       orderBy: { createdAt: "desc" }
@@ -20,8 +20,8 @@ export async function getArticles() {
 }
 
 export async function getActiveArticles(limit?: number) {
-  const storeId = await resolveStoreId()
   try {
+    const storeId = await resolveStoreId()
     const articles = await db.article.findMany({
       where: { isActive: true, storeId },
       orderBy: { createdAt: "desc" },
@@ -35,8 +35,8 @@ export async function getActiveArticles(limit?: number) {
 }
 
 export async function getArticleBySlug(slug: string) {
-  const storeId = await resolveStoreId()
   try {
+    const storeId = await resolveStoreId()
     const decodedSlug = decodeURIComponent(slug)
     const article = await db.article.findUnique({
       where: { slug_storeId: { slug: decodedSlug, storeId } }
@@ -49,8 +49,8 @@ export async function getArticleBySlug(slug: string) {
 }
 
 export async function getArticleById(id: string) {
-  const storeId = await resolveStoreId()
   try {
+    const storeId = await resolveStoreId()
     const article = await db.article.findFirst({ where: { id, storeId } })
     return { success: true, article }
   } catch (error) {
