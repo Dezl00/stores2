@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Loader2, Store, Palette, Globe, MapPin, Share2, Plus, Edit, Trash2, Database, Upload, Download, Settings2, Bell, Send, History } from "lucide-react"
-import { updateThemeConfig, updateDomainSettings, createBranch, updateBranch, deleteBranch, resetStoreStats } from "@/features/settings/actions"
+import { updateThemeConfig, updateDomainSettings, createBranch, updateBranch, deleteBranch, resetStoreStats, checkDomainVerification } from "@/features/settings/actions"
 import { updateProfile } from "@/features/accounts/actions"
 import { toast } from "sonner"
 import { ImageUploader } from "@/components/ui/image-uploader"
@@ -50,6 +50,23 @@ export function SettingsClient({ config, store, branches: initialBranches = [], 
   const [storeSlug, setStoreSlug] = useState(store?.slug || "")
   const [storeCustomDomain, setStoreCustomDomain] = useState(store?.customDomain || "")
   const [isDomainSubmitting, setIsDomainSubmitting] = useState(false)
+  const [isDomainChecking, setIsDomainChecking] = useState(false)
+
+  async function handleCheckDomain() {
+    setIsDomainChecking(true)
+    const res = await checkDomainVerification()
+    setIsDomainChecking(false)
+    if (res.success) {
+      if (res.verified) {
+        toast.success(res.message)
+      } else {
+        toast.info(res.message)
+      }
+      router.refresh()
+    } else {
+      toast.error(res.error || "حدث خطأ أثناء فحص الدومين")
+    }
+  }
 
   async function handleDomainSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -387,7 +404,13 @@ export function SettingsClient({ config, store, branches: initialBranches = [], 
                           </div>
                         )}
 
-                        <div className="flex justify-end pt-2">
+                        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                           {storeCustomDomain && store?.customDomain === storeCustomDomain && !store?.domainVerified && (
+                             <Button type="button" variant="outline" onClick={handleCheckDomain} disabled={isDomainChecking} className="w-full sm:w-auto">
+                              {isDomainChecking ? <Loader2 className="w-4 h-4 mr-2 animate-spin rtl-flip" /> : null}
+                              تحقق من الربط
+                             </Button>
+                           )}
                            <Button type="button" onClick={handleDomainSubmit} disabled={isDomainSubmitting} className="w-full sm:w-auto">
                             {isDomainSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin rtl-flip" /> : null}
                             حفظ إعدادات الدومين

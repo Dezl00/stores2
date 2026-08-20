@@ -1,7 +1,8 @@
-﻿"use server"
+"use server"
 
 import { requireStoreAdmin, requirePermission } from "@/lib/auth/require-admin"
 import { db } from "@/lib/db"
+import { addDomainToVercel, removeDomainFromVercel, checkDomainStatus, verifyDomain } from "@/lib/vercel"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { resolveStoreId } from "@/lib/store-context"
@@ -229,6 +230,25 @@ export async function updateDomainSettings(slug: string, customDomain: string | 
       }
     }
 
+    // Check current store to see if domain changed
+    const store = await db.store.findUnique({ where: { id: storeId } })
+    const oldDomain = store?.customDomain
+
+    if (cleanCustomDomain !== oldDomain) {
+      // Remove old domain if it existed
+      if (oldDomain) {
+        await removeDomainFromVercel(oldDomain)
+      }
+      
+      // Add new domain to Vercel
+      if (cleanCustomDomain) {
+        const vercelRes = await addDomainToVercel(cleanCustomDomain)
+        if (vercelRes.error) {
+          return { success: false, error: vercelRes.error.message || "حدث خطأ أثناء إضافة الدومين في Vercel." }
+        }
+      }
+    }
+
     await db.store.update({
       where: { id: storeId },
       data: { slug, customDomain: cleanCustomDomain, domainVerified: false }
@@ -238,5 +258,35 @@ export async function updateDomainSettings(slug: string, customDomain: string | 
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message || "حدث خطأ غير متوقع" }
+  }
+}
+
+export async function checkDomainVerification() {
+  try {
+    const storeId = await resolveStoreId()
+    const store = await db.store.findUnique({ where: { id: storeId }, select: { customDomain: true, domainVerified: true } })
+    
+    if (!store?.customDomain) return { success: false, error: "لا يوجد دومين مخصص" }
+
+    // First try to verify
+    const verifyRes = await verifyDomain(store.customDomain)
+    if (verifyRes.verified) {
+      await db.store.update({ where: { id: storeId }, data: { domainVerified: true } })
+      return { success: true, verified: true, message: "تم التحقق من الدومين بنجاح" }
+    }
+
+    // If not verified, check config status
+    const configRes = await checkDomainStatus(store.customDomain)
+    
+    if (configRes.misconfigured) {
+      return { success: true, verified: false, message: "إعدادات DNS غير صحيحة، تأكد من إضافة السجلات كما هو موضح." }
+    } else if (configRes.configuredBy) {
+      return { success: true, verified: false, message: "هذا الدومين مستخدم في مشروع آخر على Vercel." }
+    } else {
+      return { success: true, verified: false, message: "جاري التحقق من إعدادات الـ DNS... قد يستغرق الأمر بعض الوقت." }
+    }
+
+  } catch (error: any) {
+    return { success: false, error: "حدث خطأ أثناء فحص الدومين" }
   }
 }
