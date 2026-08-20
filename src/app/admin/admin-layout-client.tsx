@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, ChevronDown, ShoppingBag, FolderTree, Image as ImageIcon, LayoutTemplate, Settings, ListTree, ExternalLink, LogOut, Menu as MenuIcon, X, Bell, Tag, Truck, BookOpen, Loader2, Award } from "lucide-react"
+import { LayoutDashboard, ShoppingBag, FolderTree, Image as ImageIcon, LayoutTemplate, Settings, ListTree, ExternalLink, LogOut, Menu as MenuIcon, X, Bell, Tag, Truck, BookOpen, Loader2, Award, ChevronDown, Home, Megaphone, Store, Shield } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { signOut, useSession, SessionProvider } from "next-auth/react"
 import { AdminGlobalSearch } from "@/components/admin/admin-global-search"
@@ -66,10 +66,13 @@ function NavGroup({ group, pathname, isMobile, setMobileMenuOpen }: { group: any
     <div className="space-y-1 mb-2">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider hover:text-slate-600 transition-colors focus:outline-none"
+        className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider hover:text-[#2453E3] transition-colors focus:outline-none group"
       >
-        <span>{group.title}</span>
-        <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isOpen ? "rotate-180" : "rotate-0")} />
+        <div className="flex items-center gap-2">
+          {group.icon && <group.icon className={cn("h-4 w-4", isOpen ? "text-[#2453E3]" : "text-slate-400 group-hover:text-[#2453E3]")} />}
+          <span className={cn(isOpen ? "text-[#2453E3]" : "")}>{group.title}</span>
+        </div>
+        <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isOpen ? "rotate-180 text-[#2453E3]" : "text-slate-400")} />
       </button>
       
       <div 
