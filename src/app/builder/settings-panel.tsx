@@ -105,7 +105,7 @@ export function SettingsPanel({ widget, categories, onBack, onUpdateWidget, onSa
             
             <Button onClick={() => {
               setEditingItem(null)
-              onSave(true)
+              setTimeout(() => onSave(true), 0)
             }} className="w-full bg-[#2453E3] hover:bg-[#1a3cb3]">
               تم وحفظ التعديلات
             </Button>
@@ -122,7 +122,7 @@ export function SettingsPanel({ widget, categories, onBack, onUpdateWidget, onSa
         <button 
           onClick={() => {
             onBack()
-            onSave(true)
+            setTimeout(() => onSave(true), 0)
           }}
           className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-800"
         >

@@ -533,7 +533,7 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
       if (w.items && Array.isArray(w.items)) {
         // Find existing items to see what was deleted
         const existingItems = await db.widgetContentItem.findMany({ where: { widgetId: currentWidgetId } })
-        const incomingItemIds = w.items.filter((item: any) => !item.id.startsWith('new-')).map((item: any) => item.id)
+        const incomingItemIds = w.items.filter((item: any) => !item.id.startsWith('new-') && !item.id.startsWith('item-')).map((item: any) => item.id)
         
         // Delete removed items
         const itemsToDelete = existingItems.filter(item => !incomingItemIds.includes(item.id))
@@ -554,7 +554,7 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
             settings: item.settings || {},
           }
 
-          if (item.id.startsWith('new-')) {
+          if (item.id.startsWith('new-') || item.id.startsWith('item-')) {
             await db.widgetContentItem.create({
               data: { ...itemData, widgetId: currentWidgetId }
             })
@@ -570,7 +570,9 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
 
     revalidatePath("/admin/storefront/theme")
     revalidatePath("/")
-    revalidateTag("widgets", "default")
+    revalidateTag("widgets")
+    revalidateTag("default")
+    revalidateTag("layout-data")
 
     return { success: true }
   } catch (error: any) {
