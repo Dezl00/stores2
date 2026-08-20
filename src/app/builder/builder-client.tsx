@@ -81,9 +81,12 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
             <BuilderSidebar 
               widgets={widgets} 
               setWidgets={setWidgets} 
+              headerSettings={headerSettings}
+              footerSettings={footerSettings}
               activeTab={activeTab} 
               setActiveTab={setActiveTab} 
               onSelectWidget={setSelectedWidgetId}
+              onSave={handleSave}
             />
           ) : (
             <SettingsPanel 

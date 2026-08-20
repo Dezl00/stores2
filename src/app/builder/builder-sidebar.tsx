@@ -14,7 +14,7 @@ const WIDGET_TYPES = [
   { id: "StoreFeatures", name: "مميزات المتجر", icon: ShieldCheck, desc: "عرض مميزات المتجر مثل الشحن السريع" }
 ]
 
-export function BuilderSidebar({ widgets, setWidgets, activeTab, setActiveTab, onSelectWidget }: any) {
+export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSettings, activeTab, setActiveTab, onSelectWidget }: any) {
   
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
   
@@ -30,6 +30,9 @@ export function BuilderSidebar({ widgets, setWidgets, activeTab, setActiveTab, o
 
   // Group by type or just order (we will just order)
   const sortedWidgets = [...widgets].sort((a, b) => a.sortOrder - b.sortOrder)
+
+  const [expanded, setExpanded] = React.useState<string | false>("content")
+  const [selectedWidgetType, setSelectedWidgetType] = React.useState<any>(null)
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -58,105 +61,199 @@ export function BuilderSidebar({ widgets, setWidgets, activeTab, setActiveTab, o
       </div>
 
       {activeTab === "sections" ? (
-        <div className="flex-1 overflow-y-auto flex flex-col p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto flex flex-col p-4 space-y-3 bg-slate-50/30">
           
-          {/* Static Header Section */}
-          <div 
-            onClick={() => onSelectWidget("HEADER")}
-            className="bg-slate-50 border border-border/50 rounded-lg p-3 flex items-center gap-3 shadow-sm cursor-pointer hover:border-[#2453E3]/50 hover:shadow-md transition-all"
-          >
-            <Settings2 className="w-4 h-4 text-slate-400" />
-            <span className="text-sm font-semibold text-slate-700">الترويسة (Header)</span>
-          </div>
-
-          <div className="flex-1 space-y-2">
-            {sortedWidgets.map((widget: any) => (
-              <div 
-                key={widget.id}
-                onClick={() => onSelectWidget(widget.id)}
-                className={cn(
-                  "group bg-white border border-border/50 rounded-lg p-2.5 flex items-center gap-3 cursor-pointer transition-all shadow-sm hover:border-[#2453E3]/50 hover:shadow-md",
-                  !widget.status && "opacity-50 grayscale"
-                )}
-              >
-                <div className="cursor-grab text-slate-300 hover:text-slate-500">
-                  <GripVertical className="w-4 h-4" />
-                </div>
-                <div className="flex-1 truncate">
-                  <p className="text-sm font-bold text-slate-800 truncate">{widget.title || widget.type}</p>
-                  <p className="text-xs text-slate-500 truncate">{widget.type}</p>
-                </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={(e) => toggleVisibility(e, widget.id)} className="p-1.5 text-slate-400 hover:text-[#2453E3] rounded-md hover:bg-slate-100">
-                    {widget.status ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                  </button>
-                  <button onClick={(e) => deleteWidget(e, widget.id)} className="p-1.5 text-slate-400 hover:text-red-500 rounded-md hover:bg-red-50">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+          {/* Accordion: Header */}
+          <div className="bg-white border border-border/50 rounded-lg overflow-hidden shadow-sm">
+            <button 
+              onClick={() => setExpanded(expanded === "header" ? false : "header")}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-800 text-sm">أعلى الصفحة</span>
+                <span className="text-xs text-slate-500">(قسم واحد)</span>
+              </div>
+              <Settings2 className={cn("w-4 h-4 text-slate-400 transition-transform", expanded === "header" && "rotate-90")} />
+            </button>
+            {expanded === "header" && (
+              <div className="p-3 border-t border-border/50">
+                <div 
+                  onClick={() => onSelectWidget("HEADER")}
+                  className="bg-white border border-border/50 rounded-lg p-3 flex items-center gap-3 cursor-pointer hover:border-[#2453E3]/50 hover:shadow-md transition-all group"
+                >
+                  <Settings2 className="w-4 h-4 text-slate-400 group-hover:text-[#2453E3]" />
+                  <span className="text-sm font-bold text-slate-700 group-hover:text-[#2453E3]">الترويسة</span>
                 </div>
               </div>
-            ))}
+            )}
           </div>
 
-          <button 
-            onClick={() => setIsAddModalOpen(true)}
-            className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#2453E3]/30 text-[#2453E3] font-bold py-3 rounded-lg hover:bg-[#2453E3]/5 transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            إضافة قسم جديد
-          </button>
+          {/* Accordion: Content */}
+          <div className="bg-white border border-border/50 rounded-lg overflow-hidden shadow-sm">
+            <button 
+              onClick={() => setExpanded(expanded === "content" ? false : "content")}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-800 text-sm">محتوى الصفحة</span>
+                <span className="text-xs text-slate-500">({sortedWidgets.length} أقسام)</span>
+              </div>
+              <Settings2 className={cn("w-4 h-4 text-slate-400 transition-transform", expanded === "content" && "rotate-90")} />
+            </button>
+            {expanded === "content" && (
+              <div className="p-3 border-t border-border/50 space-y-2">
+                {sortedWidgets.map((widget: any) => (
+                  <div 
+                    key={widget.id}
+                    onClick={() => onSelectWidget(widget.id)}
+                    className={cn(
+                      "group bg-white border border-border/50 rounded-lg p-2.5 flex items-center gap-3 cursor-pointer transition-all hover:border-[#2453E3]/50 hover:shadow-md",
+                      !widget.status && "opacity-50 grayscale"
+                    )}
+                  >
+                    <div className="cursor-grab text-slate-300 hover:text-slate-500">
+                      <GripVertical className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 truncate">
+                      <p className="text-sm font-bold text-slate-800 truncate group-hover:text-[#2453E3] transition-colors">{widget.title || widget.type}</p>
+                    </div>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={(e) => toggleVisibility(e, widget.id)} className="p-1.5 text-slate-400 hover:text-[#2453E3] rounded-md hover:bg-slate-100">
+                        {widget.status ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                      </button>
+                      <button onClick={(e) => deleteWidget(e, widget.id)} className="p-1.5 text-slate-400 hover:text-red-500 rounded-md hover:bg-red-50">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                <button 
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#2453E3]/30 text-[#2453E3] font-bold py-3 mt-2 rounded-lg hover:bg-[#2453E3]/5 transition-colors"
+                >
+                  <Plus className="w-5 h-5" />
+                  إضافة قسم جديد
+                </button>
+              </div>
+            )}
+          </div>
 
-          {/* Static Footer Section */}
-          <div 
-            onClick={() => onSelectWidget("FOOTER")}
-            className="bg-slate-50 border border-border/50 rounded-lg p-3 flex items-center gap-3 shadow-sm mt-auto cursor-pointer hover:border-[#2453E3]/50 hover:shadow-md transition-all"
-          >
-            <Settings2 className="w-4 h-4 text-slate-400" />
-            <span className="text-sm font-semibold text-slate-700">التذييل (Footer)</span>
+          {/* Accordion: Footer */}
+          <div className="bg-white border border-border/50 rounded-lg overflow-hidden shadow-sm">
+            <button 
+              onClick={() => setExpanded(expanded === "footer" ? false : "footer")}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-800 text-sm">أسفل الصفحة</span>
+                <span className="text-xs text-slate-500">(قسم واحد)</span>
+              </div>
+              <Settings2 className={cn("w-4 h-4 text-slate-400 transition-transform", expanded === "footer" && "rotate-90")} />
+            </button>
+            {expanded === "footer" && (
+              <div className="p-3 border-t border-border/50">
+                <div 
+                  onClick={() => onSelectWidget("FOOTER")}
+                  className="bg-white border border-border/50 rounded-lg p-3 flex items-center gap-3 cursor-pointer hover:border-[#2453E3]/50 hover:shadow-md transition-all group"
+                >
+                  <Settings2 className="w-4 h-4 text-slate-400 group-hover:text-[#2453E3]" />
+                  <span className="text-sm font-bold text-slate-700 group-hover:text-[#2453E3]">التذييل</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Add Section Modal Layer */}
           {isAddModalOpen && (
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-200">
+              <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
                 <div className="flex items-center justify-between p-4 border-b border-border/50 bg-slate-50 shrink-0">
-                  <h3 className="font-bold text-base text-slate-800">إضافة قسم جديد</h3>
-                  <button onClick={() => setIsAddModalOpen(false)} className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-800">
+                  <h3 className="font-bold text-base text-slate-800">اختر القسم الذي تريد إضافته</h3>
+                  <button onClick={() => { setIsAddModalOpen(false); setSelectedWidgetType(null) }} className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-800">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/50">
+                
+                <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50">
                   {WIDGET_TYPES.map((type) => {
                     const Icon = type.icon;
+                    const isSelected = selectedWidgetType?.id === type.id;
                     return (
                       <button 
                         key={type.id}
-                        onClick={() => {
-                          const newWidget = {
-                            id: `new-${Date.now()}`,
-                            type: type.id,
-                            title: type.name,
-                            status: true,
-                            sortOrder: widgets.length,
-                            config: {}
-                          }
-                          setWidgets([...widgets, newWidget])
-                          setIsAddModalOpen(false)
-                          onSelectWidget(newWidget.id)
-                        }}
-                        className="flex items-start gap-4 p-4 rounded-xl border border-border/50 bg-white hover:border-[#2453E3]/50 hover:shadow-md transition-all text-right group"
+                        onClick={() => setSelectedWidgetType(type)}
+                        className={cn(
+                          "flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-right group",
+                          isSelected 
+                            ? "border-[#2453E3] bg-[#2453E3]/5 shadow-md" 
+                            : "border-border/50 bg-white hover:border-[#2453E3]/50 hover:shadow-sm"
+                        )}
                       >
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 group-hover:bg-[#2453E3]/10 group-hover:text-[#2453E3] transition-colors">
+                        <div className={cn(
+                          "flex h-12 w-12 shrink-0 items-center justify-center rounded-lg transition-colors",
+                          isSelected ? "bg-[#2453E3] text-white" : "bg-slate-100 text-slate-500 group-hover:bg-[#2453E3]/10 group-hover:text-[#2453E3]"
+                        )}>
                           <Icon className="h-6 w-6" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="text-sm font-bold text-slate-800 group-hover:text-[#2453E3] transition-colors">{type.name}</h4>
+                          <h4 className={cn("text-sm font-bold transition-colors", isSelected ? "text-[#2453E3]" : "text-slate-800 group-hover:text-[#2453E3]")}>{type.name}</h4>
                           <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">{type.desc}</p>
                         </div>
-                        <Plus className="w-5 h-5 text-slate-300 group-hover:text-[#2453E3] mt-3 shrink-0" />
                       </button>
                     )
                   })}
+                </div>
+
+                <div className="p-4 border-t border-border/50 bg-white flex justify-end gap-3 shrink-0">
+                  <button 
+                    onClick={() => { setIsAddModalOpen(false); setSelectedWidgetType(null) }}
+                    className="px-6 py-2.5 rounded-lg font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                  >
+                    إلغاء
+                  </button>
+                  <button 
+                    disabled={!selectedWidgetType}
+                    onClick={async () => {
+                      if (!selectedWidgetType) return;
+                      const newWidget = {
+                        id: `new-${Date.now()}`,
+                        type: selectedWidgetType.id,
+                        title: selectedWidgetType.name,
+                        status: true,
+                        sortOrder: widgets.length,
+                        config: {}
+                      }
+                      
+                      const updatedWidgets = [...widgets, newWidget]
+                      setWidgets(updatedWidgets)
+                      setIsAddModalOpen(false)
+                      setSelectedWidgetType(null)
+                      onSelectWidget(newWidget.id)
+                      
+                      // Auto-save the newly added section so it appears in the preview immediately
+                      try {
+                        const { saveThemeSettings } = await import("@/features/widget-builder/actions")
+                        // Wait for any existing save to finish, though usually not needed here
+                        const res = await saveThemeSettings({
+                          widgets: updatedWidgets,
+                          headerSettings,
+                          footerSettings
+                        })
+                        if (res.success) {
+                          const iframe = document.getElementById("store-preview-iframe") as HTMLIFrameElement
+                          if (iframe && iframe.contentWindow) {
+                            iframe.contentWindow.location.reload()
+                          }
+                        }
+                      } catch(e) {
+                        console.error(e)
+                      }
+                    }}
+                    className="px-8 py-2.5 rounded-lg font-bold text-white bg-[#2453E3] hover:bg-[#1a3cb3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    إضافة القسم
+                  </button>
                 </div>
               </div>
             </div>

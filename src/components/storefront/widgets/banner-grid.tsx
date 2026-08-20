@@ -7,7 +7,21 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal"
 export function BannerGrid({ widget }: { widget: any }) {
   const items = widget.items || []
 
-  if (items.length === 0) return null
+  if (items.length === 0) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col items-center justify-center p-12 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+            <span className="text-2xl opacity-50">🖼️</span>
+          </div>
+          <h3 className="text-lg font-bold text-slate-700 mb-2">{widget.title || "شبكة بانرات"}</h3>
+          <p className="text-sm text-slate-500 text-center max-w-sm">
+            قم بإضافة صور للبانرات من الإعدادات لتظهر هنا.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   // If 1 item, full width. If 2, half. If 3+, grid.
   const gridCols = items.length === 1 ? 'grid-cols-1' : items.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-3'

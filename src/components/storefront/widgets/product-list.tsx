@@ -33,7 +33,19 @@ export async function ProductList({ widget }: { widget: any }) {
     }
   }
 
-  if (!collectionItem || products.length === 0) return null
+  if (!collectionItem || products.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl mx-4 my-8">
+        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+          <span className="text-2xl opacity-50">🛍️</span>
+        </div>
+        <h3 className="text-lg font-bold text-slate-700 mb-2">{widget.title || "قائمة منتجات"}</h3>
+        <p className="text-sm text-slate-500 text-center max-w-sm">
+          لم يتم تحديد تصنيف أو إضافة منتجات بعد. يرجى إعداد هذا القسم من لوحة التحكم.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <ProductListClient widget={widget} products={products} collectionItem={collectionItem} />
