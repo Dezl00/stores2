@@ -2,17 +2,8 @@
 
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
-import { auth } from "@/lib/auth"
 import { resolveStoreId } from "@/lib/store-context"
-
-async function checkAdmin() {
-  const session = await auth()
-  if (!session || !session.user) throw new Error("Unauthorized")
-  const user = await db.storeUser.findUnique({ where: { id: session.user.id } })
-  if (!user || user.role !== "STORE_OWNER" && user.role !== "MANAGER") {
-    throw new Error("Unauthorized")
-  }
-}
+import { requireStoreAdmin } from "@/lib/auth/require-admin"
 
 // -- Governorates --
 
@@ -26,7 +17,7 @@ export async function getGovernorates() {
 }
 
 export async function createGovernorate(data: { name: string; shippingCost?: number; hideCities?: boolean; isActive?: boolean }) {
-  await checkAdmin()
+  await requireStoreAdmin()
   const storeId = await resolveStoreId()
   const gov = await db.governorate.create({ data: { ...data, storeId } })
   revalidatePath('/admin/shipping-payment')
@@ -34,16 +25,20 @@ export async function createGovernorate(data: { name: string; shippingCost?: num
 }
 
 export async function updateGovernorate(id: string, data: { name?: string; shippingCost?: number; hideCities?: boolean; isActive?: boolean }) {
-  await checkAdmin()
+  await requireStoreAdmin()
   const storeId = await resolveStoreId()
+  const existing = await db.governorate.findFirst({ where: { id, storeId } })
+  if (!existing) return { success: false, error: "Not found or unauthorized" }
   const gov = await db.governorate.update({ where: { id }, data })
   revalidatePath('/admin/shipping-payment')
   return gov
 }
 
 export async function deleteGovernorate(id: string) {
-  await checkAdmin()
+  await requireStoreAdmin()
   const storeId = await resolveStoreId()
+  const existing = await db.governorate.findFirst({ where: { id, storeId } })
+  if (!existing) return { success: false, error: "Not found or unauthorized" }
   await db.governorate.delete({ where: { id }})
   revalidatePath('/admin/shipping-payment')
   return { success: true }
@@ -52,23 +47,27 @@ export async function deleteGovernorate(id: string) {
 // -- Cities --
 
 export async function createCity(data: { name: string; shippingCost: number; governorateId: string; isActive?: boolean }) {
-  await checkAdmin()
+  await requireStoreAdmin()
   const city = await db.city.create({ data })
   revalidatePath('/admin/shipping-payment')
   return city
 }
 
 export async function updateCity(id: string, data: { name?: string; shippingCost?: number; isActive?: boolean }) {
-  await checkAdmin()
+  await requireStoreAdmin()
   const storeId = await resolveStoreId()
+  const existing = await db.city.findFirst({ where: { id, governorate: { storeId } } })
+  if (!existing) return { success: false, error: "Not found or unauthorized" }
   const city = await db.city.update({ where: { id }, data })
   revalidatePath('/admin/shipping-payment')
   return city
 }
 
 export async function deleteCity(id: string) {
-  await checkAdmin()
+  await requireStoreAdmin()
   const storeId = await resolveStoreId()
+  const existing = await db.city.findFirst({ where: { id, governorate: { storeId } } })
+  if (!existing) return { success: false, error: "Not found or unauthorized" }
   await db.city.delete({ where: { id }})
   revalidatePath('/admin/shipping-payment')
   return { success: true }
@@ -85,7 +84,7 @@ export async function getPaymentMethods() {
 }
 
 export async function createPaymentMethod(data: { name: string; type: string; accountInfo?: string; paymentLink?: string; logoUrl?: string; instructions?: string; isActive?: boolean; sortOrder?: number }) {
-  await checkAdmin()
+  await requireStoreAdmin()
   const storeId = await resolveStoreId()
   const pm = await db.paymentMethod.create({ data: { ...data, storeId } })
   revalidatePath('/admin/shipping-payment')
@@ -93,16 +92,20 @@ export async function createPaymentMethod(data: { name: string; type: string; ac
 }
 
 export async function updatePaymentMethod(id: string, data: { name?: string; type?: string; accountInfo?: string; paymentLink?: string; logoUrl?: string; instructions?: string; isActive?: boolean; sortOrder?: number }) {
-  await checkAdmin()
+  await requireStoreAdmin()
   const storeId = await resolveStoreId()
+  const existing = await db.paymentMethod.findFirst({ where: { id, storeId } })
+  if (!existing) return { success: false, error: "Not found or unauthorized" }
   const pm = await db.paymentMethod.update({ where: { id }, data })
   revalidatePath('/admin/shipping-payment')
   return pm
 }
 
 export async function deletePaymentMethod(id: string) {
-  await checkAdmin()
+  await requireStoreAdmin()
   const storeId = await resolveStoreId()
+  const existing = await db.paymentMethod.findFirst({ where: { id, storeId } })
+  if (!existing) return { success: false, error: "Not found or unauthorized" }
   await db.paymentMethod.delete({ where: { id }})
   revalidatePath('/admin/shipping-payment')
   return { success: true }

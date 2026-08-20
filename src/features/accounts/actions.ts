@@ -4,12 +4,14 @@ import bcrypt from 'bcryptjs'
 import { auth } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { resolveStoreId } from "@/lib/store-context"
+import { requirePermission, requireStoreAdmin } from "@/lib/auth/require-admin"
 
 export async function createAccount(data: FormData) {
-  const session = await auth()
-  const isAdmin = session?.user?.role === 'STORE_OWNER'
-  const hasPerm = session?.user?.permissions?.includes('accounts.add')
-  if (!isAdmin && !hasPerm) return { success: false, error: 'Unauthorized' }
+  try {
+    await requirePermission('accounts.add')
+  } catch (e: any) {
+    return { success: false, error: e.message || 'Unauthorized' }
+  }
 
   try {
     let permissions = []
@@ -39,10 +41,11 @@ export async function createAccount(data: FormData) {
 }
 
 export async function updateAccount(id: string, data: FormData) {
-  const session = await auth()
-  const isAdmin = session?.user?.role === 'STORE_OWNER'
-  const hasPerm = session?.user?.permissions?.includes('accounts.edit')
-  if (!isAdmin && !hasPerm) return { success: false, error: 'Unauthorized' }
+  try {
+    await requirePermission('accounts.edit')
+  } catch (e: any) {
+    return { success: false, error: e.message || 'Unauthorized' }
+  }
 
   try {
     let permissions = []
@@ -56,7 +59,9 @@ export async function updateAccount(id: string, data: FormData) {
     
     // Check current user to preserve ADMIN role if they are an admin
     const currentUser = await prisma.storeUser.findFirst({ where: { id, storeId } })
-    const targetRole = currentUser?.role === 'STORE_OWNER' ? 'STORE_OWNER' : (data.get('role') || 'MANAGER')
+    if (!currentUser) return { success: false, error: "Not found or unauthorized" }
+    
+    const targetRole = currentUser.role === 'STORE_OWNER' ? 'STORE_OWNER' : (data.get('role') || 'MANAGER')
 
     const updateData: any = {
       name: data.get('name') as string,
@@ -81,13 +86,17 @@ export async function updateAccount(id: string, data: FormData) {
 }
 
 export async function updateAccountStatus(id: string, isActive: boolean) {
-  const session = await auth()
-  const isAdmin = session?.user?.role === 'STORE_OWNER'
-  const hasPerm = session?.user?.permissions?.includes('accounts.edit')
-  if (!isAdmin && !hasPerm) return { success: false, error: 'Unauthorized' }
+  try {
+    await requirePermission('accounts.edit')
+  } catch (e: any) {
+    return { success: false, error: e.message || 'Unauthorized' }
+  }
 
   try {
     const storeId = await resolveStoreId()
+    const existing = await prisma.storeUser.findFirst({ where: { id, storeId } })
+    if (!existing) return { success: false, error: "Not found or unauthorized" }
+
     await prisma.storeUser.update({ where: { id },
       data: { isActive }
     })
@@ -99,13 +108,17 @@ export async function updateAccountStatus(id: string, isActive: boolean) {
 }
 
 export async function deleteAccount(id: string) {
-  const session = await auth()
-  const isAdmin = session?.user?.role === 'STORE_OWNER'
-  const hasPerm = session?.user?.permissions?.includes('accounts.delete')
-  if (!isAdmin && !hasPerm) return { success: false, error: 'Unauthorized' }
+  try {
+    await requirePermission('accounts.delete')
+  } catch (e: any) {
+    return { success: false, error: e.message || 'Unauthorized' }
+  }
 
   try {
     const storeId = await resolveStoreId()
+    const existing = await prisma.storeUser.findFirst({ where: { id, storeId } })
+    if (!existing) return { success: false, error: "Not found or unauthorized" }
+
     await prisma.storeUser.delete({ where: { id }})
     revalidatePath('/admin/accounts')
     return { success: true, error: undefined }
@@ -115,6 +128,12 @@ export async function deleteAccount(id: string) {
 }
 
 export async function updateProfile(data: FormData) {
+  try {
+    await requireStoreAdmin()
+  } catch (e: any) {
+    return { success: false, error: e.message || 'Unauthorized' }
+  }
+
   const session = await auth()
   if (!session?.user?.id) return { success: false, error: 'Unauthorized' }
 
@@ -129,6 +148,9 @@ export async function updateProfile(data: FormData) {
     }
 
     const storeId = await resolveStoreId()
+    const existing = await prisma.storeUser.findFirst({ where: { id: session.user.id, storeId } })
+    if (!existing) return { success: false, error: "Not found or unauthorized" }
+
     await prisma.storeUser.update({ where: { id: session.user.id },
       data: updateData
     })

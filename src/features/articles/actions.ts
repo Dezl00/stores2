@@ -1,9 +1,10 @@
-"use server"
+﻿"use server"
 
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { resolveStoreId } from "@/lib/store-context"
+import { requirePermission } from "@/lib/auth/require-admin"
 
 export async function getArticles() {
   try {
@@ -15,7 +16,7 @@ export async function getArticles() {
     return { success: true, articles }
   } catch (error) {
     console.error("Error fetching articles:", error)
-    return { success: false, error: "حدث خطأ أثناء جلب المقالات" }
+    return { success: false, error: "حدث خطأ أثناء استرجاع المقالات" }
   }
 }
 
@@ -30,7 +31,7 @@ export async function getActiveArticles(limit?: number) {
     return { success: true, articles }
   } catch (error) {
     console.error("Error fetching active articles:", error)
-    return { success: false, error: "حدث خطأ أثناء جلب المقالات" }
+    return { success: false, error: "حدث خطأ أثناء استرجاع المقالات" }
   }
 }
 
@@ -44,7 +45,7 @@ export async function getArticleBySlug(slug: string) {
     return { success: true, article }
   } catch (error) {
     console.error("Error fetching article:", error)
-    return { success: false, error: "حدث خطأ أثناء جلب المقال" }
+    return { success: false, error: "حدث خطأ أثناء استرجاع المقال" }
   }
 }
 
@@ -55,7 +56,7 @@ export async function getArticleById(id: string) {
     return { success: true, article }
   } catch (error) {
     console.error("Error fetching article:", error)
-    return { success: false, error: "حدث خطأ أثناء جلب المقال" }
+    return { success: false, error: "حدث خطأ أثناء استرجاع المقال" }
   }
 }
 
@@ -75,13 +76,9 @@ export async function createArticle(data: {
   seoDesc?: string
   isActive?: boolean
 }) {
-  const session = await auth()
-  const storeId = await resolveStoreId()
-  // Allow ADMIN or MANAGER to create articles. 
-  // In `assal` project, it seems we check if session?.user has permission, but for simplicity we check if not CUSTOMER
-  if (!session?.user || session.user.role === "CUSTOMER") return { success: false, error: "غير مصرح لك" }
-
   try {
+    await requirePermission("articles.create")
+    const storeId = await resolveStoreId()
     const slug = generateSlug(data.title)
     const article = await db.article.create({
       data: {
@@ -101,9 +98,9 @@ export async function createArticle(data: {
     revalidatePath("/")
     
     return { success: true, article }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating article:", error)
-    return { success: false, error: "حدث خطأ أثناء إنشاء المقال" }
+    return { success: false, error: error.message || "حدث خطأ أثناء إضافة المقال" }
   }
 }
 
@@ -115,15 +112,16 @@ export async function updateArticle(id: string, data: {
   seoDesc?: string
   isActive?: boolean
 }) {
-  const session = await auth()
-  const storeId = await resolveStoreId()
-  if (!session?.user || session.user.role === "CUSTOMER") return { success: false, error: "غير مصرح لك" }
-
   try {
-    const article = await db.article.update({ where: { id },
-      data: {
-        ...data,
-      }
+    await requirePermission("articles.edit")
+    const storeId = await resolveStoreId()
+    
+    const existing = await db.article.findFirst({ where: { id, storeId } })
+    if (!existing) return { success: false, error: "المقال غير موجود أو غير مصرح لك بتعديله" }
+    
+    const article = await db.article.update({ 
+      where: { id },
+      data: { ...data }
     })
     
     revalidatePath("/admin/articles")
@@ -132,18 +130,20 @@ export async function updateArticle(id: string, data: {
     revalidatePath("/")
     
     return { success: true, article }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating article:", error)
-    return { success: false, error: "حدث خطأ أثناء تعديل المقال" }
+    return { success: false, error: error.message || "حدث خطأ أثناء تعديل المقال" }
   }
 }
 
 export async function deleteArticle(id: string) {
-  const session = await auth()
-  const storeId = await resolveStoreId()
-  if (!session?.user || session.user.role === "CUSTOMER") return { success: false, error: "غير مصرح لك" }
-
   try {
+    await requirePermission("articles.delete")
+    const storeId = await resolveStoreId()
+    
+    const existing = await db.article.findFirst({ where: { id, storeId } })
+    if (!existing) return { success: false, error: "المقال غير موجود أو غير مصرح لك بحذفه" }
+    
     await db.article.delete({ where: { id }})
     
     revalidatePath("/admin/articles")
@@ -151,9 +151,8 @@ export async function deleteArticle(id: string) {
     revalidatePath("/")
     
     return { success: true }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting article:", error)
-    return { success: false, error: "حدث خطأ أثناء حذف المقال" }
+    return { success: false, error: error.message || "حدث خطأ أثناء حذف المقال" }
   }
 }
-

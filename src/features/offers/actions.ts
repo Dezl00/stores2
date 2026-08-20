@@ -31,8 +31,8 @@ export async function updateCoupon(id: string, data: { code?: string; type?: str
   await requireStoreAdmin()
   const storeId = await resolveStoreId()
   
-  const couponExists = await db.coupon.findFirst({ where: { id, storeId } })
-  if (!couponExists) throw new Error("Coupon not found")
+  const existing = await db.coupon.findFirst({ where: { id, storeId } })
+  if (!existing) return { success: false, error: "Not found or unauthorized" }
 
   const coupon = await db.coupon.update({ where: { id }, data })
   revalidatePath('/admin/offers')
@@ -43,8 +43,8 @@ export async function deleteCoupon(id: string) {
   await requireStoreAdmin()
   const storeId = await resolveStoreId()
   
-  const couponExists = await db.coupon.findFirst({ where: { id, storeId } })
-  if (!couponExists) throw new Error("Coupon not found")
+  const existing = await db.coupon.findFirst({ where: { id, storeId } })
+  if (!existing) return { success: false, error: "Not found or unauthorized" }
 
   await db.coupon.delete({ where: { id } })
   revalidatePath('/admin/offers')

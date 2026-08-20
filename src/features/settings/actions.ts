@@ -101,6 +101,8 @@ export async function updateBranch(id: string, formData: FormData) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
     const storeId = await resolveStoreId()
+    const existing = await db.branch.findFirst({ where: { id, storeId } })
+    if (!existing) return { success: false, error: "Not found or unauthorized" }
     const branch = await db.branch.update({ where: { id },
       data: {
         name: formData.get("name") as string,
@@ -130,6 +132,8 @@ export async function deleteBranch(id: string) {
       return { success: false, error: e.message || 'Unauthorized' }
     }
     const storeId = await resolveStoreId()
+    const existing = await db.branch.findFirst({ where: { id, storeId } })
+    if (!existing) return { success: false, error: "Not found or unauthorized" }
     const branch = await db.branch.delete({ where: { id }})
     const session = await auth()
     if (session?.user?.id) {
@@ -263,6 +267,11 @@ export async function updateDomainSettings(slug: string, customDomain: string | 
 
 export async function checkDomainVerification() {
   try {
+    try {
+      await requirePermission("settings.general")
+    } catch (e: any) {
+      return { success: false, error: e.message || "Unauthorized" }
+    }
     const storeId = await resolveStoreId()
     const store = await db.store.findUnique({ where: { id: storeId }, select: { customDomain: true, domainVerified: true } })
     

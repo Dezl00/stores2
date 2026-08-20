@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { resolveStoreId } from "@/lib/store-context"
+import { requirePermission } from "@/lib/auth/require-admin"
 
 const CategorySchema = z.object({
   name: z.string().min(2),
@@ -14,11 +15,10 @@ const CategorySchema = z.object({
 
 export async function createCategory(data: z.infer<typeof CategorySchema>) {
   try {
+    await requirePermission("products.edit") // Assuming products.edit handles catalog
     const storeId = await resolveStoreId()
     const parsed = CategorySchema.parse(data)
     const category = await db.category.create({ data: { ...parsed, storeId } })
-    
-    
     
     revalidatePath("/admin/categories")
     revalidatePath("/")
@@ -44,10 +44,13 @@ export async function getCategories() {
 
 export async function deleteCategory(id: string) {
   try {
+    await requirePermission("products.delete")
     const storeId = await resolveStoreId()
+    
+    const existing = await db.category.findFirst({ where: { id, storeId } })
+    if (!existing) return { success: false, error: "Not found or unauthorized" }
+    
     await db.category.delete({ where: { id }})
-    
-    
     
     revalidatePath("/admin/categories")
     revalidatePath("/")
@@ -73,6 +76,7 @@ const ProductSchema = z.object({
 
 export async function createProduct(data: z.infer<typeof ProductSchema>, imageIds: string[]) {
   try {
+    await requirePermission("products.create")
     const storeId = await resolveStoreId()
     const parsed = ProductSchema.parse(data)
     
@@ -92,15 +96,13 @@ export async function createProduct(data: z.infer<typeof ProductSchema>, imageId
         recommendationMode: parsed.recommendationMode,
         images: {
           create: imageIds.map((id, index) => ({
-            url: id, // Assuming `id` passed is the Cloudinary secure_url for simplicity in this action
+            url: id,
             isPrimary: index === 0,
             sortOrder: index
           }))
         }
       }
     })
-    
-    
     
     revalidatePath("/admin/products")
     revalidatePath("/")
