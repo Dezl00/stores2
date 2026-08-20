@@ -117,45 +117,47 @@ export function BuilderSidebar({ widgets, setWidgets, activeTab, setActiveTab, o
 
           {/* Add Section Modal Layer */}
           {isAddModalOpen && (
-            <div className="absolute inset-0 bg-white z-50 flex flex-col animate-in slide-in-from-bottom-8 duration-300">
-              <div className="flex items-center justify-between p-4 border-b border-border/50 bg-slate-50 shrink-0">
-                <h3 className="font-bold text-sm text-slate-800">إضافة قسم جديد</h3>
-                <button onClick={() => setIsAddModalOpen(false)} className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-800">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {WIDGET_TYPES.map((type) => {
-                  const Icon = type.icon;
-                  return (
-                    <button 
-                      key={type.id}
-                      onClick={() => {
-                        const newWidget = {
-                          id: `new-${Date.now()}`,
-                          type: type.id,
-                          title: type.name,
-                          status: true,
-                          sortOrder: widgets.length,
-                          config: {}
-                        }
-                        setWidgets([...widgets, newWidget])
-                        setIsAddModalOpen(false)
-                        onSelectWidget(newWidget.id)
-                      }}
-                      className="w-full flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-white hover:border-[#2453E3]/50 hover:bg-[#2453E3]/5 transition-all text-right group"
-                    >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-500 group-hover:bg-[#2453E3]/10 group-hover:text-[#2453E3] transition-colors">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-sm font-bold text-slate-800 group-hover:text-[#2453E3] transition-colors">{type.name}</h4>
-                        <p className="text-[10px] text-slate-500 mt-1">{type.desc}</p>
-                      </div>
-                      <Plus className="w-4 h-4 text-slate-300 group-hover:text-[#2453E3] mt-3" />
-                    </button>
-                  )
-                })}
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between p-4 border-b border-border/50 bg-slate-50 shrink-0">
+                  <h3 className="font-bold text-base text-slate-800">إضافة قسم جديد</h3>
+                  <button onClick={() => setIsAddModalOpen(false)} className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-800">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/50">
+                  {WIDGET_TYPES.map((type) => {
+                    const Icon = type.icon;
+                    return (
+                      <button 
+                        key={type.id}
+                        onClick={() => {
+                          const newWidget = {
+                            id: `new-${Date.now()}`,
+                            type: type.id,
+                            title: type.name,
+                            status: true,
+                            sortOrder: widgets.length,
+                            config: {}
+                          }
+                          setWidgets([...widgets, newWidget])
+                          setIsAddModalOpen(false)
+                          onSelectWidget(newWidget.id)
+                        }}
+                        className="flex items-start gap-4 p-4 rounded-xl border border-border/50 bg-white hover:border-[#2453E3]/50 hover:shadow-md transition-all text-right group"
+                      >
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 group-hover:bg-[#2453E3]/10 group-hover:text-[#2453E3] transition-colors">
+                          <Icon className="h-6 w-6" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-bold text-slate-800 group-hover:text-[#2453E3] transition-colors">{type.name}</h4>
+                          <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">{type.desc}</p>
+                        </div>
+                        <Plus className="w-5 h-5 text-slate-300 group-hover:text-[#2453E3] mt-3 shrink-0" />
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
             </div>
           )}

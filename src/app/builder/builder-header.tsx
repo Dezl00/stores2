@@ -4,7 +4,9 @@ import { Monitor, Smartphone, ChevronDown, Check, Save, ArrowRight, ExternalLink
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-export function BuilderHeader({ store, deviceMode, setDeviceMode, onSave, isSaving }: any) {
+export function BuilderHeader({ store, deviceMode, setDeviceMode, onSave, isSaving, previewUrl }: any) {
+  const publicUrl = previewUrl ? previewUrl.replace('?preview=true', '') : '/'
+  
   return (
     <header className="h-16 bg-[#2453E3] text-white flex items-center justify-between px-4 md:px-6 shrink-0 shadow-md relative z-30">
       
@@ -49,7 +51,7 @@ export function BuilderHeader({ store, deviceMode, setDeviceMode, onSave, isSavi
 
       {/* Left: Actions */}
       <div className="flex items-center gap-3">
-        <Link prefetch={false} href="/" target="_blank" className="hidden sm:flex items-center gap-2 text-sm text-white/90 hover:text-white transition-colors bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-md border border-white/10">
+        <Link prefetch={false} href={publicUrl} target="_blank" className="hidden sm:flex items-center gap-2 text-sm text-white/90 hover:text-white transition-colors bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-md border border-white/10">
           <span>عرض المتجر</span>
           <ExternalLink className="w-3.5 h-3.5" />
         </Link>

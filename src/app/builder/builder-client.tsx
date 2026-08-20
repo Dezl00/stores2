@@ -34,6 +34,14 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
     }
   }
 
+  // Send updates to the iframe for live preview
+  useEffect(() => {
+    const iframe = document.getElementById("store-preview-iframe") as HTMLIFrameElement
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({ type: 'UPDATE_WIDGETS', widgets }, '*')
+    }
+  }, [widgets])
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#F8F8F8] text-[#0E0217]">
       {/* 1. Top Header */}
@@ -43,6 +51,7 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
         setDeviceMode={setDeviceMode} 
         onSave={handleSave} 
         isSaving={isSaving} 
+        previewUrl={previewUrl}
       />
 
       <div className="flex flex-1 overflow-hidden relative">
@@ -80,8 +89,9 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
           >
             {/* The Iframe to the store frontend preview */}
             <iframe 
+              id="store-preview-iframe"
               src={previewUrl || "/?preview=true"}
-              className="w-full h-full border-none"
+              className="w-full h-full border-none bg-white"
               title="Store Preview"
             />
           </div>
