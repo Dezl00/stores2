@@ -370,7 +370,7 @@ export function SettingsClient({ config, store, branches: initialBranches = [], 
                                   <tr>
                                     <td className="px-3 py-2 font-medium text-slate-700">CNAME</td>
                                     <td className="px-3 py-2 font-mono text-slate-600">www</td>
-                                    <td className="px-3 py-2 font-mono text-slate-600">cname.vercel-dns.com</td>
+                                    <td className="px-3 py-2 font-mono text-slate-600">cname.matgry.tech</td>
                                   </tr>
                                 </tbody>
                               </table>
