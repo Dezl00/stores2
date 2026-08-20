@@ -47,7 +47,37 @@ export function AdminLayoutClient({
   )
 }
 
-function NavGroup({ group, pathname, isMobile, setMobileMenuOpen }: { group: any, pathname: string, isMobile?: boolean, setMobileMenuOpen?: (open: boolean) => void }) {
+
+function SidebarNav({ navGroups, pathname, isMobile, setMobileMenuOpen }: any) {
+  const [openGroup, setOpenGroup] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    const activeGroup = navGroups.find((g: any) => g.items.some((i: any) => i.show && (i.href === '/admin' ? pathname === '/admin' : pathname.startsWith(i.href))))
+    if (activeGroup) {
+      setOpenGroup(activeGroup.title)
+    } else {
+      setOpenGroup("الرئيسية")
+    }
+  }, [pathname, navGroups])
+
+  return (
+    <nav className="p-4 flex-1 overflow-y-auto custom-scrollbar">
+      {navGroups.map((group: any) => (
+        <NavGroup 
+           key={group.title} 
+           group={group} 
+           pathname={pathname} 
+           isMobile={isMobile} 
+           setMobileMenuOpen={setMobileMenuOpen}
+           isOpen={openGroup === group.title}
+           onToggle={() => setOpenGroup(openGroup === group.title ? null : group.title)}
+        />
+      ))}
+    </nav>
+  )
+}
+
+function NavGroup({ group, pathname, isMobile, setMobileMenuOpen, isOpen, onToggle }: { group: any, pathname: string, isMobile?: boolean, setMobileMenuOpen?: (open: boolean) => void, isOpen: boolean, onToggle: () => void }) {
   const groupItems = group.items.filter((i: any) => i.show)
   if (groupItems.length === 0) return null
 
@@ -56,19 +86,13 @@ function NavGroup({ group, pathname, isMobile, setMobileMenuOpen }: { group: any
     return pathname.startsWith(item.href)
   })
 
-  const [isOpen, setIsOpen] = React.useState(isActiveGroup || group.title === "الرئيسية")
-
-  React.useEffect(() => {
-    if (isActiveGroup) setIsOpen(true)
-  }, [isActiveGroup])
-
   return (
     <div className="space-y-1 mb-2">
       <button 
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={onToggle}
         className={cn(
           "w-full flex items-center justify-between px-3 py-2.5 text-sm font-bold transition-all focus:outline-none rounded-lg group",
-          isOpen || isActiveGroup ? "bg-[#2453E3]/10 text-[#2453E3]" : "text-slate-700 hover:bg-slate-50 hover:text-[#2453E3]"
+          isOpen || isActiveGroup ? "text-[#2453E3]" : "text-slate-700 hover:bg-slate-50 hover:text-[#2453E3]"
         )}
       >
         <div className="flex items-center gap-2">
@@ -105,6 +129,7 @@ function NavGroup({ group, pathname, isMobile, setMobileMenuOpen }: { group: any
     </div>
   )
 }
+
 
 
 function AdminLayoutInner({
@@ -202,11 +227,7 @@ function AdminLayoutInner({
     <div className="flex min-h-screen bg-background admin-theme">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-72 border-l border-border bg-white text-[#2453E3] transition-all flex-col fixed top-16 bottom-0 right-0 z-40">
-        <nav className="p-4 flex-1 overflow-y-auto custom-scrollbar">
-          {navGroups.map((group) => (
-            <NavGroup key={group.title} group={group} pathname={pathname} isMobile={false} />
-          ))}
-        </nav>
+        <SidebarNav navGroups={navGroups} pathname={pathname} isMobile={false} />
         <div className="p-4 border-t border-border shrink-0">
           <button 
             onClick={handleLogout}
@@ -242,11 +263,7 @@ function AdminLayoutInner({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <nav className="p-4 flex-1 overflow-y-auto custom-scrollbar">
-          {navGroups.map((group) => (
-            <NavGroup key={group.title} group={group} pathname={pathname} isMobile={true} setMobileMenuOpen={setIsMobileMenuOpen} />
-          ))}
-        </nav>
+        <SidebarNav navGroups={navGroups} pathname={pathname} isMobile={true} setMobileMenuOpen={setIsMobileMenuOpen} />
         <div className="p-4 border-t border-border shrink-0">
           <button 
             onClick={handleLogout}
