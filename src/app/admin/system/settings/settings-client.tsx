@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Loader2, Store, Palette, Globe, MapPin, Share2, Plus, Edit, Trash2, Database, Upload, Download, Settings2, Bell, Send, History } from "lucide-react"
-import { updateThemeConfig, createBranch, updateBranch, deleteBranch, resetStoreStats } from "@/features/settings/actions"
+import { updateThemeConfig, updateDomainSettings, createBranch, updateBranch, deleteBranch, resetStoreStats } from "@/features/settings/actions"
 import { updateProfile } from "@/features/accounts/actions"
 import { toast } from "sonner"
 import { ImageUploader } from "@/components/ui/image-uploader"
@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { User as UserIcon } from "lucide-react"
 
-export function SettingsClient({ config, branches: initialBranches = [], backups = [], notificationCampaigns = [], subscribersCount = 0, initialIsAdmin = false, initialPermissions = [] }: { config: any, branches?: any[], backups?: any[], notificationCampaigns?: any[], subscribersCount?: number, initialIsAdmin?: boolean, initialPermissions?: string[] }) {
+export function SettingsClient({ config, store, branches: initialBranches = [], backups = [], notificationCampaigns = [], subscribersCount = 0, initialIsAdmin = false, initialPermissions = [] }: { config: any, store?: any, branches?: any[], backups?: any[], notificationCampaigns?: any[], subscribersCount?: number, initialIsAdmin?: boolean, initialPermissions?: string[] }) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [branches, setBranches] = useState(initialBranches)
@@ -47,6 +47,22 @@ export function SettingsClient({ config, branches: initialBranches = [], backups
   const [campaignLink, setCampaignLink] = useState("")
   const [campaignImageUrl, setCampaignImageUrl] = useState("")
   const [isSendingCampaign, setIsSendingCampaign] = useState(false)
+  const [storeSlug, setStoreSlug] = useState(store?.slug || "")
+  const [storeCustomDomain, setStoreCustomDomain] = useState(store?.customDomain || "")
+  const [isDomainSubmitting, setIsDomainSubmitting] = useState(false)
+
+  async function handleDomainSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setIsDomainSubmitting(true)
+    const res = await updateDomainSettings(storeSlug, storeCustomDomain)
+    setIsDomainSubmitting(false)
+    if (res.success) {
+      toast.success("تم تحديث إعدادات الدومين بنجاح")
+      router.refresh()
+    } else {
+      toast.error(res.error || "حدث خطأ أثناء حفظ الدومين")
+    }
+  }
 
   async function handleSendCampaign(e: React.FormEvent) {
     e.preventDefault()
@@ -179,13 +195,14 @@ export function SettingsClient({ config, branches: initialBranches = [], backups
   const hasPerm = (perm: string) => isAdmin || permissions.includes(perm)
   const allTabs = [
     { id: "general", label: "عام", icon: <Store className="w-4 h-4" />, perm: 'settings.general' },
-    { id: "appearance", label: "المظهر والهوية", icon: <Palette className="w-4 h-4" />, perm: 'settings.appearance' },
-    { id: "social", label: "التواصل الاجتماعي", icon: <Share2 className="w-4 h-4" />, perm: 'settings.social' },
+    { id: "appearance", label: "مظهر المتجر", icon: <Palette className="w-4 h-4" />, perm: 'settings.appearance' },
+    { id: "domain", label: "الدومين والنطاق", icon: <Globe className="w-4 h-4" />, perm: 'settings.general' },
+    { id: "social", label: "تواصل اجتماعي", icon: <Share2 className="w-4 h-4" />, perm: 'settings.social' },
     { id: "notifications", label: "الإشعارات", icon: <Bell className="w-4 h-4" />, perm: 'settings.general' },
-    { id: "advanced", label: "الإعدادات المتقدمة", icon: <Settings2 className="w-4 h-4" />, perm: 'settings.general' },
-    { id: "branches", label: "الفروع والمواقع", icon: <MapPin className="w-4 h-4" />, perm: 'settings.branches' },
-    { id: "backups", label: "النسخ الاحتياطي", icon: <Database className="w-4 h-4" />, perm: 'settings.backups' },
-    { id: "profile", label: "إعدادات حسابي", icon: <UserIcon className="w-4 h-4" />, perm: 'settings.general' },
+    { id: "advanced", label: "إعدادات متقدمة", icon: <Settings2 className="w-4 h-4" />, perm: 'settings.general' },
+    { id: "branches", label: "فروع المتجر", icon: <MapPin className="w-4 h-4" />, perm: 'settings.branches' },
+    { id: "backups", label: "النسخ الاحتياطية", icon: <Database className="w-4 h-4" />, perm: 'settings.backups' },
+    { id: "profile", label: "الملف الشخصي", icon: <UserIcon className="w-4 h-4" />, perm: 'settings.general' },
   ]
 
   const tabs = allTabs.filter(t => hasPerm(t.perm))
@@ -258,6 +275,123 @@ export function SettingsClient({ config, branches: initialBranches = [], backups
                         <div className="flex items-center gap-3">
                           <input type="color" value={secondaryColor} onChange={e => setSecondaryColor(e.target.value)} className="h-10 w-14 cursor-pointer rounded border-0 bg-transparent p-0" />
                           <Input type="text" value={secondaryColor.toUpperCase()} onChange={e => setSecondaryColor(e.target.value)} dir="ltr" />
+                        </div>
+                      </div>
+                    </div>
+                </div>
+
+                <div className={activeTab === "domain" ? "block space-y-6 animate-in fade-in" : "hidden"}>
+                    <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                      <h2 className="text-lg font-semibold">الدومين والنطاق</h2>
+                    </div>
+                    
+                    <div className="space-y-8 max-w-2xl">
+                      {/* Subdomain Settings */}
+                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-5 space-y-4">
+                        <div className="flex items-start gap-3">
+                          <div className="bg-primary/10 p-2 rounded-lg text-primary mt-0.5">
+                            <Store className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-slate-800">رابط المتجر الأساسي (Subdomain)</h3>
+                            <p className="text-sm text-slate-500 mt-1">
+                              هذا هو الرابط المجاني الذي ستحصل عليه مع متجرك. يمكنك تغييره بشرط ألا يكون مستخدماً.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <Input 
+                              type="text" 
+                              value={storeSlug} 
+                              onChange={(e) => setStoreSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                              dir="ltr" 
+                              className="pl-28 text-left bg-white"
+                              placeholder="mystore"
+                            />
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
+                              .matgry.tech
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Custom Domain Settings */}
+                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-5 space-y-6">
+                        <div className="flex items-start gap-3">
+                          <div className="bg-primary/10 p-2 rounded-lg text-primary mt-0.5">
+                            <Globe className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-slate-800">الدومين المخصص (Custom Domain)</h3>
+                            <p className="text-sm text-slate-500 mt-1">
+                              اربط متجرك بدومين خاص بك (مثال: www.mystore.com) لتعزيز علامتك التجارية.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <label className="text-sm font-medium text-slate-700">اسم الدومين</label>
+                          <Input 
+                            type="text" 
+                            value={storeCustomDomain}
+                            onChange={(e) => setStoreCustomDomain(e.target.value)}
+                            dir="ltr" 
+                            className="text-left bg-white"
+                            placeholder="www.yourdomain.com"
+                          />
+                        </div>
+
+                        {storeCustomDomain && (
+                          <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-4 shadow-sm">
+                            <h4 className="font-medium text-slate-800 text-sm flex items-center gap-2">
+                              <Settings2 className="w-4 h-4 text-primary" />
+                              تعليمات الربط (DNS Settings)
+                            </h4>
+                            <p className="text-sm text-slate-600 leading-relaxed">
+                              لربط دومينك بنجاح، قم بتسجيل الدخول إلى مزود الدومين الخاص بك (مثل Namecheap, GoDaddy) وأضف السجلات التالية:
+                            </p>
+                            
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-sm text-left border-collapse" dir="ltr">
+                                <thead>
+                                  <tr className="bg-slate-50 text-slate-500 border-b border-slate-200">
+                                    <th className="px-3 py-2 font-medium">Type</th>
+                                    <th className="px-3 py-2 font-medium">Name/Host</th>
+                                    <th className="px-3 py-2 font-medium">Value/Points to</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr className="border-b border-slate-100">
+                                    <td className="px-3 py-2 font-medium text-slate-700">A Record</td>
+                                    <td className="px-3 py-2 font-mono text-slate-600">@</td>
+                                    <td className="px-3 py-2 font-mono text-slate-600">76.76.21.21</td>
+                                  </tr>
+                                  <tr>
+                                    <td className="px-3 py-2 font-medium text-slate-700">CNAME</td>
+                                    <td className="px-3 py-2 font-mono text-slate-600">www</td>
+                                    <td className="px-3 py-2 font-mono text-slate-600">cname.vercel-dns.com</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                            
+                            <div className="bg-blue-50/50 text-blue-800 text-xs p-3 rounded border border-blue-100 mt-2">
+                              <strong>ملاحظة:</strong> قد يستغرق انتشار إعدادات DNS من بضع دقائق إلى 24 ساعة.
+                              {store?.domainVerified ? (
+                                <span className="block mt-1 text-emerald-600 font-medium">✓ الدومين الخاص بك متصل ومفعل</span>
+                              ) : (
+                                <span className="block mt-1 text-amber-600 font-medium">⏳ جاري التحقق من اتصال الدومين...</span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex justify-end pt-2">
+                           <Button type="button" onClick={handleDomainSubmit} disabled={isDomainSubmitting} className="w-full sm:w-auto">
+                            {isDomainSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin rtl-flip" /> : null}
+                            حفظ إعدادات الدومين
+                           </Button>
                         </div>
                       </div>
                     </div>

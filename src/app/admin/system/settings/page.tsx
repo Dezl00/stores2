@@ -62,6 +62,11 @@ export default async function SettingsPage() {
   const isAdmin = currentUser?.role === "STORE_OWNER"
   const permissions = currentUser?.permissions || []
 
+  const store = await db.store.findUnique({
+    where: { id: storeId },
+    select: { slug: true, customDomain: true, domainVerified: true }
+  })
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
@@ -78,6 +83,7 @@ export default async function SettingsPage() {
         subscribersCount={subscribersCount}
         initialIsAdmin={isAdmin} 
         initialPermissions={permissions} 
+        store={store}
       />
     </div>
   )

@@ -192,3 +192,51 @@ export async function getSubscribersCount() {
     }
   })
 }
+export async function updateDomainSettings(slug: string, customDomain: string | null) {
+  try {
+    try {
+      await requirePermission("settings.general")
+    } catch (e: any) {
+      return { success: false, error: e.message || "Unauthorized" }
+    }
+    const storeId = await resolveStoreId()
+    
+    const slugRegex = /^[a-zA-Z0-9-]+$/
+    if (!slug || !slugRegex.test(slug) || slug.length < 3) {
+      return { success: false, error: "رابط المتجر غير صالح. يجب أن يحتوي على أحرف وأرقام إنجليزية فقط وأن لا يقل عن 3 أحرف." }
+    }
+
+    const existingSlug = await db.store.findFirst({
+      where: { slug, id: { not: storeId } }
+    })
+    if (existingSlug) {
+      return { success: false, error: "هذا الرابط مستخدم بالفعل من قبل متجر آخر." }
+    }
+
+    let cleanCustomDomain = customDomain?.toLowerCase().trim() || null
+    if (cleanCustomDomain) {
+      cleanCustomDomain = cleanCustomDomain.replace(/^https?:\/\//, '').replace(/\/$/, '')
+      const domainRegex = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}/
+      if (!domainRegex.test(cleanCustomDomain)) {
+        return { success: false, error: "اسم النطاق المخصص غير صالح." }
+      }
+
+      const existingDomain = await db.store.findFirst({
+        where: { customDomain: cleanCustomDomain, id: { not: storeId } }
+      })
+      if (existingDomain) {
+        return { success: false, error: "النطاق المخصص مستخدم بالفعل." }
+      }
+    }
+
+    await db.store.update({
+      where: { id: storeId },
+      data: { slug, customDomain: cleanCustomDomain, domainVerified: false }
+    })
+
+    revalidatePath("/admin/system/settings")
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message || "حدث خطأ غير متوقع" }
+  }
+}
