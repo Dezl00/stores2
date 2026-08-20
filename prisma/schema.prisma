@@ -471,6 +471,10 @@ model ThemeConfig {
 
   backupFrequency               String   @default("never") // never, daily, 3days, weekly, monthly
 
+  // Custom Settings (Header/Footer UI states)
+  headerSettings                Json?
+  footerSettings                Json?
+
   // Offers & Shipping
   freeShippingThreshold         Float?
   promoPopupEnabled             Boolean  @default(false)

@@ -1,4 +1,4 @@
-﻿"use server"
+"use server"
 
 import { db } from "@/lib/db"
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache"
@@ -461,5 +461,87 @@ export async function updateWidgetContentItemOrder(updates: { id: string, sortOr
     return { success: true }
   } catch (error: any) {
     return { success: false, error: "Failed to update widget item order" }
+  }
+}
+
+export async function saveThemeSettings(payload: { widgets: any[], headerSettings: any, footerSettings: any }) {
+  try {
+    const storeId = await resolveStoreId()
+    const { widgets, headerSettings, footerSettings } = payload
+
+    // 1. Update ThemeConfig for Header and Footer
+    const themeConfig = await db.themeConfig.findUnique({ where: { storeId } })
+    if (themeConfig) {
+      await db.themeConfig.update({
+        where: { storeId },
+        data: {
+          headerSettings: headerSettings || {},
+          footerSettings: footerSettings || {}
+        }
+      })
+    } else {
+      await db.themeConfig.create({
+        data: {
+          storeId,
+          headerSettings: headerSettings || {},
+          footerSettings: footerSettings || {}
+        }
+      })
+    }
+
+    // 2. Handle Widgets (Bulk Sync)
+    // Get all current widgets for the store to find which ones to delete
+    const currentWidgets = await db.widget.findMany({ where: { storeId } })
+    const incomingIds = widgets.filter(w => !w.id.startsWith('new-')).map(w => w.id)
+    
+    // Delete widgets that are no longer in the payload
+    const widgetsToDelete = currentWidgets.filter(w => !incomingIds.includes(w.id))
+    for (const w of widgetsToDelete) {
+      await db.widget.delete({ where: { id: w.id } })
+    }
+
+    // Upsert remaining widgets
+    for (const [index, w] of widgets.entries()) {
+      const widgetData = {
+        type: w.type,
+        title: w.title,
+        subtitle: w.subtitle,
+        status: w.status,
+        sortOrder: index, // Use array index as the definitive sort order
+        showDesktop: w.showDesktop !== false,
+        showTablet: w.showTablet !== false,
+        showMobile: w.showMobile !== false,
+        settings: w.settings || {},
+      }
+
+      let currentWidgetId = w.id;
+      if (w.id.startsWith('new-')) {
+        // Create new
+        const newW = await db.widget.create({
+          data: { ...widgetData, storeId }
+        })
+        currentWidgetId = newW.id
+      } else {
+        // Update existing
+        await db.widget.update({
+          where: { id: w.id },
+          data: widgetData
+        })
+      }
+
+      // Sync items if any (basic sync: delete old items and recreate to avoid complex diffing for now)
+      // BUT WAIT, we don't want to delete and recreate because of Brands/Collections auto-sync logic?
+      // Since the new builder doesn't fully manage items natively yet (we mocked the Add Item button),
+      // we'll leave item management to the existing actions for now, or just leave it untouched.
+    }
+
+    revalidatePath("/admin/storefront/theme")
+    revalidatePath("/")
+    revalidateTag("widgets", "default")
+
+    return { success: true }
+  } catch (error: any) {
+    console.error("Save Theme Error:", error)
+    return { success: false, error: "Failed to save theme settings" }
   }
 }

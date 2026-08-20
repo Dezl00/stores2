@@ -5,10 +5,13 @@ import { BuilderSidebar } from "./builder-sidebar"
 import { SettingsPanel } from "./settings-panel"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import { saveThemeSettings } from "@/features/widget-builder/actions"
 
 // Zid-like Architecture Context & State
 export function BuilderClient({ initialWidgets, categories, themeConfig, store, previewUrl }: any) {
   const [widgets, setWidgets] = useState(initialWidgets)
+  const [headerSettings, setHeaderSettings] = useState(themeConfig?.headerSettings || {})
+  const [footerSettings, setFooterSettings] = useState(themeConfig?.footerSettings || {})
   const [activeTab, setActiveTab] = useState<"sections" | "theme">("sections")
   const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null)
   const [deviceMode, setDeviceMode] = useState<"desktop" | "mobile">("desktop")
@@ -16,17 +19,31 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
   
   // Find the currently selected widget
   const selectedWidget = selectedWidgetId === "HEADER" 
-    ? { id: "HEADER", type: "Header", title: "الترويسة", config: {} }
+    ? { id: "HEADER", type: "Header", title: "الترويسة", config: headerSettings }
     : selectedWidgetId === "FOOTER"
-    ? { id: "FOOTER", type: "Footer", title: "التذييل", config: {} }
+    ? { id: "FOOTER", type: "Footer", title: "التذييل", config: footerSettings }
     : widgets.find((w: any) => w.id === selectedWidgetId)
 
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      // In a real app we'd save to API here
-      // await saveThemeSettings(widgets)
-      toast.success("تم حفظ التعديلات بنجاح.")
+      const res = await saveThemeSettings({
+        widgets,
+        headerSettings,
+        footerSettings
+      })
+      
+      if (res.success) {
+        toast.success("تم حفظ الواجهة بنجاح.")
+        
+        // Reload iframe to reflect the actual DB changes
+        const iframe = document.getElementById("store-preview-iframe") as HTMLIFrameElement
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.location.reload()
+        }
+      } else {
+        toast.error(res.error || "حدث خطأ أثناء الحفظ.")
+      }
     } catch (e) {
       toast.error("حدث خطأ أثناء الحفظ.")
     } finally {
@@ -74,7 +91,13 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
               categories={categories}
               onBack={() => setSelectedWidgetId(null)} 
               onUpdateWidget={(updatedWidget: any) => {
-                setWidgets(widgets.map((w: any) => w.id === updatedWidget.id ? updatedWidget : w))
+                if (updatedWidget.id === "HEADER") {
+                  setHeaderSettings(updatedWidget.config || {})
+                } else if (updatedWidget.id === "FOOTER") {
+                  setFooterSettings(updatedWidget.config || {})
+                } else {
+                  setWidgets(widgets.map((w: any) => w.id === updatedWidget.id ? updatedWidget : w))
+                }
               }}
             />
           )}
