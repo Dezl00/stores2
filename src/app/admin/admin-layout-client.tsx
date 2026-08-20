@@ -66,11 +66,14 @@ function NavGroup({ group, pathname, isMobile, setMobileMenuOpen }: { group: any
     <div className="space-y-1 mb-2">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider hover:text-[#2453E3] transition-colors focus:outline-none group"
+        className={cn(
+          "w-full flex items-center justify-between px-3 py-2.5 text-sm font-bold transition-all focus:outline-none rounded-lg group",
+          isOpen || isActiveGroup ? "bg-[#2453E3]/10 text-[#2453E3]" : "text-slate-700 hover:bg-slate-50 hover:text-[#2453E3]"
+        )}
       >
         <div className="flex items-center gap-2">
-          {group.icon && <group.icon className={cn("h-4 w-4", isOpen ? "text-[#2453E3]" : "text-slate-400 group-hover:text-[#2453E3]")} />}
-          <span className={cn(isOpen ? "text-[#2453E3]" : "")}>{group.title}</span>
+          {group.icon && <group.icon className={cn("h-4 w-4", isOpen || isActiveGroup ? "text-[#2453E3]" : "text-slate-400 group-hover:text-[#2453E3]")} />}
+          <span>{group.title}</span>
         </div>
         <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isOpen ? "rotate-180 text-[#2453E3]" : "text-slate-400")} />
       </button>
@@ -78,7 +81,7 @@ function NavGroup({ group, pathname, isMobile, setMobileMenuOpen }: { group: any
       <div 
         className={cn(
           "space-y-1 overflow-hidden transition-all duration-300 ease-in-out",
-          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          isOpen ? "max-h-96 opacity-100 mt-1" : "max-h-0 opacity-0"
         )}
       >
         {groupItems.map((item: any) => {
@@ -89,11 +92,11 @@ function NavGroup({ group, pathname, isMobile, setMobileMenuOpen }: { group: any
               href={item.href}
               onClick={() => isMobile && setMobileMenuOpen && setMobileMenuOpen(false)}
               className={cn(
-                "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all active:scale-95",
-                isActive ? "bg-[#2453E3] text-white shadow-sm" : "hover:bg-slate-50 text-slate-600 hover:text-[#2453E3]"
+                "group flex items-center gap-3 rounded-lg px-3 py-2 ms-6 text-[13px] font-medium transition-all active:scale-95",
+                isActive ? "bg-[#2453E3]/10 text-[#2453E3]" : "text-slate-500 hover:bg-slate-50 hover:text-[#2453E3]"
               )}
             >
-              <item.icon className={cn("h-4 w-4 transition-colors rtl-flip", isActive ? "text-white" : "text-slate-400 group-hover:text-[#2453E3]")} />
+              <item.icon className={cn("h-4 w-4 transition-colors rtl-flip", isActive ? "text-[#2453E3]" : "text-slate-400 group-hover:text-[#2453E3]")} />
               {item.name}
             </Link>
           )
@@ -102,6 +105,7 @@ function NavGroup({ group, pathname, isMobile, setMobileMenuOpen }: { group: any
     </div>
   )
 }
+
 
 function AdminLayoutInner({
   children,
