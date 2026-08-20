@@ -137,6 +137,7 @@ function AdminLayoutInner({
   const navGroups = [
     {
       title: "المبيعات",
+      icon: ShoppingBag,
       items: [
         { name: "الرئيسية", href: "/admin", icon: LayoutDashboard, show: true },
         { name: "الطلبات", href: "/admin/sales/orders", icon: ShoppingBag, show: hasPerm('orders') },
@@ -146,6 +147,7 @@ function AdminLayoutInner({
     },
     {
       title: "الكتالوج",
+      icon: ListTree,
       items: [
         { name: "المنتجات", href: "/admin/catalog/products", icon: ShoppingBag, show: hasPerm('products') },
         { name: "التصنيفات", href: "/admin/catalog/categories", icon: ListTree, show: hasPerm('categories') },
@@ -155,6 +157,7 @@ function AdminLayoutInner({
     },
     {
       title: "التسويق",
+      icon: Megaphone,
       items: [
         { name: "العروض والخصومات", href: "/admin/marketing/offers", icon: Tag, show: hasPerm('offers') },
         { name: "الحملات التسويقية", href: "/admin/marketing/campaigns", icon: Tag, show: hasPerm('marketing') || true },
@@ -162,6 +165,7 @@ function AdminLayoutInner({
     },
     {
       title: "واجهة المتجر",
+      icon: Store,
       items: [
         { name: "تصميم المتجر", href: "/admin/storefront/theme", icon: LayoutTemplate, show: hasPerm('widgets') },
         { name: "الصفحات والمدونة", href: "/admin/storefront/pages", icon: BookOpen, show: hasPerm('articles') },
@@ -170,6 +174,7 @@ function AdminLayoutInner({
     },
     {
       title: "النظام",
+      icon: Shield,
       items: [
         { name: "الإحصائيات", href: "/admin/analytics", icon: LayoutDashboard, show: hasPerm('analytics') },
         { name: "الإعدادات", href: "/admin/system/settings", icon: Settings, show: hasPerm('settings') },
@@ -193,36 +198,10 @@ function AdminLayoutInner({
     <div className="flex min-h-screen bg-background admin-theme">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-72 border-l border-border bg-white text-[#2453E3] transition-all flex-col fixed top-16 bottom-0 right-0 z-40">
-        <nav className="p-4 space-y-6 flex-1 overflow-y-auto">
-          {navGroups.map((group) => {
-            const groupItems = group.items.filter(i => i.show)
-            if (groupItems.length === 0) return null
-            return (
-              <div key={group.title} className="space-y-2">
-                <h3 className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  {group.title}
-                </h3>
-                <div className="space-y-1">
-                  {groupItems.map((item) => {
-                    const isActive = pathname === item.href
-                    return (
-                      <Link prefetch={false}
-                        key={item.name}
-                        href={item.href}
-                        className={cn(
-                          "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all active:scale-95",
-                          isActive ? "bg-[#2453E3] text-white shadow-sm" : "hover:bg-slate-50 text-slate-600 hover:text-[#2453E3]"
-                        )}
-                      >
-                        <item.icon className={cn("h-4 w-4 transition-colors rtl-flip", isActive ? "text-white" : "text-slate-400 group-hover:text-[#2453E3]")} />
-                        {item.name}
-                      </Link>
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          })}
+        <nav className="p-4 flex-1 overflow-y-auto custom-scrollbar">
+          {navGroups.map((group) => (
+            <NavGroup key={group.title} group={group} pathname={pathname} isMobile={false} />
+          ))}
         </nav>
         <div className="p-4 border-t border-border shrink-0">
           <button 
@@ -259,37 +238,10 @@ function AdminLayoutInner({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <nav className="p-4 space-y-6 flex-1 overflow-y-auto">
-          {navGroups.map((group) => {
-            const groupItems = group.items.filter(i => i.show)
-            if (groupItems.length === 0) return null
-            return (
-              <div key={group.title} className="space-y-2">
-                <h3 className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  {group.title}
-                </h3>
-                <div className="space-y-1">
-                  {groupItems.map((item) => {
-                    const isActive = pathname === item.href
-                    return (
-                      <Link prefetch={false}
-                        key={item.name}
-                        href={item.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={cn(
-                          "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all active:scale-95",
-                          isActive ? "bg-[#2453E3] text-white shadow-sm" : "hover:bg-slate-50 text-slate-600 hover:text-[#2453E3]"
-                        )}
-                      >
-                        <item.icon className={cn("h-4 w-4 transition-colors rtl-flip", isActive ? "text-white" : "text-slate-400 group-hover:text-[#2453E3]")} />
-                        {item.name}
-                      </Link>
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          })}
+        <nav className="p-4 flex-1 overflow-y-auto custom-scrollbar">
+          {navGroups.map((group) => (
+            <NavGroup key={group.title} group={group} pathname={pathname} isMobile={true} setMobileMenuOpen={setIsMobileMenuOpen} />
+          ))}
         </nav>
         <div className="p-4 border-t border-border shrink-0">
           <button 
