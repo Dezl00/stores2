@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from "cloudinary"
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
@@ -9,7 +9,8 @@ cloudinary.config({
 export async function uploadImage(fileBuffer: Buffer, storeId: string, subfolder: string = "general") {
   return new Promise((resolve, reject) => {
     // Isolate by platform and storeId
-    const platformPrefix = process.env.NEXT_PUBLIC_PLATFORM_NAME || "matjark"
+    const platformName = process.env.NEXT_PUBLIC_PLATFORM_NAME || "matjark"
+    const platformPrefix = platformName === "متجرك" ? "matjark" : platformName.replace(/[^a-zA-Z0-9_-]/g, '')
     const folderPath = `${platformPrefix}/stores/${storeId}/${subfolder}`
 
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -29,7 +30,8 @@ export async function uploadImage(fileBuffer: Buffer, storeId: string, subfolder
 
 export async function deleteImage(publicId: string, storeId: string) {
   // Security check: ensure publicId belongs to the storeId before deleting
-  const platformPrefix = process.env.NEXT_PUBLIC_PLATFORM_NAME || "matjark"
+  const platformName = process.env.NEXT_PUBLIC_PLATFORM_NAME || "matjark"
+  const platformPrefix = platformName === "متجرك" ? "matjark" : platformName.replace(/[^a-zA-Z0-9_-]/g, '')
   const expectedPrefix = `${platformPrefix}/stores/${storeId}/`
   
   if (!publicId.startsWith(expectedPrefix)) {
