@@ -570,9 +570,8 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
 
     revalidatePath("/admin/storefront/theme")
     revalidatePath("/")
-    revalidateTag("widgets")
-    revalidateTag("default")
-    revalidateTag("layout-data")
+    revalidateTag("widgets", "default" as any)
+    revalidateTag("layout-data", "default" as any)
 
     return { success: true }
   } catch (error: any) {
