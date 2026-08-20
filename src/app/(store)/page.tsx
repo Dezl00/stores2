@@ -2,7 +2,7 @@ import { getWidgets } from "@/features/widget-builder/actions"
 import { WidgetRenderer } from "@/components/storefront/widget-renderer"
 import { db } from "@/lib/db"
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   let themeConfig = null

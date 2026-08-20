@@ -17,7 +17,40 @@ const WIDGET_TYPES = [
 export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSettings, activeTab, setActiveTab, onSelectWidget, onSave }: any) {
   
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
+  const [draggedIdx, setDraggedIdx] = React.useState<number | null>(null)
   
+  const handleDragStart = (e: React.DragEvent, idx: number) => {
+    setDraggedIdx(idx)
+    e.dataTransfer.effectAllowed = "move"
+    // Optional: make it slightly transparent
+    setTimeout(() => {
+      if (e.target instanceof HTMLElement) e.target.style.opacity = '0.5'
+    }, 0)
+  }
+
+  const handleDragEnter = (e: React.DragEvent, idx: number) => {
+    e.preventDefault()
+    if (draggedIdx === null || draggedIdx === idx) return
+    const newWidgets = [...sortedWidgets]
+    const draggedItem = newWidgets[draggedIdx]
+    newWidgets.splice(draggedIdx, 1)
+    newWidgets.splice(idx, 0, draggedItem)
+    
+    // Update sortOrder based on new positions
+    newWidgets.forEach((w, i) => w.sortOrder = i)
+    setWidgets(newWidgets)
+    setDraggedIdx(idx)
+  }
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    if (e.target instanceof HTMLElement) e.target.style.opacity = '1'
+    setDraggedIdx(null)
+    // Wait a tick for state to settle, then save
+    setTimeout(() => {
+      onSave(true, { widgets: sortedWidgets, headerSettings, footerSettings })
+    }, 0)
+  }
+
   const toggleVisibility = (e: React.MouseEvent, widgetId: string) => {
     e.stopPropagation()
     const newWidgets = widgets.map((w: any) => w.id === widgetId ? { ...w, status: !w.status } : w)
@@ -106,9 +139,14 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
             </button>
             {expanded === "content" && (
               <div className="p-3 border-t border-border/50 space-y-2">
-                {sortedWidgets.map((widget: any) => (
+                {sortedWidgets.map((widget: any, idx: number) => (
                   <div 
                     key={widget.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, idx)}
+                    onDragEnter={(e) => handleDragEnter(e, idx)}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={(e) => e.preventDefault()}
                     onClick={() => onSelectWidget(widget.id)}
                     className={cn(
                       "group bg-white border border-border/50 rounded-lg p-2.5 flex items-center gap-3 cursor-pointer transition-all hover:border-[#2453E3]/50 hover:shadow-md",

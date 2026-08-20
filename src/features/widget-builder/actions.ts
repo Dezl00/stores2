@@ -529,10 +529,43 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
         })
       }
 
-      // Sync items if any (basic sync: delete old items and recreate to avoid complex diffing for now)
-      // BUT WAIT, we don't want to delete and recreate because of Brands/Collections auto-sync logic?
-      // Since the new builder doesn't fully manage items natively yet (we mocked the Add Item button),
-      // we'll leave item management to the existing actions for now, or just leave it untouched.
+      // Sync items if modified
+      if (w.items && Array.isArray(w.items)) {
+        // Find existing items to see what was deleted
+        const existingItems = await db.widgetContentItem.findMany({ where: { widgetId: currentWidgetId } })
+        const incomingItemIds = w.items.filter((item: any) => !item.id.startsWith('new-')).map((item: any) => item.id)
+        
+        // Delete removed items
+        const itemsToDelete = existingItems.filter(item => !incomingItemIds.includes(item.id))
+        for (const item of itemsToDelete) {
+          await db.widgetContentItem.delete({ where: { id: item.id } })
+        }
+
+        // Upsert items
+        for (const [itemIndex, item] of w.items.entries()) {
+          const itemData = {
+            title: item.title,
+            subtitle: item.subtitle,
+            desktopImage: item.desktopImage,
+            mobileImage: item.mobileImage,
+            buttonText: item.buttonText,
+            buttonUrl: item.buttonUrl,
+            sortOrder: itemIndex,
+            settings: item.settings || {},
+          }
+
+          if (item.id.startsWith('new-')) {
+            await db.widgetContentItem.create({
+              data: { ...itemData, widgetId: currentWidgetId }
+            })
+          } else {
+            await db.widgetContentItem.update({
+              where: { id: item.id },
+              data: itemData
+            })
+          }
+        }
+      }
     }
 
     revalidatePath("/admin/storefront/theme")

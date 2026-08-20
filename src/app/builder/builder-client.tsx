@@ -46,7 +46,9 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
         // Reload iframe to reflect the actual DB changes
         const iframe = document.getElementById("store-preview-iframe") as HTMLIFrameElement
         if (iframe && iframe.contentWindow) {
-          iframe.contentWindow.location.reload()
+          const url = new URL(iframe.src)
+          url.searchParams.set("t", Date.now().toString())
+          iframe.src = url.toString()
         }
       } else {
         if (!silent) toast.error(res.error || "حدث خطأ أثناء الحفظ.")
