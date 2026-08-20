@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { revalidatePath, revalidateTag } from "next/cache"
 import { z } from "zod"
 import { resolveStoreId } from "@/lib/store-context"
+import { requireStoreAdmin } from "@/lib/auth/require-admin"
 
 async function translateToEnglish(text: string): Promise<string> {
   try {
@@ -32,6 +33,7 @@ const WidgetSchema = z.object({
 export async function createWidget(data: z.infer<typeof WidgetSchema>) {
   try {
     const storeId = await resolveStoreId()
+    await requireStoreAdmin()
     const parsed = WidgetSchema.parse(data)
     
     // We should compute sortOrder if it's not provided explicitly, but for now we trust the client.
@@ -51,6 +53,11 @@ export async function createWidget(data: z.infer<typeof WidgetSchema>) {
 export async function updateWidgetOrder(updates: { id: string, sortOrder: number }[]) {
   try {
     const storeId = await resolveStoreId()
+    await requireStoreAdmin()
+    for (const update of updates) {
+      const existing = await db.widget.findFirst({ where: { id: update.id, storeId } })
+      if (!existing) throw new Error("Not found")
+    }
     // Perform sequentially or in a transaction. Let's do a transaction.
     await db.$transaction(
       updates.map((update) => 
@@ -88,6 +95,9 @@ export async function getWidgets() {
 export async function deleteWidget(id: string) {
   try {
     const storeId = await resolveStoreId()
+    await requireStoreAdmin()
+    const existing = await db.widget.findFirst({ where: { id, storeId } })
+    if (!existing) throw new Error("Not found")
     await db.widget.delete({ where: { id }})
     
     
@@ -104,7 +114,9 @@ export async function deleteWidget(id: string) {
 export async function updateWidget(id: string, data: any) {
   try {
     const storeId = await resolveStoreId()
-    const oldWidget = await db.widget.findFirst({ where: { id }, include: { items: true } })
+    await requireStoreAdmin()
+    const oldWidget = await db.widget.findFirst({ where: { id, storeId }, include: { items: true } })
+    if (!oldWidget) throw new Error("Not found")
     const widget = await db.widget.update({ where: { id },
       data
     })
@@ -138,6 +150,7 @@ export async function updateWidget(id: string, data: any) {
 export async function createWidgetContentItem(widgetId: string, formData: FormData) {
   try {
     const storeId = await resolveStoreId()
+    await requireStoreAdmin()
     const desktopImage = formData.get("desktopImage") as string || null
     const mobileImage = formData.get("mobileImage") as string || null
     const title = formData.get("title") as string || null
@@ -246,10 +259,12 @@ export async function createWidgetContentItem(widgetId: string, formData: FormDa
 export async function deleteWidgetContentItem(id: string) {
   try {
     const storeId = await resolveStoreId()
+    await requireStoreAdmin()
     const item = await db.widgetContentItem.findFirst({
-      where: { id },
+      where: { id, widget: { storeId } },
       include: { widget: true }
     })
+    if (!item) throw new Error("Not found")
     
     if (item?.widget?.type === "BrandSlider" && item.title) {
       const existingBrand = await db.brand.findFirst({
@@ -281,6 +296,7 @@ export async function deleteWidgetContentItem(id: string) {
 export async function updateWidgetContentItem(id: string, formData: FormData) {
   try {
     const storeId = await resolveStoreId()
+    await requireStoreAdmin()
     const dataToUpdate: any = {}
     
     if (formData.has("desktopImage")) dataToUpdate.desktopImage = formData.get("desktopImage") as string
@@ -310,9 +326,10 @@ export async function updateWidgetContentItem(id: string, formData: FormData) {
     const title = dataToUpdate.title
 
     const oldItem = await db.widgetContentItem.findFirst({
-      where: { id },
+      where: { id, widget: { storeId } },
       include: { widget: true }
     })
+    if (!oldItem) throw new Error("Not found")
 
     if (oldItem?.widget?.type === "BrandSlider" && title !== undefined) {
       const disableRouting = (oldItem?.widget?.settings as any)?.disableRouting === true
@@ -447,6 +464,11 @@ export async function getCollectionProducts(collectionId: string) {
 export async function updateWidgetContentItemOrder(updates: { id: string, sortOrder: number }[]) {
   try {
     const storeId = await resolveStoreId()
+    await requireStoreAdmin()
+    for (const update of updates) {
+      const existing = await db.widgetContentItem.findFirst({ where: { id: update.id, widget: { storeId } } })
+      if (!existing) throw new Error("Not found")
+    }
     await db.$transaction(
       updates.map((update) => 
         db.widgetContentItem.update({ where: { id: update.id },
@@ -467,6 +489,7 @@ export async function updateWidgetContentItemOrder(updates: { id: string, sortOr
 export async function saveThemeSettings(payload: { widgets: any[], headerSettings: any, footerSettings: any }) {
   try {
     const storeId = await resolveStoreId()
+    await requireStoreAdmin()
     const { widgets, headerSettings, footerSettings } = payload
 
     // 1. Update ThemeConfig for Header and Footer
@@ -497,6 +520,8 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
     // Delete widgets that are no longer in the payload
     const widgetsToDelete = currentWidgets.filter(w => !incomingIds.includes(w.id))
     for (const w of widgetsToDelete) {
+      const existingWidget = await db.widget.findFirst({ where: { id: w.id, storeId } });
+      if (!existingWidget) throw new Error("Not found");
       await db.widget.delete({ where: { id: w.id } })
     }
 
@@ -523,6 +548,8 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
         currentWidgetId = newW.id
       } else {
         // Update existing
+        const existingWidget = await db.widget.findFirst({ where: { id: w.id, storeId } });
+        if (!existingWidget) throw new Error("Not found");
         await db.widget.update({
           where: { id: w.id },
           data: widgetData
@@ -538,6 +565,8 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
         // Delete removed items
         const itemsToDelete = existingItems.filter(item => !incomingItemIds.includes(item.id))
         for (const item of itemsToDelete) {
+          const existingItem = await db.widgetContentItem.findFirst({ where: { id: item.id, widget: { storeId } } });
+          if (!existingItem) throw new Error("Not found");
           await db.widgetContentItem.delete({ where: { id: item.id } })
         }
 
@@ -559,6 +588,8 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
               data: { ...itemData, widgetId: currentWidgetId }
             })
           } else {
+            const existingItem = await db.widgetContentItem.findFirst({ where: { id: item.id, widget: { storeId } } });
+            if (!existingItem) throw new Error("Not found");
             await db.widgetContentItem.update({
               where: { id: item.id },
               data: itemData
