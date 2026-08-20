@@ -103,7 +103,10 @@ export function SettingsPanel({ widget, categories, onBack, onUpdateWidget }: an
               />
             </div>
             
-            <Button onClick={() => setEditingItem(null)} className="w-full bg-[#2453E3] hover:bg-[#1a3cb3]">
+            <Button onClick={() => {
+              setEditingItem(null)
+              onSave(true)
+            }} className="w-full bg-[#2453E3] hover:bg-[#1a3cb3]">
               تم وحفظ التعديلات
             </Button>
           </div>
@@ -117,7 +120,10 @@ export function SettingsPanel({ widget, categories, onBack, onUpdateWidget }: an
       {/* Header */}
       <div className="h-14 flex items-center gap-3 px-4 border-b border-border/50 shrink-0 bg-slate-50">
         <button 
-          onClick={onBack}
+          onClick={() => {
+            onBack()
+            onSave(true)
+          }}
           className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-800"
         >
           <ChevronRight className="w-5 h-5 rtl-flip" />

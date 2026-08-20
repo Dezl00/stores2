@@ -20,12 +20,16 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
   
   const toggleVisibility = (e: React.MouseEvent, widgetId: string) => {
     e.stopPropagation()
-    setWidgets(widgets.map((w: any) => w.id === widgetId ? { ...w, status: !w.status } : w))
+    const newWidgets = widgets.map((w: any) => w.id === widgetId ? { ...w, status: !w.status } : w)
+    setWidgets(newWidgets)
+    onSave(true, { widgets: newWidgets, headerSettings, footerSettings })
   }
 
   const deleteWidget = (e: React.MouseEvent, widgetId: string) => {
     e.stopPropagation()
-    setWidgets(widgets.filter((w: any) => w.id !== widgetId))
+    const newWidgets = widgets.filter((w: any) => w.id !== widgetId)
+    setWidgets(newWidgets)
+    onSave(true, { widgets: newWidgets, headerSettings, footerSettings })
   }
 
   // Group by type or just order (we will just order)
@@ -232,23 +236,7 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
                       onSelectWidget(newWidget.id)
                       
                       // Auto-save the newly added section so it appears in the preview immediately
-                      try {
-                        const { saveThemeSettings } = await import("@/features/widget-builder/actions")
-                        // Wait for any existing save to finish, though usually not needed here
-                        const res = await saveThemeSettings({
-                          widgets: updatedWidgets,
-                          headerSettings,
-                          footerSettings
-                        })
-                        if (res.success) {
-                          const iframe = document.getElementById("store-preview-iframe") as HTMLIFrameElement
-                          if (iframe && iframe.contentWindow) {
-                            iframe.contentWindow.location.reload()
-                          }
-                        }
-                      } catch(e) {
-                        console.error(e)
-                      }
+                      onSave(true, { widgets: updatedWidgets, headerSettings, footerSettings })
                     }}
                     className="px-8 py-2.5 rounded-lg font-bold text-white bg-[#2453E3] hover:bg-[#1a3cb3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >

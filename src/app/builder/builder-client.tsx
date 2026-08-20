@@ -17,6 +17,12 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
   const [deviceMode, setDeviceMode] = useState<"desktop" | "mobile">("desktop")
   const [isSaving, setIsSaving] = useState(false)
   
+  // Use refs to always have the latest state for auto-saving without waiting for re-renders
+  const stateRef = React.useRef({ widgets, headerSettings, footerSettings })
+  useEffect(() => {
+    stateRef.current = { widgets, headerSettings, footerSettings }
+  }, [widgets, headerSettings, footerSettings])
+
   // Find the currently selected widget
   const selectedWidget = selectedWidgetId === "HEADER" 
     ? { id: "HEADER", type: "Header", title: "الترويسة", config: headerSettings }
@@ -24,17 +30,18 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
     ? { id: "FOOTER", type: "Footer", title: "التذييل", config: footerSettings }
     : widgets.find((w: any) => w.id === selectedWidgetId)
 
-  const handleSave = async () => {
+  const handleSave = async (silent = false, customState?: any) => {
     setIsSaving(true)
     try {
-      const res = await saveThemeSettings({
-        widgets,
-        headerSettings,
-        footerSettings
-      })
+      const stateToSave = customState || {
+        widgets: stateRef.current.widgets,
+        headerSettings: stateRef.current.headerSettings,
+        footerSettings: stateRef.current.footerSettings
+      }
+      const res = await saveThemeSettings(stateToSave)
       
       if (res.success) {
-        toast.success("تم حفظ الواجهة بنجاح.")
+        if (!silent) toast.success("تم حفظ الواجهة بنجاح.")
         
         // Reload iframe to reflect the actual DB changes
         const iframe = document.getElementById("store-preview-iframe") as HTMLIFrameElement
@@ -42,10 +49,10 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
           iframe.contentWindow.location.reload()
         }
       } else {
-        toast.error(res.error || "حدث خطأ أثناء الحفظ.")
+        if (!silent) toast.error(res.error || "حدث خطأ أثناء الحفظ.")
       }
     } catch (e) {
-      toast.error("حدث خطأ أثناء الحفظ.")
+      if (!silent) toast.error("حدث خطأ أثناء الحفظ.")
     } finally {
       setIsSaving(false)
     }
@@ -93,6 +100,7 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
               widget={selectedWidget} 
               categories={categories}
               onBack={() => setSelectedWidgetId(null)} 
+              onSave={handleSave}
               onUpdateWidget={(updatedWidget: any) => {
                 if (updatedWidget.id === "HEADER") {
                   setHeaderSettings(updatedWidget.config || {})
