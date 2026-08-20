@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server"
-import { requireStoreAdmin } from "@/lib/auth/require-admin"
+import { auth } from "@/lib/auth"
 import { resolveStoreId } from "@/lib/store-context"
 import { uploadImage } from "@/lib/cloudinary"
 
 export async function POST(request: Request) {
   try {
-    try {
-      await requireStoreAdmin()
-    } catch (e: any) {
+    const session = await auth()
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
     const formData = await request.formData()
     const file = formData.get("file") as File | null
     
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    const storeId = await resolveStoreId()
+    const storeId = await resolveStoreId().catch(() => session.user?.storeId || "platform")
     const uploadResult: any = await uploadImage(buffer, storeId, "editor")
 
     return NextResponse.json({ 
