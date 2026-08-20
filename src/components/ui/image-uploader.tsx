@@ -55,8 +55,8 @@ export function ImageUploader({ value, onChange, className, label = "اختر ص
       } else {
         throw new Error(data.error || "فشل الرفع")
       }
-    } catch (error) {
-      toast.error("حدث خطأ أثناء رفع الصورة")
+    } catch (error: any) {
+      toast.error(error.message || "حدث خطأ أثناء رفع الصورة")
       console.error(error)
     } finally {
       setIsUploading(false)

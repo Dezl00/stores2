@@ -2,8 +2,8 @@ import { v2 as cloudinary } from "cloudinary"
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  api_key: process.env.CLOUDINARY_API_KEY || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET || process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET,
 })
 
 export async function uploadImage(fileBuffer: Buffer, storeId: string, subfolder: string = "general") {
@@ -15,9 +15,9 @@ export async function uploadImage(fileBuffer: Buffer, storeId: string, subfolder
 
     const uploadStream = cloudinary.uploader.upload_stream(
       { folder: folderPath },
-      (error, result) => {
+      (error: any, result) => {
         if (error) {
-          reject(error)
+          reject(new Error(error.message || JSON.stringify(error)))
         } else {
           resolve(result)
         }
