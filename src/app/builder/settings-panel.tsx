@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/image-uploader"
 
-export function SettingsPanel({ widget, categories, onBack, onUpdateWidget }: any) {
+export function SettingsPanel({ widget, categories, onBack, onUpdateWidget, onSave }: any) {
   
   const [localTitle, setLocalTitle] = useState(widget.title || "")
   const [editingItem, setEditingItem] = useState<any>(null)

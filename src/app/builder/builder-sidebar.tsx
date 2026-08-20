@@ -14,7 +14,7 @@ const WIDGET_TYPES = [
   { id: "StoreFeatures", name: "مميزات المتجر", icon: ShieldCheck, desc: "عرض مميزات المتجر مثل الشحن السريع" }
 ]
 
-export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSettings, activeTab, setActiveTab, onSelectWidget }: any) {
+export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSettings, activeTab, setActiveTab, onSelectWidget, onSave }: any) {
   
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
   
