@@ -20,16 +20,18 @@ export const getCachedLayoutData = unstable_cache(
         include: { items: { orderBy: { sortOrder: 'asc' } } }
       }),
       db.menu.findFirst({
+        where: { storeId },
         include: { items: { orderBy: { sortOrder: 'asc' } } }
       }),
       db.themeConfig.findUnique({
         where: { storeId }
       }),
       db.category.findMany({
+        where: { storeId },
         include: { children: true }
       }),
       db.branch.findMany({
-        where: { isActive: true },
+        where: { storeId, isActive: true },
         orderBy: { sortOrder: 'asc' }
       })
     ])

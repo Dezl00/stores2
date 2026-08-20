@@ -5,10 +5,28 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/image-uploader"
 
-export function SettingsPanel({ widget, categories, onBack, onUpdateWidget, onSave }: any) {
+export function SettingsPanel({ widget, categories, widgets, headerSettings, footerSettings, onBack, onUpdateWidget, onSave }: any) {
   
   const [localTitle, setLocalTitle] = useState(widget.title || "")
   const [editingItem, setEditingItem] = useState<any>(null)
+
+  // Build the full save state with an updated widget applied inline
+  // This avoids the stateRef race condition entirely
+  const buildSaveState = (updatedWidget?: any) => {
+    const w = updatedWidget || widget
+    let updatedWidgets = widgets
+    let updatedHeader = headerSettings
+    let updatedFooter = footerSettings
+
+    if (w.id === "HEADER") {
+      updatedHeader = w.config || {}
+    } else if (w.id === "FOOTER") {
+      updatedFooter = w.config || {}
+    } else {
+      updatedWidgets = widgets.map((ww: any) => ww.id === w.id ? w : ww)
+    }
+    return { widgets: updatedWidgets, headerSettings: updatedHeader, footerSettings: updatedFooter }
+  }
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalTitle(e.target.value)
@@ -105,7 +123,7 @@ export function SettingsPanel({ widget, categories, onBack, onUpdateWidget, onSa
             
             <Button onClick={() => {
               setEditingItem(null)
-              setTimeout(() => onSave(true), 0)
+              onSave(true, buildSaveState())
             }} className="w-full bg-[#2453E3] hover:bg-[#1a3cb3]">
               تم وحفظ التعديلات
             </Button>
@@ -122,7 +140,7 @@ export function SettingsPanel({ widget, categories, onBack, onUpdateWidget, onSa
         <button 
           onClick={() => {
             onBack()
-            setTimeout(() => onSave(true), 0)
+            onSave(true, buildSaveState())
           }}
           className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-800"
         >

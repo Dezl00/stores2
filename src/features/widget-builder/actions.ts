@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { z } from "zod"
 import { resolveStoreId } from "@/lib/store-context"
 
@@ -570,8 +570,8 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
 
     revalidatePath("/admin/storefront/theme")
     revalidatePath("/")
-    revalidateTag("widgets", "default" as any)
-    revalidateTag("layout-data", "default" as any)
+    revalidateTag("widgets", "default")
+    revalidateTag("layout-data", "default")
 
     return { success: true }
   } catch (error: any) {

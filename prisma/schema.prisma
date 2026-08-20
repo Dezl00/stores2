@@ -226,6 +226,8 @@ model WidgetContentItem {
 
   // Custom Settings (Alignment, Colors, Button Styles)
   settings     Json?
+
+  @@index([widgetId])
 }
 
 // ---------- Media ----------

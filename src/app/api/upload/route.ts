@@ -17,6 +17,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
+    // Server-side file size check (5MB max)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "حجم الملف كبير جداً. الحد الأقصى 5 ميجابايت." }, { status: 400 })
+    }
+
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 

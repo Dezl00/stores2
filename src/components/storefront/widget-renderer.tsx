@@ -13,6 +13,7 @@ import { FeaturedProductWidget } from "./widgets/featured-product"
 import { LatestArticlesWidget } from "./widgets/latest-articles"
 export function WidgetRenderer({ widget }: { widget: any }) {
   // Common visibility classes based on settings
+  if (!widget.showDesktop && !widget.showMobile) return null
   let visibilityClass = ""
   if (!widget.showDesktop) visibilityClass += " md:hidden"
   if (!widget.showMobile) visibilityClass += " hidden md:block"

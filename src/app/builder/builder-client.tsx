@@ -99,8 +99,12 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
             />
           ) : (
             <SettingsPanel 
+              key={selectedWidgetId}
               widget={selectedWidget} 
               categories={categories}
+              widgets={widgets}
+              headerSettings={headerSettings}
+              footerSettings={footerSettings}
               onBack={() => setSelectedWidgetId(null)} 
               onSave={handleSave}
               onUpdateWidget={(updatedWidget: any) => {
