@@ -18,6 +18,7 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
   
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
   const [draggedIdx, setDraggedIdx] = React.useState<number | null>(null)
+  const [activeDragId, setActiveDragId] = React.useState<string | null>(null)
   
   const handleDragStart = (e: React.DragEvent, idx: number) => {
     setDraggedIdx(idx)
@@ -172,9 +173,9 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
               <div className="p-3 border-t border-border/50 space-y-2">
                 {sortedWidgets.map((widget: any, idx: number) => (
                   <div 
-                    key={widget.id}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, idx)}
+                      key={widget.id}
+                      draggable={activeDragId === widget.id}
+                      onDragStart={(e) => handleDragStart(e, idx)}
                     onDragEnter={(e) => handleDragEnter(e, idx)}
                     onDragEnd={handleDragEnd}
                     onDragOver={(e) => e.preventDefault()}
@@ -184,9 +185,16 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
                       !widget.status && "opacity-50 grayscale"
                     )}
                   >
-                    <div className="cursor-grab text-slate-300 hover:text-slate-500">
-                      <GripVertical className="w-4 h-4" />
-                    </div>
+                    <div 
+                        className="cursor-grab text-slate-300 hover:text-slate-500 p-1"
+                        onMouseDown={() => setActiveDragId(widget.id)}
+                        onMouseUp={() => setActiveDragId(null)}
+                        onMouseLeave={() => setActiveDragId(null)}
+                        onTouchStart={() => setActiveDragId(widget.id)}
+                        onTouchEnd={() => setActiveDragId(null)}
+                      >
+                        <GripVertical className="w-4 h-4" />
+                      </div>
                     <div className="flex-1 truncate">
                       <p className="text-xs font-bold text-slate-800 truncate group-hover:text-[#2453E3] transition-colors">{widget.title || widget.type}</p>
                     </div>
