@@ -1,6 +1,9 @@
 ﻿'use client'
+
 import React from 'react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export function PromoBanner({ widget }: { widget: any }) {
   const { title, subtitle, settings } = widget;
@@ -9,6 +12,10 @@ export function PromoBanner({ widget }: { widget: any }) {
     backgroundColor = '#2453E3',
     backgroundImage,
     overlayOpacity = 50,
+    buttonText,
+    buttonUrl,
+    redirectType,
+    redirectId
   } = settings || {};
 
   const [timeLeft, setTimeLeft] = React.useState({
@@ -40,10 +47,18 @@ export function PromoBanner({ widget }: { widget: any }) {
   }, [timerEndDate]);
 
   const hasTimer = !!timerEndDate;
+  const targetDate = new Date(timerEndDate).getTime();
+  const isTimerActive = hasTimer && (targetDate - new Date().getTime() > 0);
+
+  let href = buttonUrl || '#';
+  if (redirectType === 'Product' || redirectType === 'product') href = `/product/${redirectId}`;
+  else if (redirectType === 'Category' || redirectType === 'category') href = `/category/${redirectId}`;
+  else if (redirectType === 'Page' || redirectType === 'page') href = `/pages/${redirectId}`;
+  const hasLink = !!(buttonUrl || (redirectType && redirectId));
 
   return (
     <div 
-      className="relative w-full py-12 px-4 flex flex-col items-center justify-center text-center overflow-hidden"
+      className="relative w-full py-12 px-4 flex flex-col items-center justify-center overflow-hidden"
       style={{ backgroundColor }}
     >
       {backgroundImage && (
@@ -59,23 +74,40 @@ export function PromoBanner({ widget }: { widget: any }) {
         </>
       )}
       
-      <div className="relative z-10 max-w-4xl mx-auto space-y-6">
-        {title && <h2 className="text-3xl md:text-5xl font-bold text-white">{title}</h2>}
-        {subtitle && <p className="text-lg text-white/90">{subtitle}</p>}
+      <div className={cn(
+        "relative z-10 w-full max-w-6xl mx-auto flex flex-col gap-8 items-center",
+        isTimerActive ? "md:flex-row md:justify-between md:items-center text-center md:text-right" : "justify-center text-center"
+      )}>
+        <div className="space-y-6 max-w-2xl">
+          {title && <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight">{title}</h2>}
+          {subtitle && <p className="text-lg text-white/90 leading-relaxed">{subtitle}</p>}
+          
+          {buttonText && hasLink && (
+            <div className={cn("pt-4", !isTimerActive && "flex justify-center")}>
+              <Link href={href}>
+                <Button variant="outline" className="bg-white text-slate-900 border-white hover:bg-white/90 transition-colors rounded-full px-8 py-6 text-lg font-bold shadow-xl">
+                  {buttonText}
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
         
-        {hasTimer && (
-          <div className="flex items-center justify-center gap-4 mt-8" dir="ltr">
+        {isTimerActive && (
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0" dir="ltr">
             {[
               { label: 'Days', value: timeLeft.days },
               { label: 'Hours', value: timeLeft.hours },
               { label: 'Mins', value: timeLeft.minutes },
               { label: 'Secs', value: timeLeft.seconds }
-            ].map((unit, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <div className="bg-white text-slate-900 w-16 h-16 md:w-20 md:h-20 flex items-center justify-center rounded-xl text-2xl md:text-3xl font-bold shadow-lg">
-                  {unit.value.toString().padStart(2, '0')}
+            ].map((item, idx) => (
+              <div key={idx} className="flex flex-col items-center">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 shadow-2xl">
+                  <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tighter">
+                    {item.value.toString().padStart(2, '0')}
+                  </span>
                 </div>
-                <span className="text-white/80 text-xs md:text-sm mt-2 uppercase tracking-wider">{unit.label}</span>
+                <span className="text-white/80 text-xs sm:text-sm mt-2 font-medium uppercase tracking-wider">{item.label}</span>
               </div>
             ))}
           </div>
@@ -84,4 +116,3 @@ export function PromoBanner({ widget }: { widget: any }) {
     </div>
   );
 }
-

@@ -180,7 +180,7 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
                     onDragOver={(e) => e.preventDefault()}
                     onClick={() => onSelectWidget(widget.id)}
                     className={cn(
-                      "group bg-white border border-border/50 rounded-lg p-2.5 flex items-center gap-3 cursor-pointer transition-all hover:border-[#2453E3]/50 hover:shadow-md",
+                      "group bg-white border border-border/50 rounded-lg p-1.5 flex items-center gap-2 cursor-pointer transition-all hover:border-[#2453E3]/50 hover:shadow-md",
                       !widget.status && "opacity-50 grayscale"
                     )}
                   >
@@ -188,7 +188,7 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
                       <GripVertical className="w-4 h-4" />
                     </div>
                     <div className="flex-1 truncate">
-                      <p className="text-sm font-bold text-slate-800 truncate group-hover:text-[#2453E3] transition-colors">{widget.title || widget.type}</p>
+                      <p className="text-xs font-bold text-slate-800 truncate group-hover:text-[#2453E3] transition-colors">{widget.title || widget.type}</p>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button onClick={(e) => toggleVisibility(e, widget.id)} className="p-1.5 text-slate-400 hover:text-[#2453E3] rounded-md hover:bg-slate-100">
