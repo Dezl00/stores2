@@ -1,6 +1,5 @@
-import React from "react"
+﻿import React from "react"
 import { HeroSlider } from "./widgets/hero-slider"
-import { FeaturedProducts } from "./widgets/featured-products"
 import { BannerGrid } from "./widgets/banner-grid"
 import { TextBlock } from "./widgets/text-block"
 import { BrandSlider } from "./widgets/brand-slider"
@@ -11,6 +10,10 @@ import { StoreFeatures } from "./widgets/store-features"
 import { ProductList } from "./widgets/product-list"
 import { FeaturedProductWidget } from "./widgets/featured-product"
 import { LatestArticlesWidget } from "./widgets/latest-articles"
+import { PromoBanner } from "./widgets/promo-banner"
+import { MarqueeAlerts } from "./widgets/marquee-alerts"
+import { PromoBentoGrid } from "./widgets/promo-bento-grid"
+
 export function WidgetRenderer({ widget }: { widget: any }) {
   // Common visibility classes based on settings
   if (!widget.showDesktop && !widget.showMobile) return null
@@ -19,6 +22,24 @@ export function WidgetRenderer({ widget }: { widget: any }) {
   if (!widget.showMobile) visibilityClass += " hidden md:block"
 
   switch (widget.type) {
+    case "PromoBanner":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <PromoBanner widget={widget} />
+        </section>
+      )
+    case "MarqueeAlerts":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <MarqueeAlerts widget={widget} />
+        </section>
+      )
+    case "PromoBentoGrid":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <PromoBentoGrid widget={widget} />
+        </section>
+      )
     case "CategoryGrid":
       return (
         <section className={`w-full py-12 ${visibilityClass}`}>
@@ -29,12 +50,6 @@ export function WidgetRenderer({ widget }: { widget: any }) {
       return (
         <section className={`w-full ${visibilityClass}`}>
           <HeroSlider widget={widget} />
-        </section>
-      )
-    case "FeaturedProducts":
-      return (
-        <section className={`w-full py-16 ${visibilityClass}`}>
-          <FeaturedProducts widget={widget} />
         </section>
       )
     case "ProductList":
@@ -51,7 +66,7 @@ export function WidgetRenderer({ widget }: { widget: any }) {
       )
     case "BannerGrid":
       return (
-        <section className={`w-full py-12 ${visibilityClass}`}>
+        <section className={`w-full py-16 ${visibilityClass}`}>
           <BannerGrid widget={widget} />
         </section>
       )
@@ -63,7 +78,7 @@ export function WidgetRenderer({ widget }: { widget: any }) {
       )
     case "BrandSlider":
       return (
-        <section className={`w-full ${visibilityClass}`}>
+        <section className={`w-full py-16 ${visibilityClass}`}>
           <BrandSlider widget={widget} />
         </section>
       )
@@ -75,13 +90,13 @@ export function WidgetRenderer({ widget }: { widget: any }) {
       )
     case "ValuesSlider":
       return (
-        <section className={`w-full ${visibilityClass}`}>
+        <section className={`w-full py-16 ${visibilityClass}`}>
           <ValuesSlider widget={widget} />
         </section>
       )
     case "StoreFeatures":
       return (
-        <section className={`w-full ${visibilityClass}`}>
+        <section className={`w-full py-16 ${visibilityClass}`}>
           <StoreFeatures widget={widget} />
         </section>
       )
