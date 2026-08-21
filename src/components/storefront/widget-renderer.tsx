@@ -28,11 +28,7 @@ export function WidgetRenderer({ widget }: { widget: any }) {
         </section>
       )
     case "MarqueeAlerts":
-      return (
-        <section className={`w-full ${visibilityClass}`}>
-          <MarqueeAlerts widget={widget} />
-        </section>
-      )
+      return null; // Rendered globally in layout.tsx
     case "PromoBentoGrid":
       return (
         <section className={`w-full ${visibilityClass}`}>

@@ -8,6 +8,21 @@ import { getValidLink } from "@/lib/utils"
 
 export function HeroSlider({ widget }: { widget: any }) {
 
+  const textAlign = widget.settings?.textAlign || 'center';
+  const textPosition = widget.settings?.textPosition || 'center';
+
+  const getFlexAlign = (pos: string) => {
+    if (pos === 'top') return 'justify-start mt-12 md:mt-24';
+    if (pos === 'center') return 'justify-center';
+    return 'justify-end mb-12 md:mb-24';
+  }
+  const getTextJustify = (align: string) => {
+    if (align === 'right') return 'items-end text-right';
+    if (align === 'left') return 'items-start text-left';
+    return 'items-center text-center';
+  }
+
+
   const computeHref = (slide: any) => {
     if (slide.redirectType === 'Product' || slide.redirectType === 'product') return `/product/${slide.redirectId}`;
     if (slide.redirectType === 'Category' || slide.redirectType === 'category') return `/category/${slide.redirectId}`;
