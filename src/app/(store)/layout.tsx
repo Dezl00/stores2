@@ -1,6 +1,8 @@
 import React from "react"
 import { getCachedLayoutData } from "@/lib/cached-layout-data"
 import { StorefrontHeader } from "@/components/storefront/header"
+import { MarqueeAlerts } from "@/components/storefront/widgets/marquee-alerts"
+import { db } from "@/lib/db"
 import { StorefrontFooter } from "@/components/storefront/footer"
 import { CartDrawer } from "@/components/storefront/cart-drawer"
 import { AuthModal } from "@/components/auth/auth-modal"
@@ -17,6 +19,11 @@ export const revalidate = 3600
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
+  const storeId = await resolveStoreId()
+  const marqueeWidget = await db.widget.findFirst({
+    where: { storeId, type: "MarqueeAlerts", status: true },
+    include: { items: { orderBy: { sortOrder: 'asc' } } }
+  })
   const user = session?.user || null
 
   const {
@@ -34,7 +41,8 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-screen flex flex-col font-sans pb-16 md:pb-0 selection:bg-primary/20">
       <ScrollToTop />
-      <StorefrontHeader menuItems={topNavItems} themeConfig={themeConfig} user={user} categories={categories} />
+      {marqueeWidget && <MarqueeAlerts widget={marqueeWidget} />}
+        <StorefrontHeader menuItems={topNavItems} themeConfig={themeConfig} user={user} categories={categories} />
       <MobileSidebar menuItems={topNavItems} themeConfig={themeConfig} categories={categories} />
       <CartDrawer />
       <AuthModal themeConfig={themeConfig} />
