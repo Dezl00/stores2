@@ -14,9 +14,10 @@ import { cn } from "@/lib/utils"
 import { usePermissions } from "@/hooks/use-permissions"
 
 const WIDGET_TYPES = [
-  { id: "HeroSlider", name: "سلايدر الصور", icon: ImageIcon, desc: "سلايدر متحرك للصور أعلى الصفحة" },
-  { id: "FeaturedProducts", name: "المنتجات المميزة", icon: ShoppingBag, desc: "عرض مجموعة من المنتجات المختارة" },
-  { id: "BannerGrid", name: "شبكة البنرات", icon: LayoutTemplate, desc: "بنرات إعلانية لعروض المتجر" },
+  { id: "HeroSlider", name: "شريط صور", icon: ImageIcon, desc: "شريط صور متحرك أعلى الصفحة" },
+  { id: "PromoBanner", name: "شريط إعلاني (مؤقت)", icon: LayoutTemplate, desc: "شريط إعلاني مع عداد تنازلي وخلفية" },
+  { id: "MarqueeAlerts", name: "شريط تنبيهات متحرك", icon: AlignLeft, desc: "شريط نصوص متحركة للإعلانات" },
+  { id: "PromoBentoGrid", name: "صور إعلانية (Bento)", icon: ImagePlus, desc: "شبكة صور إعلانية بأحجام متنوعة" },
   { id: "ProductList", name: "قائمة منتجات", icon: ShoppingCart, desc: "عرض مجموعة من المنتجات في قائمة" },
   { id: "BrandSlider", name: "سلايدر شعارات", icon: ImagePlus, desc: "شريط متحرك لعرض الشعارات أو الشركاء" },
   { id: "CategoryGrid", name: "شبكة الأقسام", icon: LayoutTemplate, desc: "عرض الأقسام الرئيسية كشبكة صور" },

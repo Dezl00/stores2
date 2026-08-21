@@ -1,6 +1,5 @@
 ﻿import React from "react"
 import { HeroSlider } from "./widgets/hero-slider"
-import { BannerGrid } from "./widgets/banner-grid"
 import { TextBlock } from "./widgets/text-block"
 import { BrandSlider } from "./widgets/brand-slider"
 import { CategoryGrid } from "./widgets/category-grid"
@@ -64,12 +63,7 @@ export function WidgetRenderer({ widget }: { widget: any }) {
           <FeaturedProductWidget widget={widget} />
         </section>
       )
-    case "BannerGrid":
-      return (
-        <section className={`w-full py-16 ${visibilityClass}`}>
-          <BannerGrid widget={widget} />
-        </section>
-      )
+    
     case "TextBlock":
       return (
         <section className={`w-full py-16 ${visibilityClass}`}>
