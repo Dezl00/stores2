@@ -58,7 +58,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-[100] w-full bg-background/95 backdrop-blur-md border-b border-border/40 transition-all duration-300 shadow-sm">
+      <header className="sticky top-0 left-0 right-0 z-[100] w-full bg-background/95 backdrop-blur-md border-b border-border/40 transition-all duration-300 shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* DESKTOP HEADER */}
           <div className="hidden md:flex h-20 items-center justify-between gap-6">
