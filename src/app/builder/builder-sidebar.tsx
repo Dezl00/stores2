@@ -4,9 +4,10 @@ import { GripVertical, Eye, EyeOff, Layout, Palette, Plus, Settings2, Trash2, X,
 import { cn } from "@/lib/utils"
 
 const WIDGET_TYPES = [
-  { id: "HeroSlider", name: "بنر متحرك", icon: ImageIcon, desc: "صور متحركة في أعلى الصفحة" },
-  { id: "FeaturedProducts", name: "منتجات مختارة", icon: ShoppingBag, desc: "عرض أبرز المنتجات للمبيعات" },
-  { id: "BannerGrid", name: "شبكة بانرات", icon: LayoutTemplate, desc: "بانرات صور بشكل شبكي" },
+  { id: "HeroSlider", name: "شريط صور", icon: ImageIcon, desc: "صور متحركة في أعلى الصفحة" },
+  { id: "PromoBanner", name: "شريط إعلاني (مؤقت)", icon: LayoutTemplate, desc: "شريط إعلاني مع عداد تنازلي وخلفية" },
+  { id: "MarqueeAlerts", name: "شريط تنبيهات متحرك", icon: AlignLeft, desc: "شريط نصوص متحركة للإعلانات" },
+  { id: "PromoBentoGrid", name: "صور إعلانية (Bento)", icon: ImagePlus, desc: "شبكة صور إعلانية بأحجام متنوعة" },
   { id: "ProductList", name: "قائمة منتجات", icon: ShoppingCart, desc: "عرض قائمة منتجات من تصنيف" },
   { id: "BrandSlider", name: "شريط الماركات", icon: ImagePlus, desc: "عرض شعارات الماركات أو الشركاء" },
   { id: "CategoryGrid", name: "شبكة التصنيفات", icon: LayoutTemplate, desc: "عرض التصنيفات بشكل شبكي مميز" },
