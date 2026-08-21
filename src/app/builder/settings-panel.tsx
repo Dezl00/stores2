@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from "react"
-import { ChevronRight, Settings, Image as ImageIcon, Plus, Trash2 } from "lucide-react"
+import { ChevronRight, Settings, Image as ImageIcon, Plus, Trash2, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ProductPickerModal } from "@/components/admin/product-picker-modal"
@@ -61,171 +61,9 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
     onUpdateWidget({ ...widget, items: updatedItems })
   }
 
-  if (editingItem) {
-    return (
-      <div className="flex flex-col h-full bg-white relative animate-in slide-in-from-right-4 duration-300">
-        <div className="h-14 flex items-center gap-3 px-4 border-b border-border/50 shrink-0 bg-slate-50">
-          <button 
-            onClick={() => setEditingItem(null)}
-            className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-800"
-          >
-            <ChevronRight className="w-5 h-5 rtl-flip" />
-          </button>
-          <div>
-            <h3 className="font-bold text-sm text-slate-800">تعديل العنصر</h3>
-            <p className="text-[11px] text-slate-500">الرجوع للإعدادات</p>
-          </div>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 block">صورة العنصر (أو الأيقونة)</label>
-              <div className="bg-slate-50 border border-border/50 rounded-xl p-4">
-                <ImageUploader 
-                  label=""
-                  value={editingItem.desktopImage || editingItem.imageUrl || ""} 
-                  onChange={(url) => {
-                    handleUpdateItem({ ...editingItem, desktopImage: url, imageUrl: url })
-                  }} 
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 block">العنوان</label>
-              <Input 
-                value={editingItem.title || editingItem.name || ""} 
-                onChange={(e) => handleUpdateItem({ ...editingItem, title: e.target.value, name: e.target.value })}
-                className="bg-slate-50 text-xs"
-                placeholder="أدخل العنوان..."
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 block">الوصف أو النص الفرعي</label>
-              <Input 
-                value={editingItem.subtitle || editingItem.description || ""} 
-                onChange={(e) => handleUpdateItem({ ...editingItem, subtitle: e.target.value, description: e.target.value })}
-                className="bg-slate-50 text-xs"
-                placeholder="أدخل الوصف..."
-              />
-            </div>
-            
-            
-              {widget.type !== "MarqueeAlerts" && (
-<div className="space-y-2">
-                <label className="text-xs font-bold text-slate-600 block">نص الزر (اختياري)</label>
-                <Input 
-                  value={editingItem.buttonText || ""} 
-                  onChange={(e) => handleUpdateItem({ ...editingItem, buttonText: e.target.value })}
-                  className="bg-slate-50 text-xs"
-                  placeholder="مثال: تسوق الآن"
-                />
-              </div>
-)}
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-600 block">توجيه الزر / الصورة</label>
-                <select
-                  value={editingItem.redirectType || "custom"}
-                  onChange={(e) => {
-                    handleUpdateItem({ ...editingItem, redirectType: e.target.value, redirectId: "", buttonUrl: "" })
-                  }}
-                  className="w-full h-10 rounded-md border border-input bg-slate-50 px-3 text-xs"
-                >
-                  <option value="custom">رابط مخصص</option>
-                  <option value="product">منتج</option>
-                  <option value="category">تصنيف</option>
-                  <option value="page">صفحة</option>
-                </select>
-              </div>
-
-              {(!editingItem.redirectType || editingItem.redirectType === "custom") && (
-                <div className="space-y-2 animate-in fade-in zoom-in duration-200">
-                  <label className="text-xs font-bold text-slate-600 block">الرابط المخصص</label>
-                  <Input 
-                    value={editingItem.buttonUrl || ""} 
-                    onChange={(e) => handleUpdateItem({ ...editingItem, buttonUrl: e.target.value })}
-                    className="bg-slate-50 text-xs text-left"
-                    dir="ltr"
-                    placeholder="https://..."
-                  />
-                </div>
-              )}
-
-              {editingItem.redirectType === "category" && (
-                <div className="space-y-2 animate-in fade-in zoom-in duration-200">
-                  <label className="text-xs font-bold text-slate-600 block">اختر التصنيف</label>
-                  <select
-                    value={editingItem.redirectId || ""}
-                    onChange={(e) => handleUpdateItem({ ...editingItem, redirectId: e.target.value })}
-                    className="w-full h-10 rounded-md border border-input bg-slate-50 px-3 text-xs"
-                  >
-                    <option value="">-- اختر --</option>
-                    {categories?.map((c: any) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {editingItem.redirectType === "page" && (
-                <div className="space-y-2 animate-in fade-in zoom-in duration-200">
-                  <label className="text-xs font-bold text-slate-600 block">اختر الصفحة</label>
-                  <select
-                    value={editingItem.redirectId || ""}
-                    onChange={(e) => handleUpdateItem({ ...editingItem, redirectId: e.target.value })}
-                    className="w-full h-10 rounded-md border border-input bg-slate-50 px-3 text-xs"
-                  >
-                    <option value="">-- اختر --</option>
-                    <option value="about">من نحن</option>
-                    <option value="contact">اتصل بنا</option>
-                    <option value="terms">الشروط والأحكام</option>
-                    <option value="privacy">سياسة الخصوصية</option>
-                  </select>
-                </div>
-              )}
-
-              {editingItem.redirectType === "product" && (
-                <div className="space-y-2 animate-in fade-in zoom-in duration-200">
-                  <label className="text-xs font-bold text-slate-600 block">المنتج المختار</label>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between bg-slate-50 text-xs h-10"
-                    onClick={() => setProductPickerOpen(true)}
-                  >
-                    <span className="truncate">{editingItem.redirectId ? "تغيير المنتج" : "اختر منتجاً..."}</span>
-                  </Button>
-                  {productPickerOpen && (
-                    <ProductPickerModal 
-                      open={productPickerOpen}
-                      onOpenChange={setProductPickerOpen}
-                      initialSelectedIds={editingItem.redirectId ? [editingItem.redirectId] : []}
-                      single={true}
-                      onSave={(selected: string[]) => {
-                        handleUpdateItem({ ...editingItem, redirectId: selected[0] || "" })
-                      }}
-                    />
-                  )}
-                </div>
-              )}
-
-            
-            <Button onClick={() => {
-              setEditingItem(null)
-              onSave(true, buildSaveState())
-            }} className="w-full bg-[#2453E3] hover:bg-[#1a3cb3]">
-              تم وحفظ التعديلات
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
+  
   return (
-    <div className="flex flex-col h-full bg-white relative animate-in slide-in-from-right-4 duration-300">
+      <div className="flex flex-col h-full bg-white relative animate-in slide-in-from-right-4 duration-300">
       {/* Header */}
       <div className="h-14 flex items-center gap-3 px-4 border-b border-border/50 shrink-0 bg-slate-50">
         <button 
@@ -679,6 +517,172 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
         )}
         
       </div>
-    </div>
+    
+      {editingItem && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col animate-in zoom-in-95 duration-200" dir="rtl">
+            
+      <div className="flex flex-col h-full bg-white relative animate-in slide-in-from-right-4 duration-300">
+        <div className="h-14 flex items-center justify-between px-6 border-b border-border/50 shrink-0 bg-slate-50">
+            <div>
+              <h3 className="font-bold text-sm text-slate-800">تعديل العنصر</h3>
+              <p className="text-[11px] text-slate-500">تخصيص خصائص العنصر</p>
+            </div>
+            <button 
+              onClick={() => setEditingItem(null)}
+              className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-800"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 max-h-[70vh]">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-600 block">صورة العنصر (أو الأيقونة)</label>
+              <div className="bg-slate-50 border border-border/50 rounded-xl p-4">
+                <ImageUploader 
+                  label=""
+                  value={editingItem.desktopImage || editingItem.imageUrl || ""} 
+                  onChange={(url) => {
+                    handleUpdateItem({ ...editingItem, desktopImage: url, imageUrl: url })
+                  }} 
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-600 block">العنوان</label>
+              <Input 
+                value={editingItem.title || editingItem.name || ""} 
+                onChange={(e) => handleUpdateItem({ ...editingItem, title: e.target.value, name: e.target.value })}
+                className="bg-slate-50 text-xs"
+                placeholder="أدخل العنوان..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-600 block">الوصف أو النص الفرعي</label>
+              <Input 
+                value={editingItem.subtitle || editingItem.description || ""} 
+                onChange={(e) => handleUpdateItem({ ...editingItem, subtitle: e.target.value, description: e.target.value })}
+                className="bg-slate-50 text-xs"
+                placeholder="أدخل الوصف..."
+              />
+            </div>
+            
+            
+              {widget.type !== "MarqueeAlerts" && (
+<div className="space-y-2">
+                <label className="text-xs font-bold text-slate-600 block">نص الزر (اختياري)</label>
+                <Input 
+                  value={editingItem.buttonText || ""} 
+                  onChange={(e) => handleUpdateItem({ ...editingItem, buttonText: e.target.value })}
+                  className="bg-slate-50 text-xs"
+                  placeholder="مثال: تسوق الآن"
+                />
+              </div>
+)}
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-600 block">توجيه الزر / الصورة</label>
+                <select
+                  value={editingItem.redirectType || "custom"}
+                  onChange={(e) => {
+                    handleUpdateItem({ ...editingItem, redirectType: e.target.value, redirectId: "", buttonUrl: "" })
+                  }}
+                  className="w-full h-10 rounded-md border border-input bg-slate-50 px-3 text-xs"
+                >
+                  <option value="custom">رابط مخصص</option>
+                  <option value="product">منتج</option>
+                  <option value="category">تصنيف</option>
+                  <option value="page">صفحة</option>
+                </select>
+              </div>
+
+              {(!editingItem.redirectType || editingItem.redirectType === "custom") && (
+                <div className="space-y-2 animate-in fade-in zoom-in duration-200">
+                  <label className="text-xs font-bold text-slate-600 block">الرابط المخصص</label>
+                  <Input 
+                    value={editingItem.buttonUrl || ""} 
+                    onChange={(e) => handleUpdateItem({ ...editingItem, buttonUrl: e.target.value })}
+                    className="bg-slate-50 text-xs text-left"
+                    dir="ltr"
+                    placeholder="https://..."
+                  />
+                </div>
+              )}
+
+              {editingItem.redirectType === "category" && (
+                <div className="space-y-2 animate-in fade-in zoom-in duration-200">
+                  <label className="text-xs font-bold text-slate-600 block">اختر التصنيف</label>
+                  <select
+                    value={editingItem.redirectId || ""}
+                    onChange={(e) => handleUpdateItem({ ...editingItem, redirectId: e.target.value })}
+                    className="w-full h-10 rounded-md border border-input bg-slate-50 px-3 text-xs"
+                  >
+                    <option value="">-- اختر --</option>
+                    {categories?.map((c: any) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {editingItem.redirectType === "page" && (
+                <div className="space-y-2 animate-in fade-in zoom-in duration-200">
+                  <label className="text-xs font-bold text-slate-600 block">اختر الصفحة</label>
+                  <select
+                    value={editingItem.redirectId || ""}
+                    onChange={(e) => handleUpdateItem({ ...editingItem, redirectId: e.target.value })}
+                    className="w-full h-10 rounded-md border border-input bg-slate-50 px-3 text-xs"
+                  >
+                    <option value="">-- اختر --</option>
+                    <option value="about">من نحن</option>
+                    <option value="contact">اتصل بنا</option>
+                    <option value="terms">الشروط والأحكام</option>
+                    <option value="privacy">سياسة الخصوصية</option>
+                  </select>
+                </div>
+              )}
+
+              {editingItem.redirectType === "product" && (
+                <div className="space-y-2 animate-in fade-in zoom-in duration-200">
+                  <label className="text-xs font-bold text-slate-600 block">المنتج المختار</label>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-between bg-slate-50 text-xs h-10"
+                    onClick={() => setProductPickerOpen(true)}
+                  >
+                    <span className="truncate">{editingItem.redirectId ? "تغيير المنتج" : "اختر منتجاً..."}</span>
+                  </Button>
+                  {productPickerOpen && (
+                    <ProductPickerModal 
+                      open={productPickerOpen}
+                      onOpenChange={setProductPickerOpen}
+                      initialSelectedIds={editingItem.redirectId ? [editingItem.redirectId] : []}
+                      single={true}
+                      onSave={(selected: string[]) => {
+                        handleUpdateItem({ ...editingItem, redirectId: selected[0] || "" })
+                      }}
+                    />
+                  )}
+                </div>
+              )}
+
+            
+            <Button onClick={() => {
+              setEditingItem(null)
+              onSave(true, buildSaveState())
+            }} className="w-full bg-[#2453E3] hover:bg-[#1a3cb3]">
+              تم وحفظ التعديلات
+            </Button>
+          </div>
+        </div>
+      </div>
+          </div>
+        </div>
+      )}
+
+      </div>
   )
 }
