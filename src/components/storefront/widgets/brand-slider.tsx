@@ -8,6 +8,14 @@ import { getValidLink } from "@/lib/utils"
 import { ScrollReveal } from "@/components/ui/scroll-reveal"
 
 export function BrandSlider({ widget }: { widget: any }) {
+
+  const computeHref = (item: any) => {
+    if (item.redirectType === 'Product' || item.redirectType === 'product') return `/product/${item.redirectId}`;
+    if (item.redirectType === 'Category' || item.redirectType === 'category') return `/category/${item.redirectId}`;
+    if (item.redirectType === 'Page' || item.redirectType === 'page') return `/pages/${item.redirectId}`;
+    return item.buttonUrl || '#';
+  };
+
   const originalItems = widget.items || []
   
   // Embla Carousel hook
@@ -79,8 +87,8 @@ export function BrandSlider({ widget }: { widget: any }) {
           <div className="flex items-center">
             {originalItems.map((item: any, index: number) => (
               <div key={`${item.id}-${index}`} className="flex-[0_0_33.33%] sm:flex-[0_0_20%] md:flex-[0_0_16.66%] min-w-0 px-2 flex justify-center">
-                {!widget?.settings?.disableRouting && item.buttonUrl ? (
-                  <Link prefetch={false} href={getValidLink(item.buttonUrl)} className="block transition-transform hover:scale-110">
+                {!widget?.settings?.disableRouting && (item.buttonUrl || item.redirectType) ? (
+                  <Link prefetch={false} href={getValidLink(computeHref(item))} className="block transition-transform hover:scale-110">
                     <img 
                       src={item.desktopImage} 
                       alt={item.title || "Brand Logo"} 

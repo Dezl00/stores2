@@ -71,8 +71,9 @@ export function MarqueeAlerts({ widget }: { widget: any }) {
               
               if (item.buttonUrl || (item.redirectType && item.redirectId)) {
                  let href = item.buttonUrl || '#';
-                 if (item.redirectType === 'Product') href = `/product/${item.redirectId}`;
-                 else if (item.redirectType === 'Category') href = `/category/${item.redirectId}`;
+                 if (item.redirectType === 'Product' || item.redirectType === 'product') href = `/product/${item.redirectId}`;
+   else if (item.redirectType === 'Category' || item.redirectType === 'category') href = `/category/${item.redirectId}`;
+   else if (item.redirectType === 'Page' || item.redirectType === 'page') href = `/pages/${item.redirectId}`;
                  
                  return (
                    <Link key={item.id || i} href={href} className="hover:underline hover:opacity-80 transition-opacity">
@@ -97,8 +98,9 @@ export function MarqueeAlerts({ widget }: { widget: any }) {
               
               if (item.buttonUrl || (item.redirectType && item.redirectId)) {
                  let href = item.buttonUrl || '#';
-                 if (item.redirectType === 'Product') href = `/product/${item.redirectId}`;
-                 else if (item.redirectType === 'Category') href = `/category/${item.redirectId}`;
+                 if (item.redirectType === 'Product' || item.redirectType === 'product') href = `/product/${item.redirectId}`;
+   else if (item.redirectType === 'Category' || item.redirectType === 'category') href = `/category/${item.redirectId}`;
+   else if (item.redirectType === 'Page' || item.redirectType === 'page') href = `/pages/${item.redirectId}`;
                  
                  return (
                    <Link key={`dup-${item.id || i}`} href={href} className="hover:underline hover:opacity-80 transition-opacity">

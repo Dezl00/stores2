@@ -7,6 +7,14 @@ import { ChevronRight, ChevronLeft } from "lucide-react"
 import { getValidLink } from "@/lib/utils"
 
 export function HeroSlider({ widget }: { widget: any }) {
+
+  const computeHref = (slide: any) => {
+    if (slide.redirectType === 'Product' || slide.redirectType === 'product') return `/product/${slide.redirectId}`;
+    if (slide.redirectType === 'Category' || slide.redirectType === 'category') return `/category/${slide.redirectId}`;
+    if (slide.redirectType === 'Page' || slide.redirectType === 'page') return `/pages/${slide.redirectId}`;
+    return slide.buttonUrl || '#';
+  };
+
   const [currentSlide, setCurrentSlide] = useState(0)
   const slides = widget.items || []
 
@@ -70,9 +78,9 @@ export function HeroSlider({ widget }: { widget: any }) {
                       {slide.subtitle}
                     </p>
                   )}
-                  {slide.buttonUrl && (
+                  {(slide.buttonUrl || slide.redirectType) && (
                     <div className="animate-in slide-in-from-bottom-12 duration-700 delay-150">
-                      <Link prefetch={false} href={getValidLink(slide.buttonUrl)}>
+                      <Link prefetch={false} href={getValidLink(computeHref(slide))}>
                         {(() => {
                           const isOutline = slide.settings?.buttonStyle === "outline";
                           let bgStyle: any = {};

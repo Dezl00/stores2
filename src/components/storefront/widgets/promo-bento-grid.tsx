@@ -53,9 +53,9 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
           const overlayOpacity = settings?.overlayOpacity ?? 40;
           
           let href = buttonUrl || '#';
-          if (redirectType === 'Product') href = `/product/${redirectId}`;
-          else if (redirectType === 'Category') href = `/category/${redirectId}`;
-          else if (redirectType === 'Page') href = `/pages/${redirectId}`;
+          if (redirectType === 'Product' || redirectType === 'product') href = `/product/${redirectId}`;
+   else if (redirectType === 'Category' || redirectType === 'category') href = `/category/${redirectId}`;
+   else if (redirectType === 'Page' || redirectType === 'page') href = `/pages/${redirectId}`;
 
           const hasLink = !!(buttonUrl || (redirectType && redirectId));
           const imgUrl = desktopImage || mobileImage;
