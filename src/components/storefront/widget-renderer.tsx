@@ -28,6 +28,7 @@ export function WidgetRenderer({ widget }: { widget: any }) {
         </section>
       )
     case "MarqueeAlerts":
+      if (widget.settings?.placement !== 'content') return null;
       return (
         <section className={`w-full ${visibilityClass}`}>
           <MarqueeAlerts widget={widget} />

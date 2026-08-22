@@ -20,10 +20,12 @@ export const revalidate = 3600
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
   const storeId = await resolveStoreId()
-  const marqueeWidget = await db.widget.findFirst({
+  const marquees = await db.widget.findMany({
     where: { storeId, type: "MarqueeAlerts", status: true },
-    include: { items: { orderBy: { sortOrder: 'asc' } } }
+    include: { items: { orderBy: { sortOrder: 'asc' } } },
+    orderBy: { createdAt: 'asc' }
   })
+  const marqueeWidget = marquees.find(m => (m.settings as any)?.placement === 'header') || marquees.find(m => (m.settings as any)?.placement !== 'content')
   const user = session?.user || null
 
   const {

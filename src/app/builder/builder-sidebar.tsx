@@ -126,7 +126,7 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
                   
                   <div 
                     onClick={() => {
-                      const existingMarquee = widgets.find((w: any) => w.type === "MarqueeAlerts");
+                      const existingMarquee = widgets.find((w: any) => w.type === "MarqueeAlerts" && w.settings?.placement !== "content");
                       if (existingMarquee) {
                         onSelectWidget(existingMarquee.id);
                       } else {
@@ -139,7 +139,7 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
                           showTablet: true,
                           showMobile: true,
                           sortOrder: -1,
-                          settings: { scrollDirection: "right", backgroundColor: "#000000", textColor: "#ffffff" },
+                          settings: { placement: "header", scrollDirection: "right", backgroundColor: "#000000", textColor: "#ffffff" },
                           items: []
                         };
                         const updatedWidgets = [newWidget, ...widgets];
@@ -304,7 +304,8 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
                         title: selectedWidgetType.name,
                         status: true,
                         sortOrder: widgets.length,
-                        config: {}
+                        config: {},
+                        settings: selectedWidgetType.id === "MarqueeAlerts" ? { placement: "content" } : {}
                       }
                       
                       const updatedWidgets = [...widgets, newWidget]

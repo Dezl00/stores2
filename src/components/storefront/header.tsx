@@ -248,8 +248,6 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
           </div>
         </div>
       </header>
-      {/* Spacer to prevent content from going under fixed header */}
-      <div className="h-16 md:h-20 w-full shrink-0"></div>
 
       {/* Mobile Search Overlay */}
       {isSearchOpen && (
