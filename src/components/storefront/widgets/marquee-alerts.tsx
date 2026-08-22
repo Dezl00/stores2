@@ -10,13 +10,20 @@ export function MarqueeAlerts({ widget }: { widget: any }) {
     scrollDirection = 'right',
     backgroundColor = '#000000',
     textColor = '#ffffff',
+    speed = 25,
+    textSize = 'text-sm'
   } = settings || {};
 
   if (!items || items.length === 0) return null;
 
   const direction = scrollDirection === 'left' ? 'normal' : 'reverse';
+  // Use a stable string for keyframes if ID isn't available, but isolate them anyway
+  const animationId = 'marquee-' + (widget.id || Math.random().toString(36).substring(7));
+  const animationDuration = speed + 's';
 
-  // Build a single set of items with separators
+  // Map text size to proper padding so height increases automatically
+  const pyClass = textSize === 'text-2xl' ? 'py-4' : textSize === 'text-xl' ? 'py-3' : textSize === 'text-lg' ? 'py-2.5' : 'py-2';
+
   const renderItems = (prefix: string) =>
     items.map((item: any, i: number) => {
       let href = item.buttonUrl || '#';
@@ -26,7 +33,7 @@ export function MarqueeAlerts({ widget }: { widget: any }) {
 
       const hasLink = !!(item.buttonUrl || (item.redirectType && item.redirectId));
       const content = (
-        <span className="text-sm font-semibold whitespace-nowrap">{item.title}</span>
+        <span className={cn('font-semibold whitespace-nowrap', textSize)}>{item.title}</span>
       );
 
       return (
@@ -38,7 +45,7 @@ export function MarqueeAlerts({ widget }: { widget: any }) {
           ) : (
             <span className="shrink-0">{content}</span>
           )}
-          <span className="text-sm opacity-40 shrink-0 mx-6">|</span>
+          <span className={cn('opacity-40 shrink-0 mx-6', textSize)}>|</span>
         </React.Fragment>
       );
     });
@@ -46,27 +53,32 @@ export function MarqueeAlerts({ widget }: { widget: any }) {
   return (
     <>
       <style dangerouslySetInnerHTML={{__html: `
-        @keyframes marquee-scroll {
+        @keyframes scroll-${animationId} {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        .marquee-track {
-          animation: marquee-scroll 25s linear infinite;
+        .${animationId}-track {
+          animation: scroll-${animationId} ${animationDuration} linear infinite;
           display: flex;
           align-items: center;
           width: max-content;
         }
       `}} />
       <div 
-        className="relative w-full overflow-hidden flex items-center h-10"
+        className={cn("relative w-full overflow-hidden flex items-center", pyClass)}
         style={{ backgroundColor, color: textColor }}
       >
         <div 
-          className="marquee-track"
+          className={`${animationId}-track`}
           style={{ animationDirection: direction }}
         >
-          {/* Repeat items enough times to fill the screen and then some */}
-          {Array.from({ length: 8 }).map((_, rep) => renderItems(`r${rep}`))}
+          {/* We must render EXACTLY 2 identical halves for the -50% trick to work flawlessly. */}
+          <div className="flex items-center shrink-0">
+            {Array.from({ length: 8 }).map((_, rep) => renderItems(`part1-r${rep}`))}
+          </div>
+          <div className="flex items-center shrink-0">
+            {Array.from({ length: 8 }).map((_, rep) => renderItems(`part2-r${rep}`))}
+          </div>
         </div>
       </div>
     </>

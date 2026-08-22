@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React from 'react';
 import Link from 'next/link';
@@ -96,10 +96,10 @@ export function PromoBanner({ widget }: { widget: any }) {
         {isTimerActive && (
           <div className="flex items-center gap-3 sm:gap-4 shrink-0" dir="ltr">
             {[
-              { label: 'Days', value: timeLeft.days },
-              { label: 'Hours', value: timeLeft.hours },
-              { label: 'Mins', value: timeLeft.minutes },
-              { label: 'Secs', value: timeLeft.seconds }
+              { label: 'يوم', value: timeLeft.days },
+              { label: 'ساعة', value: timeLeft.hours },
+              { label: 'دقيقة', value: timeLeft.minutes },
+              { label: 'ثانية', value: timeLeft.seconds }
             ].map((item, idx) => (
               <div key={idx} className="flex flex-col items-center">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 shadow-2xl">
@@ -107,7 +107,7 @@ export function PromoBanner({ widget }: { widget: any }) {
                     {item.value.toString().padStart(2, '0')}
                   </span>
                 </div>
-                <span className="text-white/80 text-xs sm:text-sm mt-2 font-medium uppercase tracking-wider">{item.label}</span>
+                <span className="text-white/80 text-xs sm:text-sm mt-2 font-bold tracking-wider">{item.label}</span>
               </div>
             ))}
           </div>

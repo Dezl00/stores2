@@ -133,12 +133,12 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
 
               {/* Content */}
               <div className={cn("absolute inset-0 p-5 md:p-8 flex flex-col z-10", getFlexAlign(textPosition), getTextJustify(textAlign))}>
-                {title && <h3 className="text-lg md:text-2xl font-bold text-white mb-1 leading-tight">{title}</h3>}
-                {description && <p className="text-white/80 text-sm mb-3 line-clamp-2 leading-relaxed">{description}</p>}
+                {title && <h3 className="text-xl md:text-3xl font-bold text-white mb-2 leading-tight">{title}</h3>}
+                {description && <p className="text-white/90 text-base md:text-lg mb-4 line-clamp-2 leading-relaxed">{description}</p>}
                 
                 {buttonText && (
                   <div className="mt-2">
-                    <Button variant="outline" size="sm" className="bg-white/10 text-white border-white/30 hover:bg-white hover:text-black transition-colors backdrop-blur-sm rounded-full px-5">
+                    <Button variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white hover:text-black transition-colors backdrop-blur-sm rounded-full px-6 font-semibold shadow-lg">
                       {buttonText}
                     </Button>
                   </div>
