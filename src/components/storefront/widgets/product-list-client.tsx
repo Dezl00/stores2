@@ -33,13 +33,13 @@ export function ProductListClient({ widget, products, collectionItem }: { widget
           </div>
         </ScrollReveal>
 
-        {widget.settings?.displayMode === "carousel" ? (
+        {widget.settings?.displayMode !== "grid" ? (
           <div className="w-full">
-            <SimilarProductsCarousel products={products.slice(0, 6)} />
+            <SimilarProductsCarousel products={products} />
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-            {products.slice(0, 6).map((product, index) => (
+            {products.map((product, index) => (
               <ScrollReveal key={product.id} variant="fade-up" delay={index * 0.1}>
                 <ProductCard product={product} />
               </ScrollReveal>
