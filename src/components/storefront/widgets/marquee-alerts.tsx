@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React from 'react';
 import Link from 'next/link';
@@ -14,69 +14,59 @@ export function MarqueeAlerts({ widget }: { widget: any }) {
 
   if (!items || items.length === 0) return null;
 
-  const animationClass = scrollDirection === 'right' ? 'animate-marquee-right' : 'animate-marquee-left';
-  
-  // To ensure no gaps even with 1 item, we duplicate the items array multiple times.
-  // 10 times is safe for typical screen widths if it's just 1 item.
-  const repeatCount = Math.max(10, Math.ceil(20 / items.length));
-  let repeatedItems: any[] = [];
-  for (let i = 0; i < repeatCount; i++) {
-    repeatedItems = repeatedItems.concat(items);
-  }
+  const direction = scrollDirection === 'left' ? 'normal' : 'reverse';
 
-  const renderItemContent = (item: any, i: number, isDuplicate: boolean) => {
-    let href = item.buttonUrl || '#';
-    if (item.redirectType === 'Product' || item.redirectType === 'product') href = `/product/${item.redirectId}`;
-    else if (item.redirectType === 'Category' || item.redirectType === 'category') href = `/category/${item.redirectId}`;
-    else if (item.redirectType === 'Page' || item.redirectType === 'page') href = `/pages/${item.redirectId}`;
+  // Build a single set of items with separators
+  const renderItems = (prefix: string) =>
+    items.map((item: any, i: number) => {
+      let href = item.buttonUrl || '#';
+      if (item.redirectType === 'Product' || item.redirectType === 'product') href = `/product/${item.redirectId}`;
+      else if (item.redirectType === 'Category' || item.redirectType === 'category') href = `/category/${item.redirectId}`;
+      else if (item.redirectType === 'Page' || item.redirectType === 'page') href = `/pages/${item.redirectId}`;
 
-    const hasLink = !!(item.buttonUrl || (item.redirectType && item.redirectId));
-    const content = (
-      <div className="flex items-center gap-8">
+      const hasLink = !!(item.buttonUrl || (item.redirectType && item.redirectId));
+      const content = (
         <span className="text-sm font-semibold whitespace-nowrap">{item.title}</span>
-        <span className="text-sm opacity-50">|</span>
-      </div>
-    );
-
-    if (hasLink) {
-      return (
-        <Link key={`${isDuplicate ? 'dup' : 'orig'}-${i}`} href={href} className="hover:underline hover:opacity-80 transition-opacity flex items-center shrink-0">
-          {content}
-        </Link>
       );
-    }
-    return <div key={`${isDuplicate ? 'dup' : 'orig'}-${i}`} className="flex items-center shrink-0">{content}</div>;
-  };
+
+      return (
+        <React.Fragment key={`${prefix}-${i}`}>
+          {hasLink ? (
+            <Link href={href} className="hover:underline hover:opacity-80 transition-opacity shrink-0">
+              {content}
+            </Link>
+          ) : (
+            <span className="shrink-0">{content}</span>
+          )}
+          <span className="text-sm opacity-40 shrink-0 mx-6">|</span>
+        </React.Fragment>
+      );
+    });
 
   return (
     <>
       <style dangerouslySetInnerHTML={{__html: `
-        @keyframes marquee-left {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(-100%); }
+        @keyframes marquee-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
-        @keyframes marquee-right {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        .animate-marquee-left {
-          animation: marquee-left 30s linear infinite;
-        }
-        .animate-marquee-right {
-          animation: marquee-right 30s linear infinite;
+        .marquee-track {
+          animation: marquee-scroll 25s linear infinite;
+          display: flex;
+          align-items: center;
+          width: max-content;
         }
       `}} />
       <div 
-        className="relative w-full overflow-hidden flex items-center h-12"
+        className="relative w-full overflow-hidden flex items-center h-10"
         style={{ backgroundColor, color: textColor }}
       >
-        <div className="flex whitespace-nowrap overflow-hidden w-full relative">
-          <div className={cn("flex shrink-0 min-w-full items-center justify-around gap-8 px-4", animationClass)}>
-            {repeatedItems.map((item: any, i: number) => renderItemContent(item, i, false))}
-          </div>
-          <div className={cn("flex shrink-0 min-w-full items-center justify-around gap-8 px-4", animationClass)} aria-hidden="true">
-            {repeatedItems.map((item: any, i: number) => renderItemContent(item, i, true))}
-          </div>
+        <div 
+          className="marquee-track"
+          style={{ animationDirection: direction }}
+        >
+          {/* Repeat items enough times to fill the screen and then some */}
+          {Array.from({ length: 8 }).map((_, rep) => renderItems(`r${rep}`))}
         </div>
       </div>
     </>

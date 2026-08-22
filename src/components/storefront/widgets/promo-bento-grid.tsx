@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React from 'react';
 import Link from 'next/link';
@@ -12,9 +12,10 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
   const bentoEffectEnabled = settings?.bentoEffectEnabled !== false;
   const overlayColor = settings?.overlayColor || '#000000';
   const globalOverlayOpacity = settings?.overlayOpacity ?? 40;
+  const cardAspectRatio = settings?.cardAspectRatio || '3:4';
   
-  const textAlign = settings?.textAlign || 'center'; // 'right', 'center', 'left'
-  const textPosition = settings?.textPosition || 'bottom'; // 'top', 'center', 'bottom'
+  const textAlign = settings?.textAlign || 'center';
+  const textPosition = settings?.textPosition || 'bottom';
 
   const getFlexAlign = (pos: string) => {
     if (pos === 'top') return 'justify-start';
@@ -27,38 +28,64 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
     return 'items-center text-center';
   }
 
-  // A more professional Bento Grid logic
-  // We use grid-cols-4 and grid-auto-rows.
+  // Aspect ratio CSS
+  const getAspectClass = () => {
+    if (bentoEffectEnabled) return '';
+    switch (cardAspectRatio) {
+      case '1:1': return 'aspect-square';
+      case '4:3': return 'aspect-[4/3]';
+      case '3:4': 
+      default: return 'aspect-[3/4]';
+    }
+  }
+
+  // Bento layout classes (desktop only)
   const getBentoClasses = (index: number, total: number) => {
     if (!bentoEffectEnabled) {
-      // Normal grid if bento is disabled
-      return "col-span-1 md:col-span-2 row-span-1 h-[250px] md:h-[350px]";
+      return `col-span-1 ${getAspectClass()}`;
     }
 
-    // Professional Bento mapping
     const bentoMap = [
-      "col-span-1 md:col-span-2 row-span-2 min-h-[300px] md:min-h-[500px]", // Large primary
-      "col-span-1 md:col-span-2 row-span-1 min-h-[150px] md:min-h-[240px]", // Wide secondary
-      "col-span-1 md:col-span-1 row-span-1 min-h-[150px] md:min-h-[240px]", // Small square
-      "col-span-1 md:col-span-1 row-span-1 min-h-[150px] md:min-h-[240px]", // Small square
-      "col-span-1 md:col-span-2 row-span-1 min-h-[150px] md:min-h-[240px]", // Wide secondary
-      "col-span-1 md:col-span-1 row-span-2 min-h-[300px] md:min-h-[500px]", // Tall vertical
-      "col-span-1 md:col-span-1 row-span-1 min-h-[150px] md:min-h-[240px]", // Small square
+      "md:col-span-2 md:row-span-2 md:min-h-[500px]",
+      "md:col-span-2 md:row-span-1 md:min-h-[240px]",
+      "md:col-span-1 md:row-span-1 md:min-h-[240px]",
+      "md:col-span-1 md:row-span-1 md:min-h-[240px]",
+      "md:col-span-2 md:row-span-1 md:min-h-[240px]",
+      "md:col-span-1 md:row-span-2 md:min-h-[500px]",
+      "md:col-span-1 md:row-span-1 md:min-h-[240px]",
     ];
 
+    if (total <= 2) return "md:col-span-2 md:row-span-1 md:min-h-[300px]";
     if (total === 3) {
-      if (index === 0) return "col-span-1 md:col-span-2 row-span-2 min-h-[300px] md:min-h-[500px]";
-      return "col-span-1 md:col-span-2 row-span-1 min-h-[150px] md:min-h-[240px]";
+      if (index === 0) return "md:col-span-2 md:row-span-2 md:min-h-[500px]";
+      return "md:col-span-2 md:row-span-1 md:min-h-[240px]";
     }
 
     return bentoMap[index % bentoMap.length];
   };
 
+  // Convert hex to rgba
+  let r = 0, g = 0, b = 0;
+  if (overlayColor.startsWith('#')) {
+    const hex = overlayColor.replace('#', '');
+    if (hex.length === 3) {
+      r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
+      g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
+      b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
+    } else if (hex.length === 6) {
+      r = parseInt(hex.substring(0, 2), 16);
+      g = parseInt(hex.substring(2, 4), 16);
+      b = parseInt(hex.substring(4, 6), 16);
+    }
+  }
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8">
       <div className={cn(
-        "grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6",
-        bentoEffectEnabled ? "grid-flow-row-dense" : ""
+        "grid gap-4 md:gap-6",
+        bentoEffectEnabled
+          ? "grid-cols-1 md:grid-cols-4 md:grid-flow-row-dense"
+          : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
       )}>
         {items.map((item: any, index: number) => {
           const {
@@ -80,25 +107,16 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
           const hasLink = !!(buttonUrl || (redirectType && redirectId));
           const imgUrl = desktopImage || mobileImage;
 
-          // Convert hex color to rgba for overlay
-          let r = 0, g = 0, b = 0;
-          if (overlayColor.startsWith('#')) {
-            const hex = overlayColor.replace('#', '');
-            if (hex.length === 3) {
-              r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
-              g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
-              b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
-            } else if (hex.length === 6) {
-              r = parseInt(hex.substring(0, 2), 16);
-              g = parseInt(hex.substring(2, 4), 16);
-              b = parseInt(hex.substring(4, 6), 16);
-            }
-          }
+          const cardClasses = cn(
+            "relative overflow-hidden rounded-2xl group transition-all duration-500 hover:shadow-2xl bg-slate-100",
+            // On mobile: always single column full width with fixed height
+            bentoEffectEnabled ? "h-[280px] md:h-full" : "",
+            // Desktop bento classes
+            getBentoClasses(index, items.length)
+          );
 
-          const CardContent = (
-            <div className={cn(
-              "relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden group transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 bg-slate-100",
-            )}>
+          const cardInner = (
+            <>
               {/* Background Image */}
               {imgUrl && (
                 <div 
@@ -109,37 +127,37 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
               
               {/* Overlay */}
               <div 
-                className="absolute inset-0 transition-opacity duration-300 group-hover:opacity-100"
+                className="absolute inset-0 transition-opacity duration-300"
                 style={{ backgroundColor: `rgba(${r},${g},${b},${globalOverlayOpacity / 100})` }}
               />
 
               {/* Content */}
-              <div className={cn("absolute inset-0 p-6 md:p-8 flex flex-col z-10", getFlexAlign(textPosition), getTextJustify(textAlign))}>
-                {title && <h3 className="text-xl md:text-3xl font-bold text-white mb-2 leading-tight">{title}</h3>}
-                {description && <p className="text-white/80 text-sm md:text-base mb-4 line-clamp-2 md:line-clamp-3 leading-relaxed">{description}</p>}
+              <div className={cn("absolute inset-0 p-5 md:p-8 flex flex-col z-10", getFlexAlign(textPosition), getTextJustify(textAlign))}>
+                {title && <h3 className="text-lg md:text-2xl font-bold text-white mb-1 leading-tight">{title}</h3>}
+                {description && <p className="text-white/80 text-sm mb-3 line-clamp-2 leading-relaxed">{description}</p>}
                 
-                {buttonText && hasLink && (
-                  <div className="mt-4">
-                    <Button variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white hover:text-black transition-colors backdrop-blur-sm rounded-full px-6">
+                {buttonText && (
+                  <div className="mt-2">
+                    <Button variant="outline" size="sm" className="bg-white/10 text-white border-white/30 hover:bg-white hover:text-black transition-colors backdrop-blur-sm rounded-full px-5">
                       {buttonText}
                     </Button>
                   </div>
                 )}
               </div>
-            </div>
+            </>
           );
 
-          if (hasLink && !buttonText) {
-             return (
-               <Link key={item.id || index} href={href} className={cn("block", getBentoClasses(index, items.length))}>
-                 {CardContent}
-               </Link>
-             );
+          if (hasLink) {
+            return (
+              <Link key={item.id || index} href={href} className={cn("block", cardClasses)}>
+                {cardInner}
+              </Link>
+            );
           }
 
           return (
-            <div key={item.id || index} className={getBentoClasses(index, items.length)}>
-               {CardContent}
+            <div key={item.id || index} className={cardClasses}>
+              {cardInner}
             </div>
           );
         })}

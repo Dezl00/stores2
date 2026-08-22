@@ -1,12 +1,13 @@
 "use client"
 import React from "react"
-import { GripVertical, Eye, EyeOff, Layout, Palette, Plus, Settings2, Trash2, X, Image as ImageIcon, ShoppingBag, LayoutTemplate, ShoppingCart, ImagePlus, AlignLeft, ShieldCheck, BookOpen } from "lucide-react"
+import { GripVertical, Eye, EyeOff, Layout, Palette, Plus, Settings2, Trash2, X, Image as ImageIcon, ShoppingBag, LayoutTemplate, ShoppingCart, ImagePlus, AlignLeft, ShieldCheck, BookOpen, Megaphone } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const WIDGET_TYPES = [
   { id: "HeroSlider", name: "شريط صور", icon: ImageIcon, desc: "صور متحركة في أعلى الصفحة" },
   { id: "PromoBanner", name: "شريط إعلاني (مؤقت)", icon: LayoutTemplate, desc: "شريط إعلاني مع عداد تنازلي وخلفية" },
   { id: "PromoBentoGrid", name: "صور إعلانية", icon: ImagePlus, desc: "شبكة صور إعلانية بأحجام متنوعة" },
+  { id: "MarqueeAlerts", name: "شريط تنبيهات متحرك", icon: Megaphone, desc: "شريط نصوص متحرك بدون توقف" },
   { id: "ProductList", name: "قائمة منتجات", icon: ShoppingCart, desc: "عرض قائمة منتجات من تصنيف" },
   { id: "BrandSlider", name: "شريط الماركات", icon: ImagePlus, desc: "عرض شعارات الماركات أو الشركاء" },
   { id: "CategoryGrid", name: "شبكة التصنيفات", icon: LayoutTemplate, desc: "عرض التصنيفات بشكل شبكي مميز" },

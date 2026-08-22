@@ -1,4 +1,4 @@
-﻿import React from "react"
+import React from "react"
 import { HeroSlider } from "./widgets/hero-slider"
 import { TextBlock } from "./widgets/text-block"
 import { BrandSlider } from "./widgets/brand-slider"
@@ -28,7 +28,11 @@ export function WidgetRenderer({ widget }: { widget: any }) {
         </section>
       )
     case "MarqueeAlerts":
-      return null; // Rendered globally in layout.tsx
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <MarqueeAlerts widget={widget} />
+        </section>
+      )
     case "PromoBentoGrid":
       return (
         <section className={`w-full ${visibilityClass}`}>

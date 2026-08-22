@@ -155,6 +155,22 @@ export function WidgetsClient({ initialWidgets, categories }: { initialWidgets: 
       showMobile: formData.get("showMobile") === "on",
     }
 
+    
+    if (editingWidget.type === "PromoBanner") {
+      data.settings = {
+        timerEndDate: formData.get("timerEndDate") as string,
+        backgroundColor: formData.get("backgroundColor") as string || "#2453E3",
+        overlayOpacity: parseInt(formData.get("overlayOpacity") as string || "50"),
+        backgroundImage: formData.get("backgroundImage") as string
+      }
+    }
+    if (editingWidget.type === "MarqueeAlerts") {
+      data.settings = {
+        scrollDirection: formData.get("scrollDirection") as string || "right",
+        backgroundColor: formData.get("backgroundColor") as string || "#000000",
+        textColor: formData.get("textColor") as string || "#ffffff"
+      }
+    }
     if (editingWidget.type === "AboutUs") {
       data.settings = {
         content: formData.get("content") as string,
@@ -270,7 +286,7 @@ export function WidgetsClient({ initialWidgets, categories }: { initialWidgets: 
       formData.append("productIds", JSON.stringify(selectedProductIds))
     }
 
-    if (editingWidget.type === "BannerGrid" || editingWidget.type === "HeroSlider") {
+    if (editingWidget.type === "BannerGrid" || editingWidget.type === "HeroSlider" || editingWidget.type === "PromoBentoGrid" || editingWidget.type === "MarqueeAlerts") {
       let finalUrl = linkValue;
       if (linkType === "category") finalUrl = `/category/${linkValue}`;
       else if (linkType === "product") finalUrl = `/product/${linkValue}`;
@@ -612,7 +628,56 @@ export function WidgetsClient({ initialWidgets, categories }: { initialWidgets: 
                       </div>
                     )}
 
-                    {editingWidget.type === "AboutUs" && (
+                    
+                    {editingWidget.type === "PromoBanner" && (
+                      <div className="space-y-4 pt-4 border-t border-border/50">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold">صورة الخلفية (اختياري)</label>
+                          <input type="hidden" name="backgroundImage" value={aboutUsImage} />
+                          <ImageUploader 
+                            value={aboutUsImage} 
+                            onChange={setAboutUsImage} 
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-semibold">لون الخلفية</label>
+                            <input type="color" name="backgroundColor" defaultValue={editingWidget.settings?.backgroundColor || "#2453E3"} className="w-full h-9 rounded cursor-pointer border border-input" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-semibold">تعتيم الصورة (0-100)</label>
+                            <input type="range" name="overlayOpacity" min="0" max="100" defaultValue={editingWidget.settings?.overlayOpacity ?? 50} className="w-full h-9" />
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold">تاريخ ووقت انتهاء العرض (اختياري)</label>
+                          <input type="datetime-local" name="timerEndDate" defaultValue={editingWidget.settings?.timerEndDate || ""} className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm" />
+                        </div>
+                      </div>
+                    )}
+
+                    {editingWidget.type === "MarqueeAlerts" && (
+                      <div className="space-y-4 pt-4 border-t border-border/50">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-semibold">لون الخلفية</label>
+                            <input type="color" name="backgroundColor" defaultValue={editingWidget.settings?.backgroundColor || "#000000"} className="w-full h-9 rounded cursor-pointer border border-input" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-semibold">لون النص</label>
+                            <input type="color" name="textColor" defaultValue={editingWidget.settings?.textColor || "#ffffff"} className="w-full h-9 rounded cursor-pointer border border-input" />
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold">اتجاه الحركة</label>
+                          <select name="scrollDirection" defaultValue={editingWidget.settings?.scrollDirection || "right"} className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm">
+                            <option value="right">من اليسار لليمين</option>
+                            <option value="left">من اليمين لليسار</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+{editingWidget.type === "AboutUs" && (
                       <div className="space-y-4 pt-4 border-t border-border/50">
                         <div className="space-y-1.5">
                           <input type="hidden" name="image" value={aboutUsImage} />
@@ -670,7 +735,7 @@ export function WidgetsClient({ initialWidgets, categories }: { initialWidgets: 
                     </Button>
                   </form>
 
-                  {(editingWidget.type === "HeroSlider" || editingWidget.type === "BannerGrid" || editingWidget.type === "BrandSlider" || editingWidget.type === "ProductList") && (
+                  {(editingWidget.type === "HeroSlider" || editingWidget.type === "BannerGrid" || editingWidget.type === "PromoBentoGrid" || editingWidget.type === "MarqueeAlerts" || editingWidget.type === "BrandSlider" || editingWidget.type === "ProductList") && (
                     <div className="pt-6 border-t border-border/50 space-y-4">
                       <h4 className="font-semibold text-sm">محتوى الواجهة</h4>
                       
@@ -742,7 +807,7 @@ export function WidgetsClient({ initialWidgets, categories }: { initialWidgets: 
                                 className="h-9 w-full rounded border border-input bg-background px-2 text-xs" 
                               />
                           
-                          {editingWidget.type === "HeroSlider" && (
+                          {(editingWidget.type === "HeroSlider" || editingWidget.type === "PromoBentoGrid") && (
                             <div className="space-y-2 mt-2 border-t border-border/50 pt-2 pb-2">
                               <input name="subtitle" defaultValue={currentItemData.subtitle || ""} placeholder="الوصف النصي (اختياري)" className="h-9 w-full rounded border border-input bg-background px-2 text-xs" />
                               <input name="buttonText" defaultValue={currentItemData.buttonText || ""} placeholder="نص الزر (اختياري - افتراضي: تسوق الآن)" className="h-9 w-full rounded border border-input bg-background px-2 text-xs" />
@@ -800,7 +865,7 @@ export function WidgetsClient({ initialWidgets, categories }: { initialWidgets: 
                             </div>
                           )}
 
-                          {editingWidget.type === "BannerGrid" || editingWidget.type === "HeroSlider" ? (
+                          {editingWidget.type === "BannerGrid" || editingWidget.type === "HeroSlider" || editingWidget.type === "PromoBentoGrid" || editingWidget.type === "MarqueeAlerts" ? (
                             <div className="flex gap-2">
                               <select 
                                 name="redirectType" 
@@ -900,7 +965,7 @@ export function WidgetsClient({ initialWidgets, categories }: { initialWidgets: 
                       </div>
                     )}
                       
-                      {productPickerOpen && (editingWidget.type === "BannerGrid" || editingWidget.type === "HeroSlider") && linkType === "product" ? (
+                      {productPickerOpen && (editingWidget.type === "BannerGrid" || editingWidget.type === "HeroSlider" || editingWidget.type === "PromoBentoGrid" || editingWidget.type === "MarqueeAlerts") && linkType === "product" ? (
                         <ProductPickerModal 
                           open={productPickerOpen}
                           onOpenChange={setProductPickerOpen}
