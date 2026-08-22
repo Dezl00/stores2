@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from "react"
 import { ChevronRight, Settings, Image as ImageIcon, Plus, Trash2, X } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ProductPickerModal } from "@/components/admin/product-picker-modal"
@@ -89,16 +90,11 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                 <span className="font-bold text-sm text-slate-800 block">حالة القسم</span>
                 <span className="text-[11px] text-slate-500 block">تفعيل أو إخفاء القسم من المتجر</span>
               </div>
-              <input 
-                type="checkbox" 
-                className="w-4 h-4 accent-[#2453E3]" 
-                checked={widget.status !== false}
-                onChange={(e) => {
-                  const newWidget = { ...widget, status: e.target.checked }
+              <Switch checked={widget.status !== false} onCheckedChange={(checked: boolean) => {
+                  const newWidget = { ...widget, status: checked }
                   onUpdateWidget(newWidget)
                   onSave(true, buildSaveState(newWidget))
-                }}
-              />
+                }} />
             </div>
           )}
 {/* Header Settings */}
@@ -121,21 +117,11 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
               </div>
               <div className="flex items-center justify-between pt-4 border-t border-border/50">
                 <label className="text-xs font-bold text-slate-600 block">إظهار شريط البحث</label>
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 accent-[#2453E3]" 
-                  checked={widget.config?.showSearch !== false}
-                  onChange={(e) => onUpdateWidget({ ...widget, config: { ...widget.config, showSearch: e.target.checked } })}
-                />
+                <Switch checked={widget.config?.showSearch !== false} onCheckedChange={(checked: boolean) => onUpdateWidget({ ...widget, config: { ...widget.config, showSearch: checked } })} />
               </div>
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-600 block">تثبيت القائمة العلوية</label>
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 accent-[#2453E3]" 
-                  checked={widget.config?.sticky !== false}
-                  onChange={(e) => onUpdateWidget({ ...widget, config: { ...widget.config, sticky: e.target.checked } })}
-                />
+                <Switch checked={widget.config?.sticky !== false} onCheckedChange={(checked: boolean) => onUpdateWidget({ ...widget, config: { ...widget.config, sticky: checked } })} />
               </div>
               <div className="space-y-2 pt-2 border-t border-border/50">
                 <label className="text-xs font-bold text-slate-600 block">نص الشريط الإعلاني العلوي</label>
@@ -278,7 +264,27 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-600 block">نص الزر (اختياري)</label>
+                  
+              {widget.settings?.bentoEffectEnabled === false && (
+                <div className="space-y-2 animate-in fade-in duration-200">
+                  <label className="text-xs font-bold text-slate-600 block">أبعاد الكارت</label>
+                  <select
+                    value={widget.settings?.cardAspectRatio || "3:4"}
+                    onChange={(e) => {
+                      const newWidget = { ...widget, settings: { ...widget.settings, cardAspectRatio: e.target.value } }
+                      onUpdateWidget(newWidget)
+                      onSave(true, buildSaveState(newWidget))
+                    }}
+                    className="w-full h-10 rounded-md border border-input bg-slate-50 px-3 text-xs"
+                  >
+                    <option value="1:1">مربع (1:1)</option>
+                    <option value="3:4">عمودي (3:4)</option>
+                    <option value="4:3">أفقي (4:3)</option>
+                  </select>
+                </div>
+              )}
+
+<label className="text-xs font-bold text-slate-600 block">نص الزر (اختياري)</label>
                   <Input
                     value={widget.settings?.buttonText || ""}
                     onChange={(e) => {
@@ -333,16 +339,11 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
               </div>
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-600 block">تفعيل تأثير Bento Grid</label>
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 accent-[#2453E3]" 
-                  checked={widget.settings?.bentoEffectEnabled !== false}
-                  onChange={(e) => {
-                    const newWidget = { ...widget, settings: { ...widget.settings, bentoEffectEnabled: e.target.checked } }
+                <Switch checked={widget.settings?.bentoEffectEnabled !== false} onCheckedChange={(checked: boolean) => {
+                    const newWidget = { ...widget, settings: { ...widget.settings, bentoEffectEnabled: checked } }
                     onUpdateWidget(newWidget)
                     onSave(buildSaveState(newWidget))
-                  }}
-                />
+                  }} />
               </div>
               
               <div className="space-y-2">
@@ -694,17 +695,40 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
             </div>
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-600">تفعيل الخلفية الملونة</label>
-              <input
-                type="checkbox"
-                className="w-4 h-4 accent-[#2453E3]"
-                checked={widget.settings?.bgEnabled !== false}
-                onChange={(e) => {
-                  const newWidget = { ...widget, settings: { ...widget.settings, bgEnabled: e.target.checked } }
+              <Switch checked={widget.settings?.bgEnabled !== false} onCheckedChange={(checked: boolean) => {
+                  const newWidget = { ...widget, settings: { ...widget.settings, bgEnabled: checked } }
+                  onUpdateWidget(newWidget)
+                  onSave(true, buildSaveState(newWidget))
+                }} />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-600">تفعيل حركة السلايدر</label>
+              <Switch
+                checked={widget.settings?.sliderEnabled !== false}
+                onCheckedChange={(checked: boolean) => {
+                  const newWidget = { ...widget, settings: { ...widget.settings, sliderEnabled: checked } }
                   onUpdateWidget(newWidget)
                   onSave(true, buildSaveState(newWidget))
                 }}
               />
             </div>
+            {widget.settings?.bgEnabled !== false && (
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-600 block">لون الخلفية</label>
+                <Input 
+                  type="color"
+                  value={widget.settings?.backgroundColor || "#f1f5f9"} 
+                  onChange={(e) => {
+                    const newWidget = { ...widget, settings: { ...widget.settings, backgroundColor: e.target.value } }
+                    onUpdateWidget(newWidget)
+                  }}
+                  onBlur={() => onSave(true, buildSaveState())}
+                  className="h-10 cursor-pointer p-1"
+                />
+              </div>
+            )}
+
             <div className="space-y-3">
               {[
                 { id: "feat-1", defaultTitle: "شحن سريع", defaultSub: "لجميع المدن" },
@@ -721,19 +745,14 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                       <span className="text-xs font-bold text-slate-700">{"ميزة " + (idx + 1)}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] text-slate-400">{isHidden ? "مخفي" : "ظاهر"}</span>
-                        <input
-                          type="checkbox"
-                          className="w-3.5 h-3.5 accent-[#2453E3]"
-                          checked={!isHidden}
-                          onChange={(e) => {
+                        <Switch checked={!isHidden} onCheckedChange={(checked: boolean) => {
                             const newItems = [...(widget.items || [])]
                             while (newItems.length <= idx) newItems.push({ id: "feat-" + (newItems.length + 1), title: "", subtitle: "" })
-                            newItems[idx] = { ...newItems[idx], ...item, hidden: !e.target.checked }
+                            newItems[idx] = { ...newItems[idx], ...item, hidden: !checked }
                             const newWidget = { ...widget, items: newItems }
                             onUpdateWidget(newWidget)
                             onSave(true, buildSaveState(newWidget))
-                          }}
-                        />
+                          }} className="scale-75 origin-left" />
                       </div>
                     </div>
                     <Input

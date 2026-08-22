@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 export function MarqueeAlerts({ widget }: { widget: any }) {
   const { items, settings } = widget;
@@ -16,12 +17,11 @@ export function MarqueeAlerts({ widget }: { widget: any }) {
 
   if (!items || items.length === 0) return null;
 
-  const direction = scrollDirection === 'left' ? 'normal' : 'reverse';
-  // Use a stable string for keyframes if ID isn't available, but isolate them anyway
-  const animationId = 'marquee-' + (widget.id || Math.random().toString(36).substring(7));
-  const animationDuration = speed + 's';
+  // For framer motion, to go left-to-right (right direction), we go from -50% to 0%
+  // To go right-to-left (left direction), we go from 0% to -50%
+  const xStart = scrollDirection === 'left' ? "0%" : "-50%";
+  const xEnd = scrollDirection === 'left' ? "-50%" : "0%";
 
-  // Map text size to proper padding so height increases automatically
   const pyClass = textSize === 'text-2xl' ? 'py-4' : textSize === 'text-xl' ? 'py-3' : textSize === 'text-lg' ? 'py-2.5' : 'py-2';
 
   const renderItems = (prefix: string) =>
@@ -51,36 +51,27 @@ export function MarqueeAlerts({ widget }: { widget: any }) {
     });
 
   return (
-    <>
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes scroll-${animationId} {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .${animationId}-track {
-          animation: scroll-${animationId} ${animationDuration} linear infinite;
-          display: flex;
-          align-items: center;
-          width: max-content;
-        }
-      `}} />
-      <div 
-        className={cn("relative w-full overflow-hidden flex items-center", pyClass)}
-        style={{ backgroundColor, color: textColor }}
+    <div 
+      className={cn("relative w-full overflow-hidden flex items-center", pyClass)}
+      style={{ backgroundColor, color: textColor }}
+    >
+      <motion.div 
+        className="flex items-center w-max"
+        initial={{ x: xStart }}
+        animate={{ x: xEnd }}
+        transition={{
+          repeat: Infinity,
+          ease: "linear",
+          duration: speed,
+        }}
       >
-        <div 
-          className={`${animationId}-track`}
-          style={{ animationDirection: direction }}
-        >
-          {/* We must render EXACTLY 2 identical halves for the -50% trick to work flawlessly. */}
-          <div className="flex items-center shrink-0">
-            {Array.from({ length: 8 }).map((_, rep) => renderItems(`part1-r${rep}`))}
-          </div>
-          <div className="flex items-center shrink-0">
-            {Array.from({ length: 8 }).map((_, rep) => renderItems(`part2-r${rep}`))}
-          </div>
+        <div className="flex items-center shrink-0">
+          {Array.from({ length: 8 }).map((_, rep) => renderItems(`part1-r${rep}`))}
         </div>
-      </div>
-    </>
+        <div className="flex items-center shrink-0">
+          {Array.from({ length: 8 }).map((_, rep) => renderItems(`part2-r${rep}`))}
+        </div>
+      </motion.div>
+    </div>
   );
 }
