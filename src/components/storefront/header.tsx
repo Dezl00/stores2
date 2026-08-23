@@ -42,11 +42,11 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
       // At top of page — transparent header
       setScrollState('top')
     } else if (currentY > lastScrollY.current + 5) {
-      // Scrolling DOWN — show solid header
-      setScrollState('visible')
-    } else if (currentY < lastScrollY.current - 5) {
-      // Scrolling UP — hide header
+      // Scrolling DOWN — hide header
       setScrollState('hidden')
+    } else if (currentY < lastScrollY.current - 5) {
+      // Scrolling UP — show solid header
+      setScrollState('visible')
     }
 
     lastScrollY.current = currentY
