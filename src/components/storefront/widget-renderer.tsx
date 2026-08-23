@@ -42,7 +42,7 @@ export function WidgetRenderer({ widget }: { widget: any }) {
       )
     case "CategoryGrid":
       return (
-        <section className={`w-full py-12 ${visibilityClass}`}>
+        <section className={`w-full ${visibilityClass}`}>
           <CategoryGrid widget={widget} />
         </section>
       )
@@ -54,50 +54,50 @@ export function WidgetRenderer({ widget }: { widget: any }) {
       )
     case "ProductList":
       return (
-        <section className={`w-full py-16 ${visibilityClass}`}>
+        <section className={`w-full ${visibilityClass}`}>
           <ProductList widget={widget} />
         </section>
       )
     case "FeaturedProduct":
       return (
-        <section className={`w-full py-16 ${visibilityClass}`}>
+        <section className={`w-full ${visibilityClass}`}>
           <FeaturedProductWidget widget={widget} />
         </section>
       )
     
     case "TextBlock":
       return (
-        <section className={`w-full py-16 ${visibilityClass}`}>
+        <section className={`w-full ${visibilityClass}`}>
           <TextBlock widget={widget} />
         </section>
       )
     case "BrandSlider":
       return (
-        <section className={`w-full py-16 ${visibilityClass}`}>
+        <section className={`w-full ${visibilityClass}`}>
           <BrandSlider widget={widget} />
         </section>
       )
     case "AboutUs":
       return (
-        <section className={`w-full py-16 ${visibilityClass}`}>
+        <section className={`w-full ${visibilityClass}`}>
           <AboutUs widget={widget} />
         </section>
       )
     case "ValuesSlider":
       return (
-        <section className={`w-full py-16 ${visibilityClass}`}>
+        <section className={`w-full ${visibilityClass}`}>
           <ValuesSlider widget={widget} />
         </section>
       )
     case "StoreFeatures":
       return (
-        <section className={`w-full py-16 ${visibilityClass}`}>
+        <section className={`w-full ${visibilityClass}`}>
           <StoreFeatures widget={widget} />
         </section>
       )
     case "LatestArticles":
       return (
-        <section className={`w-full py-16 ${visibilityClass}`}>
+        <section className={`w-full ${visibilityClass}`}>
           <LatestArticlesWidget widget={widget} />
         </section>
       )

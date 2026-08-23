@@ -13,7 +13,7 @@ export function AboutUs({ widget }: { widget?: any }) {
   const missionContent = widget?.settings?.missionContent || "توفير حلول شاملة في مجالات تجهيز المطابخ، معدات الأمان، وتصميم الأثاث، مما يساهم في تحسين بيئة العمل المنزلية والصناعية على حد سواء، مع ضمان جودة عالية وخدمة متميزة"
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative overflow-hidden py-12">
       
       <ScrollReveal variant="fade-up">
         <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20 mb-20">
