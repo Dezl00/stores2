@@ -101,7 +101,7 @@ export function HeroSlider({ widget }: { widget: any }) {
                 {(slide.buttonUrl || slide.redirectType) && (
                   <div>
                     <Link prefetch={false} href={getValidLink(computeHref(slide))}>
-                      <Button size="lg" className="px-8 md:px-10 py-5 md:py-6 text-base md:text-lg font-bold bg-white text-black hover:bg-white/90 rounded-full shadow-xl hover:scale-105 transition-all duration-300 border-0 flex items-center gap-2 group">
+                      <Button size="lg" variant="outline" className="px-8 md:px-10 py-5 md:py-6 text-base md:text-lg font-bold bg-transparent text-white border-2 border-white hover:bg-white hover:text-black rounded-full shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2 group">
                         {slide.buttonText || "تسوق الآن"}
                         <ChevronLeft className="w-5 h-5 -translate-x-1 group-hover:-translate-x-2 transition-transform" />
                       </Button>

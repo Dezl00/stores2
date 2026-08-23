@@ -20,6 +20,24 @@ export function CategoryGridClient({ widget, categories }: { widget: any, catego
     )
   }
 
+  const {
+    aspectRatio = "circle",
+    titlePosition = "bottom",
+    titleBgEnabled = false,
+    titleBgColor = "#ffffff",
+    titleColor = "#000000",
+    borderRadius = 16
+  } = widget.settings || {};
+
+  const getAspectClass = () => {
+    if (aspectRatio === "1:1") return "aspect-square w-full";
+    if (aspectRatio === "3:4") return "aspect-[3/4] w-full";
+    if (aspectRatio === "4:3") return "aspect-[4/3] w-full";
+    return "h-24 w-24 md:h-32 md:w-32 rounded-full";
+  };
+
+  const isCircle = aspectRatio === "circle";
+
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {widget.title && (
@@ -41,23 +59,61 @@ export function CategoryGridClient({ widget, categories }: { widget: any, catego
           >
             <Link prefetch={false} 
               href={`/category/${category.slug}`}
-              className="group relative flex flex-col items-center gap-3 rounded-2xl border border-border/50 bg-card p-6 transition-all hover:border-primary/50 hover:shadow-md hover:-translate-y-1"
+              className={`group relative flex flex-col items-center transition-all hover:-translate-y-1 ${
+                isCircle ? "gap-3 p-6 rounded-2xl border border-border/50 bg-card hover:border-primary/50 hover:shadow-md" : ""
+              }`}
             >
-              <div className="relative h-24 w-24 md:h-32 md:w-32 flex items-center justify-center rounded-full bg-muted/30 transition-transform group-hover:scale-105 overflow-hidden">
+              <div 
+                className={`relative flex items-center justify-center bg-muted/30 overflow-hidden ${getAspectClass()}`}
+                style={{ 
+                  borderRadius: isCircle ? '9999px' : `${borderRadius}px`,
+                  transition: 'transform 0.3s ease'
+                }}
+              >
                 {category.imageUrl ? (
                   <img 
                     src={category.imageUrl} 
                     alt={category.name}
                     loading="lazy"
-                    className="max-h-full max-w-full object-cover w-full h-full"
+                    className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary transition-transform duration-500 group-hover:scale-105">
                     <span className="text-3xl font-semibold">{category.name.charAt(0)}</span>
                   </div>
                 )}
+
+                {/* Title Inside */}
+                {titlePosition === "inside" && !isCircle && (
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100 transition-opacity duration-300" />
+                )}
+                {titlePosition === "inside" && !isCircle && (
+                  <div className="absolute bottom-0 left-0 right-0 p-3 z-10 flex justify-center">
+                    <div 
+                      className="px-4 py-2 rounded-lg backdrop-blur-sm"
+                      style={{ 
+                        backgroundColor: titleBgEnabled ? titleBgColor : 'transparent',
+                        color: titleColor
+                      }}
+                    >
+                      <h3 className="font-bold text-center text-sm md:text-base">{category.name}</h3>
+                    </div>
+                  </div>
+                )}
               </div>
-              <h3 className="font-semibold text-center group-hover:text-primary transition-colors text-lg">{category.name}</h3>
+              
+              {/* Title Outside (Bottom) */}
+              {(titlePosition === "bottom" || (titlePosition === "inside" && isCircle)) && (
+                <div 
+                  className={`mt-3 px-4 py-1.5 rounded-lg ${!isCircle ? 'w-full text-center' : ''}`}
+                  style={{ 
+                    backgroundColor: titleBgEnabled ? titleBgColor : 'transparent',
+                    color: titleColor
+                  }}
+                >
+                  <h3 className="font-semibold transition-colors text-base md:text-lg">{category.name}</h3>
+                </div>
+              )}
             </Link>
           </ScrollReveal>
         ))}
