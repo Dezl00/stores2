@@ -10,6 +10,23 @@ export function HeroSlider({ widget }: { widget: any }) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const slides = widget.items || []
 
+  // Global settings for the widget
+  const textAlign = widget.settings?.textAlign || 'center'
+  const textPosition = widget.settings?.textPosition || 'bottom'
+  const overlayOpacity = widget.settings?.overlayOpacity ?? 40
+
+  const getFlexAlign = (pos: string) => {
+    if (pos === 'top') return 'justify-start pt-20 md:pt-28'
+    if (pos === 'center') return 'justify-center'
+    return 'justify-end pb-24 md:pb-32 lg:pb-40' // Increased padding bottom to raise it higher
+  }
+  
+  const getTextJustify = (align: string) => {
+    if (align === 'right') return 'mr-0 ml-auto text-right items-end'
+    if (align === 'left') return 'ml-0 mr-auto text-left items-start'
+    return 'mx-auto text-center items-center'
+  }
+
   useEffect(() => {
     if (slides.length <= 1) return
     const timer = setInterval(() => {
@@ -66,30 +83,27 @@ export function HeroSlider({ widget }: { widget: any }) {
             {/* Overlay */}
             <div 
               className="absolute inset-0 bg-black"
-              style={{ opacity: (slide.settings?.overlayOpacity ?? 40) / 100 }}
+              style={{ opacity: overlayOpacity / 100 }}
             />
             {/* Content */}
-            <div className="absolute inset-0 flex flex-col justify-end p-6 pb-16 md:p-16 md:pb-24 lg:p-24 lg:pb-32">
-              <div className={`max-w-3xl ${
-                slide.settings?.alignment === "left" ? "mr-auto ml-0 text-left" : 
-                slide.settings?.alignment === "right" ? "ml-auto mr-0 text-right" : 
-                "mx-auto text-center"
-              }`}>
+            <div className={`absolute inset-0 flex flex-col p-6 md:p-16 lg:p-24 ${getFlexAlign(textPosition)}`}>
+              <div className={`max-w-3xl flex flex-col ${getTextJustify(textAlign)}`}>
                 {slide.title && (
-                  <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3 md:mb-5 leading-tight drop-shadow-lg">
+                  <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3 md:mb-5 leading-tight">
                     {slide.title}
                   </h2>
                 )}
                 {slide.subtitle && (
-                  <p className="text-base md:text-xl lg:text-2xl text-white/90 mb-6 md:mb-8 leading-relaxed drop-shadow-md max-w-2xl inline-block">
+                  <p className="text-base md:text-xl lg:text-2xl text-white/90 mb-6 md:mb-8 leading-relaxed max-w-2xl inline-block">
                     {slide.subtitle}
                   </p>
                 )}
-                {(slide.buttonUrl || slide.redirectType) && slide.buttonText && (
+                {(slide.buttonUrl || slide.redirectType) && (
                   <div>
                     <Link prefetch={false} href={getValidLink(computeHref(slide))}>
-                      <Button size="lg" className="px-8 md:px-10 py-5 md:py-6 text-base md:text-lg font-bold bg-white text-black hover:bg-white/90 rounded-full shadow-xl hover:scale-105 transition-all duration-300 border-0">
-                        {slide.buttonText}
+                      <Button size="lg" className="px-8 md:px-10 py-5 md:py-6 text-base md:text-lg font-bold bg-white text-black hover:bg-white/90 rounded-full shadow-xl hover:scale-105 transition-all duration-300 border-0 flex items-center gap-2 group">
+                        {slide.buttonText || "تسوق الآن"}
+                        <ChevronLeft className="w-5 h-5 -translate-x-1 group-hover:-translate-x-2 transition-transform" />
                       </Button>
                     </Link>
                   </div>

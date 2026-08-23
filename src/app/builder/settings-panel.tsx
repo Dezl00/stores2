@@ -523,6 +523,18 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                    <option value="bottom">أسفل</option>
                 </select>
               </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-600 block">درجة تعتيم السلايدر (0-100)</label>
+                <Input 
+                  type="range" min="0" max="100"
+                  value={widget.settings?.overlayOpacity ?? 40} 
+                  onChange={(e) => {
+                    const newWidget = { ...widget, settings: { ...widget.settings, overlayOpacity: parseInt(e.target.value) } }
+                    onUpdateWidget(newWidget)
+                  }}
+                  onBlur={() => onSave(buildSaveState())}
+                />
+              </div>
 
             </div>
           )}
