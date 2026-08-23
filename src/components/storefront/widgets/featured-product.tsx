@@ -43,7 +43,7 @@ export async function FeaturedProductWidget({ widget }: { widget: any }) {
 
   if (!product) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col items-center justify-center p-12 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
             <span className="text-2xl opacity-50">🏷️</span>
@@ -70,7 +70,7 @@ export async function FeaturedProductWidget({ widget }: { widget: any }) {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {widget.title && (
         <ScrollReveal variant="fade-up" duration={0.5}>
           <div className="text-center mb-10">
