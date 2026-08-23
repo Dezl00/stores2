@@ -27,7 +27,7 @@ export async function ProductList({ widget }: { widget: any }) {
       })
       if (cat?.products) {
         products = cat.products
-        collectionItem = { ...collectionItem, title: widget.title || cat.name, buttonUrl: `/category/${cat.id}` }
+        collectionItem = { ...collectionItem, title: widget.title || cat.name, buttonUrl: `/category/${cat.slug || cat.id}` }
       }
     } else if (mode === "custom" && productIds.length > 0) {
       const fetchedProducts = await db.product.findMany({

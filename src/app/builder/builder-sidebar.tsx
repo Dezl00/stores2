@@ -140,7 +140,7 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
                           showMobile: true,
                           sortOrder: -1,
                           settings: { placement: "header", scrollDirection: "right", backgroundColor: "#000000", textColor: "#ffffff" },
-                          items: []
+                          items: [{ id: `new-item-${Date.now()}`, title: "نص تجريبي للتنبيهات...", sortOrder: 0 }]
                         };
                         const updatedWidgets = [newWidget, ...widgets];
                         updatedWidgets.forEach((w, i) => w.sortOrder = i);

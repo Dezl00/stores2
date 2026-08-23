@@ -343,7 +343,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                 <Switch checked={widget.settings?.bentoEffectEnabled !== false} onCheckedChange={(checked: boolean) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, bentoEffectEnabled: checked } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }} />
               </div>
               
@@ -354,7 +354,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onChange={(e) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, buttonText: e.target.value } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                   className="bg-slate-50 text-xs"
                   placeholder="مثال: تسوق الآن"
@@ -368,7 +368,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onChange={(e) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, redirectType: e.target.value, redirectId: "", buttonUrl: "" } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                   className="w-full h-10 rounded-md border border-input bg-slate-50 px-3 text-xs"
                 >
@@ -388,7 +388,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                       const newWidget = { ...widget, settings: { ...widget.settings, buttonUrl: e.target.value } }
                       onUpdateWidget(newWidget)
                     }}
-                    onBlur={() => onSave(buildSaveState())}
+                    onBlur={() => onSave(true, buildSaveState())}
                     className="bg-slate-50 text-xs text-left"
                     dir="ltr"
                     placeholder="https://..."
@@ -404,7 +404,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     onChange={(e) => {
                       const newWidget = { ...widget, settings: { ...widget.settings, redirectId: e.target.value } }
                       onUpdateWidget(newWidget)
-                      onSave(buildSaveState(newWidget))
+                      onSave(true, buildSaveState(newWidget))
                     }}
                     className="w-full h-10 rounded-md border border-input bg-slate-50 px-3 text-xs"
                   >
@@ -424,7 +424,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     onChange={(e) => {
                       const newWidget = { ...widget, settings: { ...widget.settings, redirectId: e.target.value } }
                       onUpdateWidget(newWidget)
-                      onSave(buildSaveState(newWidget))
+                      onSave(true, buildSaveState(newWidget))
                     }}
                     className="w-full h-10 rounded-md border border-input bg-slate-50 px-3 text-xs"
                   >
@@ -473,7 +473,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                       const newWidget = { ...widget, settings: { ...widget.settings, overlayColor: e.target.value } }
                       onUpdateWidget(newWidget)
                     }}
-                    onBlur={() => onSave(buildSaveState())}
+                    onBlur={() => onSave(true, buildSaveState())}
                     className="h-10 cursor-pointer p-1"
                   />
                 </div>
@@ -486,7 +486,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                       const newWidget = { ...widget, settings: { ...widget.settings, overlayOpacity: parseInt(e.target.value) } }
                       onUpdateWidget(newWidget)
                     }}
-                    onBlur={() => onSave(buildSaveState())}
+                    onBlur={() => onSave(true, buildSaveState())}
                   />
                 </div>
               </div>
@@ -498,7 +498,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onChange={(e) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, textAlign: e.target.value } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
@@ -514,7 +514,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onChange={(e) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, textPosition: e.target.value } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
@@ -532,7 +532,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     const newWidget = { ...widget, settings: { ...widget.settings, overlayOpacity: parseInt(e.target.value) } }
                     onUpdateWidget(newWidget)
                   }}
-                  onBlur={() => onSave(buildSaveState())}
+                  onBlur={() => onSave(true, buildSaveState())}
                 />
               </div>
 
@@ -554,7 +554,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onChange={(e) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, textAlign: e.target.value } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
@@ -570,7 +570,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onChange={(e) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, textPosition: e.target.value } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
@@ -596,7 +596,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onChange={(val) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, backgroundImage: val } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                   className="h-24"
                 />
@@ -610,7 +610,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     const newWidget = { ...widget, settings: { ...widget.settings, timerEndDate: e.target.value } }
                     onUpdateWidget(newWidget)
                   }}
-                  onBlur={() => onSave(buildSaveState())}
+                  onBlur={() => onSave(true, buildSaveState())}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -623,7 +623,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                       const newWidget = { ...widget, settings: { ...widget.settings, backgroundColor: e.target.value } }
                       onUpdateWidget(newWidget)
                     }}
-                    onBlur={() => onSave(buildSaveState())}
+                    onBlur={() => onSave(true, buildSaveState())}
                     className="h-10 cursor-pointer p-1"
                   />
                 </div>
@@ -636,7 +636,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                       const newWidget = { ...widget, settings: { ...widget.settings, overlayOpacity: parseInt(e.target.value) } }
                       onUpdateWidget(newWidget)
                     }}
-                    onBlur={() => onSave(buildSaveState())}
+                    onBlur={() => onSave(true, buildSaveState())}
                   />
                 </div>
               </div>
@@ -659,7 +659,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                       const newWidget = { ...widget, settings: { ...widget.settings, backgroundColor: e.target.value } }
                       onUpdateWidget(newWidget)
                     }}
-                    onBlur={() => onSave(buildSaveState())}
+                    onBlur={() => onSave(true, buildSaveState())}
                     className="h-10 cursor-pointer p-1"
                   />
                 </div>
@@ -672,7 +672,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                       const newWidget = { ...widget, settings: { ...widget.settings, textColor: e.target.value } }
                       onUpdateWidget(newWidget)
                     }}
-                    onBlur={() => onSave(buildSaveState())}
+                    onBlur={() => onSave(true, buildSaveState())}
                     className="h-10 cursor-pointer p-1"
                   />
                 </div>
@@ -684,7 +684,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     onChange={(e) => {
                       const newWidget = { ...widget, settings: { ...widget.settings, scrollDirection: e.target.value } }
                       onUpdateWidget(newWidget)
-                      onSave(buildSaveState(newWidget))
+                      onSave(true, buildSaveState(newWidget))
                     }}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   >
@@ -699,7 +699,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     onChange={(e) => {
                       const newWidget = { ...widget, settings: { ...widget.settings, textSize: e.target.value } }
                       onUpdateWidget(newWidget)
-                      onSave(buildSaveState(newWidget))
+                      onSave(true, buildSaveState(newWidget))
                     }}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   >
@@ -717,7 +717,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     onChange={(e) => {
                       const newWidget = { ...widget, settings: { ...widget.settings, speed: parseInt(e.target.value) } }
                       onUpdateWidget(newWidget)
-                      onSave(buildSaveState(newWidget))
+                      onSave(true, buildSaveState(newWidget))
                     }}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   >
@@ -749,7 +749,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onChange={(e) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, aspectRatio: e.target.value } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
@@ -766,7 +766,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onChange={(e) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, titlePosition: e.target.value } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
@@ -781,7 +781,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onCheckedChange={(checked: boolean) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, titleBgEnabled: checked } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                 />
               </div>
@@ -795,7 +795,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                       const newWidget = { ...widget, settings: { ...widget.settings, titleBgColor: e.target.value } }
                       onUpdateWidget(newWidget)
                     }}
-                    onBlur={() => onSave(buildSaveState())}
+                    onBlur={() => onSave(true, buildSaveState())}
                     className="h-10 cursor-pointer p-1"
                   />
                 </div>
@@ -809,7 +809,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     const newWidget = { ...widget, settings: { ...widget.settings, titleColor: e.target.value } }
                     onUpdateWidget(newWidget)
                   }}
-                  onBlur={() => onSave(buildSaveState())}
+                  onBlur={() => onSave(true, buildSaveState())}
                   className="h-10 cursor-pointer p-1"
                 />
               </div>
@@ -822,7 +822,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     const newWidget = { ...widget, settings: { ...widget.settings, borderRadius: parseInt(e.target.value) } }
                     onUpdateWidget(newWidget)
                   }}
-                  onBlur={() => onSave(buildSaveState())}
+                  onBlur={() => onSave(true, buildSaveState())}
                 />
               </div>
             </div>
@@ -990,7 +990,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                 onChange={(e) => {
                   const newWidget = { ...widget, settings: { ...widget.settings, sourceMode: e.target.value } }
                   onUpdateWidget(newWidget)
-                  onSave(buildSaveState(newWidget))
+                  onSave(true, buildSaveState(newWidget))
                 }}
               >
                 <option value="category">من تصنيف معين</option>
@@ -1007,7 +1007,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onChange={(e) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, categoryId: e.target.value } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                 >
                   <option value="">اختر تصنيفاً</option>
@@ -1035,7 +1035,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     onSave={(selected: string[]) => {
                       const newWidget = { ...widget, settings: { ...widget.settings, productIds: selected } }
                       onUpdateWidget(newWidget)
-                      onSave(buildSaveState(newWidget))
+                      onSave(true, buildSaveState(newWidget))
                     }}
                     returnSlug={false}
                   />
@@ -1051,7 +1051,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                 onChange={(e) => {
                   const newWidget = { ...widget, settings: { ...widget.settings, displayMode: e.target.value } }
                   onUpdateWidget(newWidget)
-                  onSave(buildSaveState(newWidget))
+                  onSave(true, buildSaveState(newWidget))
                 }}
               >
                 <option value="grid">شبكة (Grid)</option>
@@ -1070,7 +1070,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                 className="w-full accent-[#2453E3]"
                 value={widget.settings?.productCount || 6}
                 onChange={(e) => onUpdateWidget({ ...widget, settings: { ...widget.settings, productCount: parseInt(e.target.value) } })}
-                onBlur={() => onSave(buildSaveState())}
+                onBlur={() => onSave(true, buildSaveState())}
               />
             </div>
           </div>
@@ -1101,7 +1101,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                   onSave={(selected: string[]) => {
                     const newWidget = { ...widget, settings: { ...widget.settings, productId: selected[0] } }
                     onUpdateWidget(newWidget)
-                    onSave(buildSaveState(newWidget))
+                    onSave(true, buildSaveState(newWidget))
                   }}
                   returnSlug={false}
                 />

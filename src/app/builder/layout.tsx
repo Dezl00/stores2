@@ -11,7 +11,7 @@ export default async function BuilderLayout({ children }: { children: React.Reac
 
   // Builder is a specific tool, no extra layouts, just full screen
   return (
-    <div className="min-h-screen bg-slate-50 admin-theme" dir="rtl">
+    <div className="h-screen overflow-hidden bg-slate-50 admin-theme" dir="rtl">
       {children}
       <Toaster />
     </div>
