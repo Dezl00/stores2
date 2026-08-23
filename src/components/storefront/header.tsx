@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef, useCallback } from "react"
 import Link from "next/link"
 import { Search, ShoppingBag, User, Menu as MenuIcon, X, Loader2, ChevronDown, LogOut, Settings, LayoutDashboard, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -22,9 +22,11 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
   const [desktopSearchQuery, setDesktopSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
-  
-  // Mega Menu state
-  const [isCategoriesHovered, setIsCategoriesHovered] = useState(false)
+
+  // Scroll-aware header state
+  const [scrollState, setScrollState] = useState<'top' | 'visible' | 'hidden'>('top')
+  const lastScrollY = useRef(0)
+  const ticking = useRef(false)
 
   useEffect(() => {
     setMounted(true)
@@ -33,19 +35,46 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
     }
   }, [themeConfig?.logoUrl])
 
+  const handleScroll = useCallback(() => {
+    const currentY = window.scrollY
+
+    if (currentY < 80) {
+      // At top of page — transparent header
+      setScrollState('top')
+    } else if (currentY > lastScrollY.current + 5) {
+      // Scrolling DOWN — show solid header
+      setScrollState('visible')
+    } else if (currentY < lastScrollY.current - 5) {
+      // Scrolling UP — hide header
+      setScrollState('hidden')
+    }
+
+    lastScrollY.current = currentY
+    ticking.current = false
+  }, [])
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (!ticking.current) {
+        requestAnimationFrame(handleScroll)
+        ticking.current = true
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [handleScroll])
+
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchResults([])
       return
     }
-
     const timer = setTimeout(async () => {
       setIsSearching(true)
       const results = await searchProductsLive(searchQuery)
       setSearchResults(results)
       setIsSearching(false)
     }, 300)
-
     return () => clearTimeout(timer)
   }, [searchQuery])
 
@@ -56,9 +85,30 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
     }
   }
 
+  // Dynamic classes based on scroll state
+  const isTop = scrollState === 'top'
+  const isHidden = scrollState === 'hidden'
+
+  const headerBg = isTop
+    ? 'bg-transparent border-transparent shadow-none'
+    : 'bg-background/95 backdrop-blur-md border-border/40 shadow-sm'
+
+  const headerTransform = isHidden ? '-translate-y-full' : 'translate-y-0'
+
+  const textColor = isTop ? 'text-white' : 'text-foreground'
+  const mutedTextColor = isTop ? 'text-white/70' : 'text-muted-foreground'
+  const iconColor = isTop ? 'text-white' : 'text-muted-foreground'
+  const iconBtnBg = isTop
+    ? 'bg-white/10 border-white/20 hover:bg-white/20'
+    : 'bg-background border-border hover:bg-accent'
+  const discountColor = isTop ? 'text-red-300' : 'text-red-500'
+  const dropdownHover = isTop ? 'hover:text-white/80' : 'hover:text-primary'
+
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 z-[100] w-full bg-background/95 backdrop-blur-md border-b border-border/40 transition-all duration-300 shadow-sm">
+      <header
+        className={`fixed top-0 left-0 right-0 z-[100] w-full border-b transition-all duration-300 ease-out ${headerBg} ${headerTransform}`}
+      >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* DESKTOP HEADER */}
           <div className="hidden md:flex h-20 items-center justify-between gap-6">
@@ -69,18 +119,18 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                 {themeConfig?.logoUrl ? (
                   <img src={themeConfig.logoUrl} alt="Store Logo" className="h-14 w-auto object-contain transition-transform hover:scale-105" />
                 ) : (
-                  <span className="w-12 h-12 rounded-full gold-gradient flex items-center justify-center text-white text-2xl shadow-lg shadow-primary/20">ع</span>
+                  <span className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg ${isTop ? 'bg-white/20 text-white' : 'gold-gradient text-white shadow-primary/20'}`}>ع</span>
                 )}
               </Link>
             </div>
 
             {/* Desktop Navigation */}
             <nav className="flex items-center gap-6 lg:gap-8 flex-1 justify-center">
-              <Link prefetch={false} href="/" className="text-sm font-bold text-foreground hover:text-primary transition-colors">الرئيسية</Link>
-              <Link prefetch={false} href="/products" className="text-sm font-bold text-foreground hover:text-primary transition-colors">المتجر</Link>
+              <Link prefetch={false} href="/" className={`text-sm font-bold ${textColor} ${dropdownHover} transition-colors`}>الرئيسية</Link>
+              <Link prefetch={false} href="/products" className={`text-sm font-bold ${textColor} ${dropdownHover} transition-colors`}>المتجر</Link>
               
                 <div className="relative py-8 group/catNav">
-                  <div className="flex items-center gap-1 text-sm font-bold text-foreground hover:text-primary transition-colors cursor-pointer">
+                  <div className={`flex items-center gap-1 text-sm font-bold ${textColor} ${dropdownHover} transition-colors cursor-pointer`}>
                     الأقسام <ChevronDown className="w-4 h-4" />
                   </div>
                   <div className="absolute top-[80px] right-0 w-64 bg-card border border-border shadow-xl rounded-2xl py-2 flex flex-col opacity-0 invisible group-hover/catNav:opacity-100 group-hover/catNav:visible transition-all duration-200 z-50">
@@ -113,9 +163,9 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                   </div>
                 </div>
               
-              <Link prefetch={false} href="/blog" className="text-sm font-bold text-foreground hover:text-primary transition-colors">الأدلة والنصائح</Link>
-              <Link prefetch={false} href="/brands" className="text-sm font-bold text-foreground hover:text-primary transition-colors">الماركات</Link>
-              <Link prefetch={false} href="/products?discounted=true" className="text-sm font-bold text-red-500 hover:text-red-600 transition-colors">عروض وخصومات</Link>
+              <Link prefetch={false} href="/blog" className={`text-sm font-bold ${textColor} ${dropdownHover} transition-colors`}>الأدلة والنصائح</Link>
+              <Link prefetch={false} href="/brands" className={`text-sm font-bold ${textColor} ${dropdownHover} transition-colors`}>الماركات</Link>
+              <Link prefetch={false} href="/products?discounted=true" className={`text-sm font-bold ${discountColor} hover:opacity-80 transition-colors`}>عروض وخصومات</Link>
             </nav>
 
             {/* Desktop Actions */}
@@ -123,17 +173,17 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
               
               {/* Search Button */}
               <button 
-                className="flex items-center justify-center border border-border bg-background rounded-full w-11 h-11 shadow-sm hover:bg-accent transition-colors"
+                className={`flex items-center justify-center rounded-full w-11 h-11 shadow-sm transition-colors border ${iconBtnBg}`}
                 onClick={() => setIsSearchOpen(true)}
               >
-                <Search className="w-5 h-5 text-muted-foreground" />
+                <Search className={`w-5 h-5 ${iconColor} transition-colors`} />
               </button>
 
-              <div className="h-8 w-px bg-border mx-1"></div>
+              <div className={`h-8 w-px ${isTop ? 'bg-white/20' : 'bg-border'} mx-1 transition-colors`}></div>
               
               {/* Notifications */}
               {user && (
-                <div className="flex items-center justify-center border border-border bg-background rounded-full w-11 h-11 shadow-sm">
+                <div className={`flex items-center justify-center rounded-full w-11 h-11 shadow-sm border ${iconBtnBg} transition-colors`}>
                   <NotificationsDropdown isAdmin={user.role === 'STORE_OWNER' || user.role === 'MANAGER'} />
                 </div>
               )}
@@ -146,14 +196,14 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                     if (!user) setAuthModalOpen(true)
                   }}
                 >
-                  <div className="w-11 h-11 rounded-full bg-background border border-border flex items-center justify-center shadow-sm">
-                    <User className="w-5 h-5 text-muted-foreground" />
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center shadow-sm border transition-colors ${iconBtnBg}`}>
+                    <User className={`w-5 h-5 ${iconColor} transition-colors`} />
                   </div>
                   <div className="flex flex-col items-start hidden xl:flex">
-                    <span className="text-xs text-muted-foreground">مرحباً بك</span>
-                    <div className="flex items-center gap-1 text-sm font-bold">
+                    <span className={`text-xs ${mutedTextColor} transition-colors`}>مرحباً بك</span>
+                    <div className={`flex items-center gap-1 text-sm font-bold ${textColor} transition-colors`}>
                       {user ? (user.name?.split(' ')[0] || 'حسابي') : 'تسجيل الدخول'}
-                      {user && <ChevronDown className="w-3 h-3 text-muted-foreground" />}
+                      {user && <ChevronDown className={`w-3 h-3 ${mutedTextColor}`} />}
                     </div>
                   </div>
                 </button>
@@ -198,8 +248,8 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                 className="flex items-center gap-2 group"
                 onClick={() => setIsOpen(true)}
               >
-                <div className="w-11 h-11 rounded-full bg-background border border-border flex items-center justify-center shadow-sm relative">
-                  <ShoppingBag className="w-5 h-5 text-muted-foreground" />
+                <div className={`w-11 h-11 rounded-full flex items-center justify-center shadow-sm relative border transition-colors ${iconBtnBg}`}>
+                  <ShoppingBag className={`w-5 h-5 ${iconColor} transition-colors`} />
                   {mounted && count > 0 && (
                     <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground animate-in zoom-in duration-300">
                       {count}
@@ -207,8 +257,8 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                   )}
                 </div>
                 <div className="flex flex-col items-start hidden xl:flex">
-                  <span className="text-xs text-muted-foreground">سلة المشتريات</span>
-                  <span className="text-sm font-bold">{mounted ? total.toFixed(2) : '0.00'} ج.م</span>
+                  <span className={`text-xs ${mutedTextColor} transition-colors`}>سلة المشتريات</span>
+                  <span className={`text-sm font-bold ${textColor} transition-colors`}>{mounted ? total.toFixed(2) : '0.00'} ج.م</span>
                 </div>
               </button>
             </div>
@@ -220,7 +270,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
             {/* Right: Search */}
             <div className="flex-1 flex justify-start">
               <button 
-                className="p-1.5 text-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors"
+                className={`p-1.5 rounded-md transition-colors ${textColor}`}
                 onClick={() => setIsSearchOpen(true)}
               >
                 <Search className="w-7 h-7" strokeWidth={1.5} />
@@ -233,14 +283,14 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                 {themeConfig?.logoUrl ? (
                   <img src={themeConfig.logoUrl} alt="Store Logo" className="h-10 w-auto object-contain" />
                 ) : (
-                  <span className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xl shadow-lg shadow-primary/20">ع</span>
+                  <span className={`w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg ${isTop ? 'bg-white/20 text-white' : 'bg-primary text-primary-foreground shadow-primary/20'}`}>ع</span>
                 )}
               </Link>
             </div>
 
             {/* Left: Menu */}
             <div className="flex-1 flex justify-end">
-              <button className="p-1.5 text-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors" onClick={() => setMobileMenuOpen(true)}>
+              <button className={`p-1.5 rounded-md transition-colors ${textColor}`} onClick={() => setMobileMenuOpen(true)}>
                 <MenuIcon className="w-7 h-7" strokeWidth={1.5} />
               </button>
             </div>

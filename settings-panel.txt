@@ -1,0 +1,353 @@
+﻿"use client"
+import React, { useState } from "react"
+import { ChevronRight, Settings, Image as ImageIcon, Plus, Trash2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { ImageUploader } from "@/components/ui/image-uploader"
+
+export function SettingsPanel({ widget, categories, widgets, headerSettings, footerSettings, onBack, onUpdateWidget, onSave }: any) {
+  
+  const [localTitle, setLocalTitle] = useState(widget.title || "")
+  const [editingItem, setEditingItem] = useState<any>(null)
+
+  // Build the full save state with an updated widget applied inline
+  // This avoids the stateRef race condition entirely
+  const buildSaveState = (updatedWidget?: any) => {
+    const w = updatedWidget || widget
+    let updatedWidgets = widgets
+    let updatedHeader = headerSettings
+    let updatedFooter = footerSettings
+
+    if (w.id === "HEADER") {
+      updatedHeader = w.config || {}
+    } else if (w.id === "FOOTER") {
+      updatedFooter = w.config || {}
+    } else {
+      updatedWidgets = widgets.map((ww: any) => ww.id === w.id ? w : ww)
+    }
+    return { widgets: updatedWidgets, headerSettings: updatedHeader, footerSettings: updatedFooter }
+  }
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalTitle(e.target.value)
+    onUpdateWidget({ ...widget, title: e.target.value })
+  }
+
+  const handleAddItem = () => {
+    const newItem = {
+      id: `item-${Date.now()}`,
+      title: "ط¹ظ†طµط± ط¬ط¯ظٹط¯",
+      subtitle: "",
+      desktopImage: "",
+    }
+    const updatedItems = [...(widget.items || []), newItem]
+    onUpdateWidget({ ...widget, items: updatedItems })
+    setEditingItem(newItem)
+  }
+
+  const handleUpdateItem = (updatedItem: any) => {
+    const updatedItems = (widget.items || []).map((item: any) => 
+      item.id === updatedItem.id ? updatedItem : item
+    )
+    onUpdateWidget({ ...widget, items: updatedItems })
+    setEditingItem(updatedItem)
+  }
+
+  const handleDeleteItem = (e: React.MouseEvent, itemId: string) => {
+    e.stopPropagation()
+    const updatedItems = (widget.items || []).filter((item: any) => item.id !== itemId)
+    onUpdateWidget({ ...widget, items: updatedItems })
+  }
+
+  if (editingItem) {
+    return (
+      <div className="flex flex-col h-full bg-white relative animate-in slide-in-from-right-4 duration-300">
+        <div className="h-14 flex items-center gap-3 px-4 border-b border-border/50 shrink-0 bg-slate-50">
+          <button 
+            onClick={() => setEditingItem(null)}
+            className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-800"
+          >
+            <ChevronRight className="w-5 h-5 rtl-flip" />
+          </button>
+          <div>
+            <h3 className="font-bold text-sm text-slate-800">طھط¹ط¯ظٹظ„ ط§ظ„ط¹ظ†طµط±</h3>
+            <p className="text-[11px] text-slate-500">ط§ظ„ط±ط¬ظˆط¹ ظ„ظ„ط¥ط¹ط¯ط§ط¯ط§طھ</p>
+          </div>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-600 block">طµظˆط±ط© ط§ظ„ط¹ظ†طµط± (ط£ظˆ ط§ظ„ط£ظٹظ‚ظˆظ†ط©)</label>
+              <div className="bg-slate-50 border border-border/50 rounded-xl p-4">
+                <ImageUploader 
+                  label=""
+                  value={editingItem.desktopImage || editingItem.imageUrl || ""} 
+                  onChange={(url) => {
+                    handleUpdateItem({ ...editingItem, desktopImage: url, imageUrl: url })
+                  }} 
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-600 block">ط§ظ„ط¹ظ†ظˆط§ظ†</label>
+              <Input 
+                value={editingItem.title || editingItem.name || ""} 
+                onChange={(e) => handleUpdateItem({ ...editingItem, title: e.target.value, name: e.target.value })}
+                className="bg-slate-50 text-xs"
+                placeholder="ط£ط¯ط®ظ„ ط§ظ„ط¹ظ†ظˆط§ظ†..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-600 block">ط§ظ„ظˆطµظپ ط£ظˆ ط§ظ„ظ†طµ ط§ظ„ظپط±ط¹ظٹ</label>
+              <Input 
+                value={editingItem.subtitle || editingItem.description || ""} 
+                onChange={(e) => handleUpdateItem({ ...editingItem, subtitle: e.target.value, description: e.target.value })}
+                className="bg-slate-50 text-xs"
+                placeholder="ط£ط¯ط®ظ„ ط§ظ„ظˆطµظپ..."
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-600 block">ط±ط§ط¨ط· ط§ظ„ط²ط± (ط§ط®طھظٹط§ط±ظٹ)</label>
+              <Input 
+                value={editingItem.buttonUrl || ""} 
+                onChange={(e) => handleUpdateItem({ ...editingItem, buttonUrl: e.target.value })}
+                className="bg-slate-50 text-xs text-left"
+                dir="ltr"
+                placeholder="https://..."
+              />
+            </div>
+            
+            <Button onClick={() => {
+              setEditingItem(null)
+              onSave(true, buildSaveState())
+            }} className="w-full bg-[#2453E3] hover:bg-[#1a3cb3]">
+              طھظ… ظˆط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ط§طھ
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col h-full bg-white relative animate-in slide-in-from-right-4 duration-300">
+      {/* Header */}
+      <div className="h-14 flex items-center gap-3 px-4 border-b border-border/50 shrink-0 bg-slate-50">
+        <button 
+          onClick={() => {
+            onBack()
+            onSave(true, buildSaveState())
+          }}
+          className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-800"
+        >
+          <ChevronRight className="w-5 h-5 rtl-flip" />
+        </button>
+        <div>
+          <h3 className="font-bold text-sm text-slate-800">{widget.title || widget.type}</h3>
+          <p className="text-[11px] text-slate-500">ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ظ‚ط³ظ…</p>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        
+        {/* Header Settings */}
+        {widget.type === "Header" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-[#2453E3] border-b border-border/50 pb-2">
+              <Settings className="w-4 h-4" />
+              <span className="font-bold text-sm">ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„طھط±ظˆظٹط³ط©</span>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-600 block">ط´ط¹ط§ط± ط§ظ„ظ…طھط¬ط± (ط§ظ„ظ„ظˆط¬ظˆ)</label>
+                <div className="bg-slate-50 border border-border/50 rounded-xl p-4">
+                  <ImageUploader 
+                    label=""
+                    value={widget.config?.logoUrl || ""} 
+                    onChange={(url) => onUpdateWidget({ ...widget, config: { ...widget.config, logoUrl: url } })} 
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                <label className="text-xs font-bold text-slate-600 block">ط¥ط¸ظ‡ط§ط± ط´ط±ظٹط· ط§ظ„ط¨ط­ط«</label>
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-[#2453E3]" 
+                  checked={widget.config?.showSearch !== false}
+                  onChange={(e) => onUpdateWidget({ ...widget, config: { ...widget.config, showSearch: e.target.checked } })}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-600 block">طھط«ط¨ظٹطھ ط§ظ„ظ‚ط§ط¦ظ…ط© ط§ظ„ط¹ظ„ظˆظٹط©</label>
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-[#2453E3]" 
+                  checked={widget.config?.sticky !== false}
+                  onChange={(e) => onUpdateWidget({ ...widget, config: { ...widget.config, sticky: e.target.checked } })}
+                />
+              </div>
+              <div className="space-y-2 pt-2 border-t border-border/50">
+                <label className="text-xs font-bold text-slate-600 block">ظ†طµ ط§ظ„ط´ط±ظٹط· ط§ظ„ط¥ط¹ظ„ط§ظ†ظٹ ط§ظ„ط¹ظ„ظˆظٹ</label>
+                <Input 
+                  className="bg-slate-50 text-xs" 
+                  placeholder="ظ…ط«ط§ظ„: ط´ط­ظ† ظ…ط¬ط§ظ†ظٹ ظ„ظ„ط·ظ„ط¨ط§طھ ظپظˆظ‚ 100 ط±ظٹط§ظ„" 
+                  value={widget.config?.topBarText || ""}
+                  onChange={(e) => onUpdateWidget({ ...widget, config: { ...widget.config, topBarText: e.target.value } })}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer Settings */}
+        {widget.type === "Footer" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-[#2453E3] border-b border-border/50 pb-2">
+              <Settings className="w-4 h-4" />
+              <span className="font-bold text-sm">ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„طھط°ظٹظٹظ„</span>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-600 block">ط´ط¹ط§ط± ط§ظ„طھط°ظٹظٹظ„</label>
+                <div className="bg-slate-50 border border-border/50 rounded-xl p-4">
+                  <ImageUploader 
+                    label=""
+                    value={widget.config?.logoUrl || ""} 
+                    onChange={(url) => onUpdateWidget({ ...widget, config: { ...widget.config, logoUrl: url } })} 
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-600 block">ظ†ط¨ط°ط© ط¹ظ† ط§ظ„ظ…طھط¬ط±</label>
+                <textarea 
+                  className="w-full h-20 p-3 text-xs bg-slate-50 border border-input rounded-md outline-none focus:border-[#2453E3]" 
+                  placeholder="ط§ظƒطھط¨ ظ†ط¨ط°ط© ظ…ط®طھطµط±ط© طھط¸ظ‡ط± ظپظٹ ط£ط³ظپظ„ ط§ظ„ظ…طھط¬ط±..."
+                  value={widget.config?.aboutText || ""}
+                  onChange={(e) => onUpdateWidget({ ...widget, config: { ...widget.config, aboutText: e.target.value } })}
+                />
+              </div>
+              <div className="space-y-2 pt-2 border-t border-border/50">
+                <label className="text-xs font-bold text-slate-600 block">ط±ط§ط¨ط· ط§ظ„ط§ظ†ط³طھظ‚ط±ط§ظ…</label>
+                <Input 
+                  className="bg-slate-50 text-xs text-left" dir="ltr" placeholder="https://instagram.com/..." 
+                  value={widget.config?.instagramUrl || ""}
+                  onChange={(e) => onUpdateWidget({ ...widget, config: { ...widget.config, instagramUrl: e.target.value } })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-600 block">ط±ظ‚ظ… ط§ظ„ظˆط§طھط³ط§ط¨</label>
+                <Input 
+                  className="bg-slate-50 text-xs text-left" dir="ltr" placeholder="+9665..." 
+                  value={widget.config?.whatsappNumber || ""}
+                  onChange={(e) => onUpdateWidget({ ...widget, config: { ...widget.config, whatsappNumber: e.target.value } })}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Standard Widget Content Settings */}
+        {widget.type !== "Header" && widget.type !== "Footer" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-[#2453E3] border-b border-border/50 pb-2">
+              <Settings className="w-4 h-4" />
+              <span className="font-bold text-sm">ط§ظ„ظ…ط­طھظˆظ‰ ط§ظ„ط£ط³ط§ط³ظٹ</span>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-600 block">ط¹ظ†ظˆط§ظ† ط§ظ„ظ‚ط³ظ…</label>
+              <Input 
+                value={localTitle} 
+                onChange={handleTitleChange} 
+                className="bg-slate-50 text-xs"
+                placeholder="ظ…ط«ط§ظ„: ظˆطµظ„ ط­ط¯ظٹط«ط§ظ‹"
+              />
+            </div>
+            
+            {widget.type === "TextBlock" && (
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-600 block">ط§ظ„ظ†طµ ط§ظ„ظپط±ط¹ظٹ</label>
+                <textarea 
+                  value={widget.subtitle || ""} 
+                  onChange={(e) => onUpdateWidget({ ...widget, subtitle: e.target.value })}
+                  className="w-full h-24 p-3 text-xs bg-slate-50 border border-input rounded-md outline-none focus:border-[#2453E3]"
+                  placeholder="ط§ظƒطھط¨ ط§ظ„ظ†طµ ظ‡ظ†ط§..."
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Dynamic Data (If Product List) */}
+        {widget?.type?.includes("Product") && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-[#2453E3] border-b border-border/50 pb-2">
+              <Settings className="w-4 h-4" />
+              <span className="font-bold text-sm">ظ…طµط¯ط± ط§ظ„ط¨ظٹط§ظ†ط§طھ</span>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-600 block">ط§ظ„طھطµظ†ظٹظپ ط§ظ„ظ…ط±طھط¨ط·</label>
+              <select 
+                className="w-full h-10 px-3 py-2 text-sm bg-slate-50 border border-input rounded-md outline-none focus:border-[#2453E3]"
+                value={widget.settings?.categoryId || ""}
+                onChange={(e) => onUpdateWidget({ ...widget, settings: { ...widget.settings, categoryId: e.target.value } })}
+              >
+                <option value="">ظƒظ„ ط§ظ„ظ…ظ†طھط¬ط§طھ</option>
+                {categories?.map((cat: any) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* Blocks (If Slider, BannerGrid, Features) */}
+        {["HeroSlider", "BannerGrid", "BrandSlider", "ValuesSlider", "StoreFeatures"].includes(widget?.type || "") && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-[#2453E3] border-b border-border/50 pb-2">
+              <ImageIcon className="w-4 h-4" />
+              <span className="font-bold text-sm">ط§ظ„ط¹ظ†ط§طµط± (ط§ظ„طµظˆط±/ط§ظ„ط¨ط·ط§ظ‚ط§طھ)</span>
+            </div>
+            
+            <div className="space-y-2">
+              {widget.items?.map((item: any, idx: number) => (
+                <div key={item.id} className="bg-slate-50 border border-border/50 p-3 rounded-lg flex items-center gap-3">
+                  <div className="w-12 h-12 bg-slate-200 rounded overflow-hidden shrink-0">
+                    {item.desktopImage || item.imageUrl ? (
+                      <img src={item.desktopImage || item.imageUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <ImageIcon className="w-6 h-6 m-auto mt-3 text-slate-400" />
+                    )}
+                  </div>
+                  <div className="flex-1 truncate">
+                    <p className="text-xs font-bold truncate">{item.title || item.name || `ط¹ظ†طµط± ${idx + 1}`}</p>
+                    <p className="text-[10px] text-slate-500 truncate">{item.subtitle || item.description || 'ط¨ط¯ظˆظ† ظˆطµظپ'}</p>
+                  </div>
+                  <Button onClick={() => setEditingItem(item)} variant="ghost" size="sm" className="h-8 text-xs text-[#2453E3]">طھط¹ط¯ظٹظ„</Button>
+                  <button onClick={(e) => handleDeleteItem(e, item.id)} className="p-1.5 text-slate-400 hover:text-red-500 rounded-md hover:bg-red-50 transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              
+              <Button 
+                onClick={handleAddItem}
+                variant="outline" 
+                className="w-full border-dashed border-[#2453E3]/30 text-[#2453E3] bg-[#2453E3]/5"
+              >
+                ط¥ط¶ط§ظپط© ط¹ظ†طµط± ط¬ط¯ظٹط¯
+              </Button>
+            </div>
+          </div>
+        )}
+        
+      </div>
+    </div>
+  )
+}
+

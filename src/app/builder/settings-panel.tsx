@@ -310,6 +310,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     <option value="custom">رابط مخصص</option>
                     <option value="category">تصنيف</option>
                     <option value="page">صفحة</option>
+                  <option value="productList">قائمة منتجات</option>
                   </select>
                 </div>
                 {(!widget.settings?.redirectType || widget.settings.redirectType === "custom") && (
@@ -1038,7 +1039,35 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
           </div>
           <div className="flex-1 overflow-y-auto p-6 space-y-6 max-h-[70vh]">
           <div className="space-y-4">
-            <div className="space-y-2">
+            {widget.type === "HeroSlider" ? (
+              <>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-600 block">صورة الشاشات الكبيرة (Desktop)</label>
+                  <div className="bg-slate-50 border border-border/50 rounded-xl p-4">
+                    <ImageUploader 
+                      label=""
+                      value={editingItem.desktopImage || ""} 
+                      onChange={(url) => {
+                        handleUpdateItem({ ...editingItem, desktopImage: url })
+                      }} 
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-600 block">صورة الهواتف (Mobile)</label>
+                  <div className="bg-slate-50 border border-border/50 rounded-xl p-4">
+                    <ImageUploader 
+                      label=""
+                      value={editingItem.mobileImage || ""} 
+                      onChange={(url) => {
+                        handleUpdateItem({ ...editingItem, mobileImage: url })
+                      }} 
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="space-y-2">
               <label className="text-xs font-bold text-slate-600 block">صورة العنصر (أو الأيقونة)</label>
               <div className="bg-slate-50 border border-border/50 rounded-xl p-4">
                 <ImageUploader 
@@ -1050,6 +1079,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                 />
               </div>
             </div>
+            )}
             
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-600 block">العنوان</label>
