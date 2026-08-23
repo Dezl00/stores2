@@ -38,7 +38,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
   const handleScroll = useCallback(() => {
     const currentY = window.scrollY
 
-    if (currentY < 80) {
+    if (currentY <= 0) {
       // At top of page — transparent header
       setScrollState('top')
     } else if (currentY > lastScrollY.current + 5) {
@@ -107,7 +107,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-[100] w-full border-b transition-all duration-300 ease-out ${headerBg} ${headerTransform}`}
+        className={`${isTop ? 'absolute' : 'fixed top-0'} left-0 right-0 z-[100] w-full border-b transition-all duration-300 ease-out ${headerBg} ${headerTransform}`}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* DESKTOP HEADER */}
