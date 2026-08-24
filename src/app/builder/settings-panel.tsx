@@ -721,11 +721,11 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
                     }}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   >
-                     <option value={40}>بطيء جداً</option>
-                     <option value={30}>بطيء</option>
-                     <option value={20}>عادي</option>
-                     <option value={10}>سريع</option>
-                     <option value={5}>سريع جداً</option>
+                     <option value={200}>بطيء جداً</option>
+                     <option value={150}>بطيء</option>
+                     <option value={100}>عادي</option>
+                     <option value={60}>سريع</option>
+                     <option value={30}>سريع جداً</option>
                   </select>
               </div>
             </div>

@@ -74,7 +74,7 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
   const [selectedWidgetType, setSelectedWidgetType] = React.useState<any>(null)
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white min-h-0">
       {/* Tabs */}
       <div className="flex items-center border-b border-border/50 bg-slate-50 shrink-0">
         <button 

@@ -28,7 +28,7 @@ export function MobileSidebar({ menuItems, themeConfig, categories = [] }: { men
   }, [isMobileMenuOpen])
 
   return (
-    <div className={`fixed inset-0 z-[200] md:hidden ${isMobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+    <div className={`fixed inset-0 z-[300] md:hidden ${isMobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
       {/* Backdrop */}
       <div 
         className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}

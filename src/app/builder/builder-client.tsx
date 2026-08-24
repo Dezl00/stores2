@@ -83,7 +83,7 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
       <div className="flex flex-1 overflow-hidden relative">
         {/* 2. Right Sidebar (Sections & Theme Settings) */}
         {/* In RTL, the right sidebar is the primary navigation like Zid */}
-        <div className="w-80 flex-shrink-0 bg-white border-l border-border/50 flex flex-col z-20 shadow-sm transition-transform duration-300">
+        <div className="w-80 flex-shrink-0 bg-white border-l border-border/50 flex flex-col min-h-0 z-20 shadow-sm transition-transform duration-300">
           
           {/* Main List View vs Settings Detail View */}
           {!selectedWidgetId ? (

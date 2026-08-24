@@ -107,7 +107,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
   return (
     <>
       <header
-        className={`${isTop ? 'absolute' : 'fixed top-0'} left-0 right-0 z-[100] w-full border-b transition-all duration-300 ease-out ${headerBg} ${headerTransform}`}
+        className={`${isTop ? 'absolute' : 'fixed top-0'} left-0 right-0 z-[200] w-full border-b transition-all duration-300 ease-out ${headerBg} ${headerTransform}`}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* DESKTOP HEADER */}
@@ -133,7 +133,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                   <div className={`flex items-center gap-1 text-sm font-bold ${textColor} ${dropdownHover} transition-colors cursor-pointer`}>
                     الأقسام <ChevronDown className="w-4 h-4" />
                   </div>
-                  <div className="absolute top-[80px] right-0 w-64 bg-card border border-border shadow-xl rounded-2xl py-2 flex flex-col opacity-0 invisible group-hover/catNav:opacity-100 group-hover/catNav:visible transition-all duration-200 z-50">
+                  <div className="absolute top-[80px] right-0 w-64 bg-card border border-border shadow-xl rounded-2xl py-2 flex flex-col opacity-0 invisible group-hover/catNav:opacity-100 group-hover/catNav:visible transition-all duration-200 z-[210]">
                     {categories.filter(c => !c.parentId).map((cat: any) => (
                       <div key={cat.id} className="relative group/subcat">
                         <Link prefetch={false} 
@@ -146,7 +146,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                           )}
                         </Link>
                         {cat.children && cat.children.length > 0 && (
-                          <div className="absolute top-0 right-full w-64 bg-card border border-border shadow-xl rounded-2xl py-2 flex flex-col opacity-0 invisible group-hover/subcat:opacity-100 group-hover/subcat:visible transition-all duration-200 z-50">
+                          <div className="absolute top-0 right-full w-64 bg-card border border-border shadow-xl rounded-2xl py-2 flex flex-col opacity-0 invisible group-hover/subcat:opacity-100 group-hover/subcat:visible transition-all duration-200 z-[210]">
                             {cat.children.map((sub: any) => (
                               <Link prefetch={false} 
                                 key={sub.id} 
@@ -209,7 +209,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                 </button>
                 
                 {user && (
-                  <div className="absolute top-full left-0 w-48 bg-card border border-border shadow-xl rounded-2xl py-2 flex flex-col opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all duration-200 z-50 mt-2">
+                  <div className="absolute top-full left-0 w-48 bg-card border border-border shadow-xl rounded-2xl py-2 flex flex-col opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all duration-200 z-[210] mt-2">
                     {(user.role === 'STORE_OWNER' || user.role === 'MANAGER') ? (
                       <a href="/admin" className="flex items-center gap-2 px-4 py-2 hover:bg-primary/5 hover:text-primary text-sm font-bold transition-colors">
                         <LayoutDashboard className="w-4 h-4" />
@@ -301,7 +301,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
 
       {/* Mobile Search Overlay */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center pt-20 px-4 bg-black/40">
+        <div className="fixed inset-0 z-[200] flex flex-col items-center pt-20 px-4 bg-black/40">
           <div className="fixed inset-0" onClick={() => setIsSearchOpen(false)}></div>
           <div className="w-full max-w-2xl bg-card rounded-2xl shadow-2xl relative z-10 overflow-hidden animate-in slide-in-from-top-4 duration-300 border border-border">
             <form 
