@@ -11,7 +11,7 @@ import { ChevronRight } from "lucide-react"
 
 export default function FAQPage() {
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 max-w-4xl">
+    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-12 max-w-4xl">
       {/* Page Header */}
       <div className="mb-12 relative overflow-hidden rounded-3xl bg-primary p-10 sm:p-16 text-center shadow-lg shadow-primary/20">
         {/* Decorative elements */}

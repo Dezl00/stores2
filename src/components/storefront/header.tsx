@@ -110,7 +110,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
       <header
         className={`fixed top-0 left-0 right-0 z-[200] w-full border-b transition-all duration-300 ease-out ${headerBg} ${headerTransform}`}
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-3 md:px-6 lg:px-8">
           {/* DESKTOP HEADER */}
           <div className="hidden md:flex h-20 items-center justify-between gap-6">
             

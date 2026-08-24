@@ -111,7 +111,7 @@ export default async function BrandPage(props: Props) {
   const totalPages = Math.ceil(totalProducts / limit)
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-12 min-h-[60vh]">
+    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-4 md:py-12 min-h-[60vh]">
       <div className="mb-8 sm:mb-12 relative overflow-hidden rounded-3xl bg-primary p-8 sm:p-16 text-center shadow-lg shadow-primary/20">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>

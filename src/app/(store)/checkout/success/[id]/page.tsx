@@ -15,14 +15,14 @@ export default async function CheckoutSuccessPage(props: { params: Promise<{ id:
 
   if (!order) {
     return (
-      <div className="container mx-auto px-4 py-24 text-center">
+      <div className="w-full max-w-[1400px] mx-auto px-4 py-24 text-center">
         <h1 className="text-2xl font-bold text-destructive">لم يتم العثور على الطلب</h1>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 max-w-3xl">
+    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-12 max-w-3xl">
       <div className="bg-card border-2 border-primary/20 rounded-[2rem] p-8 sm:p-12 text-center shadow-2xl shadow-primary/5">
         <div className="w-24 h-24 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-8 ring-8 ring-primary/5">
           <CheckCircle2 className="w-12 h-12" />

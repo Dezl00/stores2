@@ -38,7 +38,7 @@ export default async function CheckoutPage() {
   const activePaymentMethods = paymentMethods.filter(p => p.isActive)
 
   return (
-    <Suspense fallback={<div className="container mx-auto p-8 text-center">جاري تحميل صفحة الدفع...</div>}>
+    <Suspense fallback={<div className="w-full max-w-[1400px] mx-auto p-8 text-center">جاري تحميل صفحة الدفع...</div>}>
       <CheckoutClient 
         user={userDetails} 
         governorates={activeGovernorates} 

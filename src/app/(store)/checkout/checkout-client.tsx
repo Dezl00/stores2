@@ -262,7 +262,7 @@ export default function CheckoutClient({ user, governorates = [], paymentMethods
 
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-24 flex flex-col items-center justify-center text-center">
+      <div className="w-full max-w-[1400px] mx-auto px-4 py-24 flex flex-col items-center justify-center text-center">
         <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
           <ShoppingBag className="w-10 h-10 text-muted-foreground opacity-50" />
         </div>
@@ -278,7 +278,7 @@ export default function CheckoutClient({ user, governorates = [], paymentMethods
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-12">
       <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
         <Link prefetch={false} href="/" className="hover:text-primary transition-colors">الرئيسية</Link>
         <ChevronRight className="w-4 h-4 rtl-flip" />

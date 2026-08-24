@@ -13,7 +13,7 @@ export default function StoreLoading() {
       </div>
 
       {/* Featured Products Skeleton */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 space-y-8">
         <div className="flex justify-between items-end mb-6">
           <div className="h-10 w-48 bg-muted rounded-xl"></div>
           <div className="h-6 w-24 bg-muted rounded-md hidden md:block"></div>
@@ -37,7 +37,7 @@ export default function StoreLoading() {
       </div>
       
       {/* Categories Grid Skeleton */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8 mt-8">
+      <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 space-y-8 mt-8">
         <div className="h-10 w-48 bg-muted rounded-xl mb-6"></div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map(i => (

@@ -131,7 +131,7 @@ export default async function CategoryPage(props: Props) {
   const isMainCategory = !category.parentId
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-12">
+    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-4 md:py-12">
       {/* Category Header */}
       <div className="mb-12 relative overflow-hidden rounded-3xl bg-primary p-10 sm:p-16 text-center shadow-lg shadow-primary/20">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>

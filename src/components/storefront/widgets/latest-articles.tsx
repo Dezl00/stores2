@@ -9,7 +9,7 @@ export async function LatestArticlesWidget({ widget }: { widget: any }) {
 
   if (!articles || articles.length === 0) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-12">
         <div className="flex flex-col items-center justify-center p-12 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
             <span className="text-2xl opacity-50">📰</span>
@@ -24,7 +24,7 @@ export async function LatestArticlesWidget({ widget }: { widget: any }) {
   }
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="w-full max-w-[1400px] mx-auto px-4">
       <div className="flex justify-between items-end mb-8">
         <div>
           <h2 className="text-3xl font-bold text-foreground">

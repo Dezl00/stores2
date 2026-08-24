@@ -100,7 +100,7 @@ export default async function ProductDetailsPage(props: { params: Promise<{ slug
   const category = product.category
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-12">
+    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-4 md:py-12">
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8 overflow-hidden whitespace-nowrap">
         <Link prefetch={false} href="/" className="hover:text-primary transition-colors flex-shrink-0">الرئيسية</Link>

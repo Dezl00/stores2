@@ -90,7 +90,7 @@ export function StoreFeatures({ widget }: { widget?: any }) {
       className="w-full"
       style={bgEnabled ? { backgroundColor: bgColor } : {}}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+      <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-10 md:py-14">
         <div className="max-w-6xl mx-auto">
           {sliderEnabled ? (
             <div className="relative">

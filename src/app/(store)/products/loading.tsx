@@ -2,7 +2,7 @@ import React from "react"
 
 export default function ProductsLoading() {
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-12">
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar Skeleton */}
         <div className="w-full md:w-1/4 lg:w-1/5 shrink-0 hidden md:block">

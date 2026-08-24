@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react"
 
 export default function CheckoutLoading() {
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-12">
       <div className="h-4 w-64 bg-muted rounded animate-pulse mb-8"></div>
       <div className="h-10 w-48 bg-muted rounded-md animate-pulse mb-12"></div>
 

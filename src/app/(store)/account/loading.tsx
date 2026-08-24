@@ -2,7 +2,7 @@ import React from "react"
 
 export default function AccountLoading() {
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-12">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar Skeleton */}
         <div className="w-full lg:w-1/4 shrink-0">

@@ -2,7 +2,7 @@ import React from "react"
 
 export default function BrandLoading() {
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-pulse min-h-[70vh]">
+    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-12 animate-pulse min-h-[70vh]">
       {/* Header Skeleton */}
       <div className="mb-12 relative overflow-hidden rounded-3xl bg-muted p-10 sm:p-16 h-48 sm:h-64 shadow-sm"></div>
 

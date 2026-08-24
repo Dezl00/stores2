@@ -9,7 +9,7 @@ export function BannerGrid({ widget }: { widget: any }) {
 
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-6">
         <div className="flex flex-col items-center justify-center p-12 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
             <span className="text-2xl opacity-50">🖼️</span>
@@ -43,7 +43,7 @@ export function BannerGrid({ widget }: { widget: any }) {
     "items-center text-center"
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8">
       {widget.title && (
         <ScrollReveal variant="fade-up" duration={0.5}>
           <div className="text-center mb-10">
