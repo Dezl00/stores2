@@ -100,7 +100,7 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
       </div>
 
       {activeTab === "sections" ? (
-        <div className="flex-1 overflow-y-auto flex flex-col p-4 space-y-3 bg-slate-50/30">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/30">
           
           {/* Accordion: Header */}
           <div className="bg-white border border-border/50 rounded-lg overflow-hidden shadow-sm">

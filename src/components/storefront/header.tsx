@@ -107,7 +107,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
   return (
     <>
       <header
-        className={`${isTop ? 'absolute' : 'fixed top-0'} left-0 right-0 z-[200] w-full border-b transition-all duration-300 ease-out ${headerBg} ${headerTransform}`}
+        className={`fixed top-0 left-0 right-0 z-[200] w-full border-b transition-all duration-300 ease-out ${headerBg} ${headerTransform}`}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* DESKTOP HEADER */}

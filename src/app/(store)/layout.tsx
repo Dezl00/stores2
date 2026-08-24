@@ -15,7 +15,7 @@ import { PromoPopup } from "@/components/storefront/promo-popup"
 import { PushNotificationPrompt } from "@/components/admin/push-notification-prompt"
 import { ScrollToTop } from "@/components/scroll-to-top"
 
-export const revalidate = 3600
+export const revalidate = 60
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -35,7 +35,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
     themeConfig,
     categories,
     branches
-  } = await getCachedLayoutData(await resolveStoreId())
+  } = await getCachedLayoutData(storeId)
 
   const topNavItems = headerMenu?.items || fallbackMenu?.items || []
   const footerItems = footerMenu?.items || fallbackMenu?.items || []
@@ -43,8 +43,14 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-screen flex flex-col font-sans pb-16 md:pb-0 selection:bg-primary/20">
       <ScrollToTop />
-      {marqueeWidget && <MarqueeAlerts widget={marqueeWidget} />}
-        <StorefrontHeader menuItems={topNavItems} themeConfig={themeConfig} user={user} categories={categories} />
+      {/* Marquee sits in normal document flow, pushing everything down */}
+      {marqueeWidget && (
+        <div className="relative z-[50] w-full shrink-0">
+          <MarqueeAlerts widget={marqueeWidget} />
+        </div>
+      )}
+      {/* Header overlays on top of content, above the marquee z-index */}
+      <StorefrontHeader menuItems={topNavItems} themeConfig={themeConfig} user={user} categories={categories} />
       <MobileSidebar menuItems={topNavItems} themeConfig={themeConfig} categories={categories} />
       <CartDrawer />
       <AuthModal themeConfig={themeConfig} />

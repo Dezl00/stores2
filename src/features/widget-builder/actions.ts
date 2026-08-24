@@ -513,7 +513,6 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
     }
 
     // 2. Handle Widgets (Bulk Sync)
-    // Get all current widgets for the store to find which ones to delete
     const currentWidgets = await db.widget.findMany({ where: { storeId } })
     const incomingIds = widgets.filter(w => !w.id.startsWith('new-')).map(w => w.id)
     
@@ -532,7 +531,7 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
         title: w.title,
         subtitle: w.subtitle,
         status: w.status,
-        sortOrder: index, // Use array index as the definitive sort order
+        sortOrder: index,
         showDesktop: w.showDesktop !== false,
         showTablet: w.showTablet !== false,
         showMobile: w.showMobile !== false,
@@ -541,13 +540,11 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
 
       let currentWidgetId = w.id;
       if (w.id.startsWith('new-')) {
-        // Create new
         const newW = await db.widget.create({
           data: { ...widgetData, storeId }
         })
         currentWidgetId = newW.id
       } else {
-        // Update existing
         const existingWidget = await db.widget.findFirst({ where: { id: w.id, storeId } });
         if (!existingWidget) throw new Error("Not found");
         await db.widget.update({
@@ -558,7 +555,6 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
 
       // Sync items if modified
       if (w.items && Array.isArray(w.items)) {
-        // Find existing items to see what was deleted
         const existingItems = await db.widgetContentItem.findMany({ where: { widgetId: currentWidgetId } })
         const incomingItemIds = w.items.filter((item: any) => !item.id.startsWith('new-') && !item.id.startsWith('item-')).map((item: any) => item.id)
         
@@ -600,7 +596,8 @@ export async function saveThemeSettings(payload: { widgets: any[], headerSetting
     }
 
     revalidatePath("/admin/storefront/theme")
-    revalidatePath("/")
+    revalidatePath("/", "layout")
+    revalidatePath("/", "page")
     revalidateTag("widgets", "default")
     revalidateTag("layout-data", "default")
 

@@ -713,7 +713,7 @@ export function SettingsPanel({ widget, categories, widgets, headerSettings, foo
               <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-600 block">سرعة الحركة</label>
                   <select
-                    value={widget.settings?.speed || 25} 
+                    value={widget.settings?.speed || 100} 
                     onChange={(e) => {
                       const newWidget = { ...widget, settings: { ...widget.settings, speed: parseInt(e.target.value) } }
                       onUpdateWidget(newWidget)

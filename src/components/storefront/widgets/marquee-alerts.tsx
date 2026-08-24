@@ -10,13 +10,16 @@ export function MarqueeAlerts({ widget }: { widget: any }) {
     scrollDirection = 'right',
     backgroundColor = '#000000',
     textColor = '#ffffff',
-    speed = 25,
+    speed,
     textSize = 'text-sm'
   } = settings || {};
 
+  // Default speed to 100 (normal), map to actual seconds
+  const speedValue = typeof speed === 'number' ? speed : 100;
+
   if (!items || items.length === 0) return null;
 
-  const pyClass = textSize === 'text-2xl' ? 'py-4' : textSize === 'text-xl' ? 'py-3' : textSize === 'text-lg' ? 'py-2.5' : 'py-2';
+  const pyClass = textSize === 'text-2xl' ? 'py-3.5' : textSize === 'text-xl' ? 'py-3' : textSize === 'text-lg' ? 'py-2.5' : textSize === 'text-base' ? 'py-2' : 'py-1.5';
 
   const renderItems = (prefix: string) =>
     items.map((item: any, i: number) => {
@@ -27,49 +30,54 @@ export function MarqueeAlerts({ widget }: { widget: any }) {
 
       const hasLink = !!(item.buttonUrl || (item.redirectType && item.redirectId));
       const content = (
-        <span className={cn('font-semibold whitespace-nowrap leading-none', textSize)}>{item.title}</span>
+        <span className={cn('font-semibold whitespace-nowrap', textSize)}>{item.title}</span>
       );
 
       return (
         <React.Fragment key={`${prefix}-${i}`}>
           {hasLink ? (
-            <Link href={href} className="hover:underline hover:opacity-80 transition-opacity shrink-0 flex items-center">
+            <Link href={href} className="hover:underline hover:opacity-80 transition-opacity shrink-0">
               {content}
             </Link>
           ) : (
-            <span className="shrink-0 flex items-center">{content}</span>
+            <span className="shrink-0">{content}</span>
           )}
-          <span className={cn('opacity-40 shrink-0 mx-6 leading-none flex items-center', textSize)}>|</span>
+          <span className={cn('opacity-40 shrink-0 mx-6', textSize)}>|</span>
         </React.Fragment>
       );
     });
 
-  // Calculate duration based on speed setting. 25 is normal. 
-  // If speed is lower, it should be faster. So speed is actually the duration in seconds.
-  const animationDuration = `${speed}s`;
+  // Speed value is directly the animation duration in seconds
+  const animationDuration = `${speedValue}s`;
   const animationDirection = scrollDirection === 'right' ? 'reverse' : 'normal';
+
+  // We only need enough repetitions to fill the screen. 
+  // With 2 copies of the same set, translateX(-50%) creates a seamless loop.
+  const repeatCount = Math.max(Math.ceil(30 / Math.max(items.length, 1)), 3);
 
   return (
     <div 
-      className={cn("relative w-full overflow-hidden flex items-center z-[101]", pyClass)}
+      className={cn("relative w-full overflow-hidden", pyClass)}
       style={{ backgroundColor, color: textColor }}
       dir="ltr"
     >
       <div 
         className="flex items-center w-max"
         style={{
-          animation: `marquee ${animationDuration} linear infinite ${animationDirection}`
+          animation: `marquee-scroll ${animationDuration} linear infinite ${animationDirection}`
         }}
       >
-        <div className="flex items-center shrink-0 pr-6">
-          {Array.from({ length: 60 }).map((_, rep) => renderItems(`part1-r${rep}`))}
+        {/* First half */}
+        <div className="flex items-center shrink-0">
+          {Array.from({ length: repeatCount }).map((_, rep) => renderItems(`a${rep}`))}
         </div>
-        <div className="flex items-center shrink-0 pr-6">
-          {Array.from({ length: 60 }).map((_, rep) => renderItems(`part2-r${rep}`))}
+        {/* Second half (identical copy for seamless loop) */}
+        <div className="flex items-center shrink-0">
+          {Array.from({ length: repeatCount }).map((_, rep) => renderItems(`b${rep}`))}
         </div>
       </div>
       <style dangerouslySetInnerHTML={{__html: `
-        @keyframes marquee {
+        @keyframes marquee-scroll {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
