@@ -1,9 +1,32 @@
+"use client"
 import React from "react"
 import { ProductCard } from "./product-card"
 import { ScrollReveal } from "@/components/ui/scroll-reveal"
+import { useUIStore } from "@/store/ui-store"
 import { PackageSearch } from "lucide-react"
 
 export function ProductGrid({ products, title, subtitle }: { products: any[], title?: string, subtitle?: string }) {
+  const { themeConfig } = useUIStore()
+  const mobileCols = themeConfig?.headerSettings?.productCard?.mobileCols || "2"
+  const desktopCols = themeConfig?.headerSettings?.productCard?.desktopCols || "4"
+  
+  const getGridClass = () => {
+    let cls = "gap-4 sm:gap-6 "
+    
+    // Mobile setup
+    if (mobileCols === "1.5") {
+      cls += "flex overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 [&>div]:min-w-[75vw] [&>div]:shrink-0 [&>div]:snap-center md:grid md:[&>div]:min-w-0 md:mx-0 md:px-0 md:pb-0 "
+    } else {
+      cls += "grid "
+      cls += mobileCols === "1" ? "grid-cols-1 " : "grid-cols-2 "
+    }
+    
+    // Desktop setup
+    cls += "md:grid-cols-3 "
+    cls += desktopCols === "4" ? "lg:grid-cols-4" : desktopCols === "5" ? "lg:grid-cols-5" : desktopCols === "6" ? "lg:grid-cols-6" : "lg:grid-cols-4"
+    
+    return cls
+  }
   if (!products || products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -24,7 +47,7 @@ export function ProductGrid({ products, title, subtitle }: { products: any[], ti
         </div>
       )}
       
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className={getGridClass()}>
         {products.map((product, index) => (
           <ScrollReveal
             key={product.id}
