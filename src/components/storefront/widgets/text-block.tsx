@@ -25,11 +25,11 @@ export function TextBlock({ widget }: { widget: any }) {
 
   if (!widget.title && !widget.subtitle) {
     return (
-      <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-12">
+      <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-12">
         <div className="flex flex-col items-center justify-center p-12 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl">
-          <h3 className="text-lg font-bold text-slate-700 mb-2">نص مخصص</h3>
+          <h3 className="text-lg font-bold text-slate-700 mb-2">قسم نص</h3>
           <p className="text-sm text-slate-500 text-center max-w-sm">
-            الرجاء إضافة نص من خلال إعدادات القسم.
+            قم بإضافة عنوان أو نص ليتم عرضه هنا.
           </p>
         </div>
       </div>
@@ -66,20 +66,22 @@ export function TextBlock({ widget }: { widget: any }) {
   )
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto px-3 md:px-6 lg:px-8 py-12">
+    <div className="w-full max-w-[1400px] mx-auto py-12">
       <div className={cn(
         "w-full",
-        imageUrl ? "flex flex-col md:flex-row items-center gap-8 md:gap-12" : ""
+        imageUrl ? "flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 md:px-6 lg:px-8" : "px-4 md:px-6 lg:px-8"
       )}>
         {imageUrl ? (
           <>
-            {textContent}
             <div className="w-full md:w-2/5 shrink-0">
               <img
                 src={imageUrl}
                 alt={widget.title || ""}
-                className="w-full h-auto rounded-2xl object-cover max-h-[400px] shadow-sm"
+                className="w-full h-auto md:rounded-2xl object-cover max-h-[400px] shadow-sm"
               />
+            </div>
+            <div className="px-4 md:px-0 w-full md:w-3/5">
+              {textContent}
             </div>
           </>
         ) : (

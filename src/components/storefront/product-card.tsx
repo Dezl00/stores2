@@ -172,8 +172,12 @@ export function ProductCard({ product, disableAnimation = false, index = 0 }: Pr
               }}
               className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-none font-normal transition-transform hover:scale-[1.02] active:scale-[0.98] ${addToCartStyle === 'outline' ? 'border-2' : ''}`}
             >
-              {isAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShoppingBag className="w-4 h-4" />}
-              <span>{isAdding ? "جاري الإضافة..." : addToCartText}</span>
+              {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                  <>
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>{addToCartText}</span>
+                  </>
+                )}
             </button>
           </div>
         )}

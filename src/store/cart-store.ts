@@ -26,7 +26,7 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       isOpen: false,
-      addItem: (newItem, openDrawer = true) => {
+      addItem: (newItem, openDrawer = false) => {
         set((state) => {
           const existingItemIndex = state.items.findIndex(
             (item) => item.productId === newItem.productId
