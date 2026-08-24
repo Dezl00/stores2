@@ -11,7 +11,7 @@ export function ProductGrid({ products, title, subtitle }: { products: any[], ti
   const desktopCols = themeConfig?.headerSettings?.productCard?.desktopCols || "5"
   
   const getGridClass = () => {
-    let cls = "gap-4 sm:gap-6 "
+    let cls = "gap-2 sm:gap-4 "
     
     // Mobile setup
     if (mobileCols === "1.5") {

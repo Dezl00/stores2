@@ -3,7 +3,8 @@ import React from "react"
 import { useUIStore } from "@/store/ui-store"
 import { ProductCard } from "./product-card"
 import { ScrollReveal } from "@/components/ui/scroll-reveal"
-import { PackageSearch, LayoutGrid, Rows } from "lucide-react"
+import { PackageSearch } from "lucide-react"
+import { motion } from "framer-motion"
 
 export function CategoryProductGrid({ products, title, subtitle }: { products: any[], title?: string, subtitle?: string }) {
   const { categoryViewMode: viewMode } = useUIStore()
@@ -23,34 +24,41 @@ export function CategoryProductGrid({ products, title, subtitle }: { products: a
   // For mobile: List = 1 col, Grid = 2 cols
   // For desktop: Always scales 3 -> 4 -> 5 comfortably
   const gridClasses = viewMode === "list" 
-    ? "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6"
-    : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6"
+    ? "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4"
+    : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4"
 
   return (
     <div className="w-full">
-      <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
-        {(title || subtitle) ? (
+      {(title || subtitle) && (
+        <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
           <div className="text-center md:text-right">
             {title && <h2 className="text-3xl font-bold tracking-tight text-foreground">{title}</h2>}
             {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
           </div>
-        ) : <div />}
-        
         </div>
+      )}
       
-      <div className={gridClasses}>
+      <motion.div layout className={gridClasses}>
         {products.map((product, index) => (
-          <ScrollReveal
-            key={product.id}
-            variant="fade-up"
-            delay={index * 0.08}
-            duration={0.6}
+          <motion.div 
+            layout 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ duration: 0.4 }}
+            key={product.id} 
             className="h-full"
           >
-            <ProductCard product={product} disableAnimation={true} />
-          </ScrollReveal>
+            <ScrollReveal
+              variant="fade-up"
+              delay={index * 0.08}
+              duration={0.6}
+              className="h-full"
+            >
+              <ProductCard product={product} disableAnimation={true} />
+            </ScrollReveal>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   )
 }
