@@ -15,7 +15,7 @@ export function ProductGrid({ products, title, subtitle }: { products: any[], ti
     
     // Mobile setup
     if (mobileCols === "1.5") {
-      cls += "flex overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 [&>div]:min-w-[75vw] [&>div]:shrink-0 [&>div]:snap-center md:grid md:[&>div]:min-w-0 md:mx-0 md:px-0 md:pb-0 "
+      cls += "flex overflow-x-auto snap-x snap-mandatory pb-4 [&>div]:min-w-[75vw] [&>div]:shrink-0 [&>div]:snap-center md:grid md:[&>div]:min-w-0 md:mx-0 md:px-0 md:pb-0 "
     } else {
       cls += "grid "
       cls += mobileCols === "1" ? "grid-cols-1 " : "grid-cols-2 "

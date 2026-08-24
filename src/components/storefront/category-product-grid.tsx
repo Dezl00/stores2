@@ -4,7 +4,7 @@ import { useUIStore } from "@/store/ui-store"
 import { ProductCard } from "./product-card"
 import { ScrollReveal } from "@/components/ui/scroll-reveal"
 import { PackageSearch } from "lucide-react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 export function CategoryProductGrid({ products, title, subtitle }: { products: any[], title?: string, subtitle?: string }) {
   const { categoryViewMode: viewMode } = useUIStore()
@@ -20,12 +20,17 @@ export function CategoryProductGrid({ products, title, subtitle }: { products: a
     )
   }
 
-  // Base classes for responsive scaling
-  // For mobile: List = 1 col, Grid = 2 cols
-  // For desktop: Always scales 3 -> 4 -> 5 comfortably
-  const gridClasses = viewMode === "list" 
-    ? "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4"
-    : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4"
+  // Instead of CSS Grid, we use Flexbox with calculated widths so Framer Motion can animate the resizing smoothly!
+  const getCardWidthClass = () => {
+    if (viewMode === "list") {
+      // 1 column on mobile, 3 on md, 4 on lg, 5 on xl
+      // Mobile uses gap-2 (8px), sm+ uses gap-4 (16px)
+      return "w-full md:w-[calc(33.33%-10.66px)] lg:w-[calc(25%-12px)] xl:w-[calc(20%-12.8px)]"
+    } else {
+      // 2 columns on mobile, 3 on md, 4 on lg, 5 on xl
+      return "w-[calc(50%-4px)] md:w-[calc(33.33%-10.66px)] lg:w-[calc(25%-12px)] xl:w-[calc(20%-12.8px)]"
+    }
+  }
 
   return (
     <div className="w-full">
@@ -38,26 +43,24 @@ export function CategoryProductGrid({ products, title, subtitle }: { products: a
         </div>
       )}
       
-      <motion.div layout className={gridClasses}>
-        {products.map((product, index) => (
-          <motion.div 
-            layout 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            transition={{ duration: 0.4 }}
-            key={product.id} 
-            className="h-full"
-          >
-            <ScrollReveal
-              variant="fade-up"
-              delay={index * 0.08}
-              duration={0.6}
-              className="h-full"
+      <motion.div layout className="flex flex-wrap gap-2 sm:gap-4">
+        <AnimatePresence>
+          {products.map((product, index) => (
+            <motion.div 
+              layout 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ 
+                layout: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.3 }
+              }}
+              key={product.id} 
+              className={getCardWidthClass()}
             >
               <ProductCard product={product} disableAnimation={true} />
-            </ScrollReveal>
-          </motion.div>
-        ))}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </motion.div>
     </div>
   )
