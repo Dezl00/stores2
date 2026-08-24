@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans_Arabic } from "next/font/google";
+import { FONT_MAP, fontIbm } from "@/app/fonts";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { db } from "@/lib/db";
@@ -8,12 +8,7 @@ import { PageTracker } from "@/components/page-tracker";
 import { Suspense } from "react";
 import { getCurrentStore } from "@/lib/tenant";
 
-const fallbackFont = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-agnadeen",
-  display: "swap",
-});
+
 
 export async function generateMetadata(): Promise<Metadata> {
   let theme = null;
@@ -109,7 +104,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="ar" dir="rtl" className={fallbackFont.variable} suppressHydrationWarning>
+    <html lang="ar" dir="rtl" className={(theme?.headerSettings as any)?.fontFamily ? (FONT_MAP[(theme?.headerSettings as any)?.fontFamily]?.variable || fontIbm.variable) : fontIbm.variable} suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{__html: `
           :root {

@@ -91,6 +91,8 @@ export function BuilderClient({ initialWidgets, categories, themeConfig, store, 
               widgets={widgets} 
               setWidgets={setWidgets} 
               headerSettings={headerSettings}
+              setHeaderSettings={setHeaderSettings}
+              storeName={themeConfig?.storeName}
               footerSettings={footerSettings}
               activeTab={activeTab} 
               setActiveTab={setActiveTab} 
