@@ -11,6 +11,8 @@ interface UIState {
   setStoreLogo: (url: string | null) => void
   themeConfig: any | null
   setThemeConfig: (config: any) => void
+  categoryViewMode: "grid" | "list"
+  setCategoryViewMode: (mode: "grid" | "list") => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -27,4 +29,6 @@ export const useUIStore = create<UIState>((set) => ({
   setStoreLogo: (url) => set({ storeLogo: url }),
   themeConfig: null,
   setThemeConfig: (config) => set({ themeConfig: config }),
+  categoryViewMode: "grid",
+  setCategoryViewMode: (mode) => set({ categoryViewMode: mode }),
 }))

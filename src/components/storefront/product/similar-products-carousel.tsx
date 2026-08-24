@@ -6,7 +6,29 @@ import Autoplay from "embla-carousel-autoplay"
 import { ProductCard } from "@/components/storefront/product-card"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 
+import { useUIStore } from "@/store/ui-store"
+
 export function SimilarProductsCarousel({ products }: { products: any[] }) {
+  const { themeConfig } = useUIStore()
+  const mobileCols = themeConfig?.headerSettings?.productCard?.mobileCols || "2"
+  const desktopCols = themeConfig?.headerSettings?.productCard?.desktopCols || "5"
+
+  const getFlexBasis = () => {
+    let basis = ""
+    
+    // Mobile
+    if (mobileCols === "1.5") basis += "flex-[0_0_75%] "
+    else if (mobileCols === "1") basis += "flex-[0_0_100%] "
+    else basis += "flex-[0_0_50%] "
+    
+    // Desktop
+    if (desktopCols === "4") basis += "md:flex-[0_0_33.33%] lg:flex-[0_0_25%]"
+    else if (desktopCols === "5") basis += "md:flex-[0_0_33.33%] lg:flex-[0_0_25%] xl:flex-[0_0_20%]"
+    else if (desktopCols === "6") basis += "md:flex-[0_0_33.33%] lg:flex-[0_0_25%] xl:flex-[0_0_20%] 2xl:flex-[0_0_16.66%]"
+    else basis += "md:flex-[0_0_33.33%] lg:flex-[0_0_25%]"
+
+    return basis
+  }
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: "start", direction: "rtl" },
     [Autoplay({ delay: 3000, stopOnInteraction: true })]
@@ -49,9 +71,9 @@ export function SimilarProductsCarousel({ products }: { products: any[] }) {
   return (
     <div className="relative group px-2 sm:px-0">
       <div className="overflow-hidden" ref={emblaRef} dir="rtl">
-        <div className="flex gap-4 sm:gap-6 pb-2">
+        <div className="flex pb-2 -mx-2 sm:-mx-3">
           {products.map((product) => (
-            <div key={product.id} className="flex-[0_0_70%] sm:flex-[0_0_280px] min-w-0">
+            <div key={product.id} className={`${getFlexBasis()} min-w-0 px-2 sm:px-3`}>
               <ProductCard product={product} disableAnimation={true} />
             </div>
           ))}

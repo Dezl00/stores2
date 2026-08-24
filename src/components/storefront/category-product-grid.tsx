@@ -1,11 +1,12 @@
 "use client"
-import React, { useState } from "react"
+import React from "react"
+import { useUIStore } from "@/store/ui-store"
 import { ProductCard } from "./product-card"
 import { ScrollReveal } from "@/components/ui/scroll-reveal"
 import { PackageSearch, LayoutGrid, Rows } from "lucide-react"
 
 export function CategoryProductGrid({ products, title, subtitle }: { products: any[], title?: string, subtitle?: string }) {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const { categoryViewMode: viewMode } = useUIStore()
   
   if (!products || products.length === 0) {
     return (
@@ -35,22 +36,7 @@ export function CategoryProductGrid({ products, title, subtitle }: { products: a
           </div>
         ) : <div />}
         
-        {/* View mode toggle - shown primarily on mobile/tablet screens */}
-        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl md:hidden">
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`p-2 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold \${viewMode === 'grid' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <LayoutGrid className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`p-2 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold \${viewMode === 'list' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <Rows className="w-4 h-4" />
-          </button>
         </div>
-      </div>
       
       <div className={gridClasses}>
         {products.map((product, index) => (

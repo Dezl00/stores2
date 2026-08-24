@@ -9,7 +9,7 @@ export function StoreToolbar({ totalProducts, hideToolbar = false }: { totalProd
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { setFilterSidebarOpen } = useUIStore()
+  const { setFilterSidebarOpen, categoryViewMode, setCategoryViewMode } = useUIStore()
   const [isSortOpen, setIsSortOpen] = useState(false)
   const sortRef = useRef<HTMLDivElement>(null)
 
@@ -46,6 +46,24 @@ export function StoreToolbar({ totalProducts, hideToolbar = false }: { totalProd
       </div>
 
       <div className="flex items-center gap-2">
+        {/* View Toggles */}
+        <div className="md:hidden flex items-center bg-card border border-border/50 rounded-full h-10 px-1 shadow-sm overflow-hidden">
+          <button
+            onClick={() => setCategoryViewMode("list")}
+            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${categoryViewMode === 'list' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            title="عامود واحد"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect></svg>
+          </button>
+          <div className="w-[1px] h-4 bg-border/50 mx-1"></div>
+          <button
+            onClick={() => setCategoryViewMode("grid")}
+            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${categoryViewMode === 'grid' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            title="عامودين"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="18" rx="1" ry="1"></rect><rect x="14" y="3" width="7" height="18" rx="1" ry="1"></rect></svg>
+          </button>
+        </div>
         {/* Sort Button */}
         <div className="relative" ref={sortRef}>
           <button 
