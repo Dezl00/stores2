@@ -9,6 +9,8 @@ interface UIState {
   setFilterSidebarOpen: (isOpen: boolean) => void
   storeLogo: string | null
   setStoreLogo: (url: string | null) => void
+  themeConfig: any | null
+  setThemeConfig: (config: any) => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -23,4 +25,6 @@ export const useUIStore = create<UIState>((set) => ({
   
   storeLogo: null,
   setStoreLogo: (url) => set({ storeLogo: url }),
+  themeConfig: null,
+  setThemeConfig: (config) => set({ themeConfig: config }),
 }))

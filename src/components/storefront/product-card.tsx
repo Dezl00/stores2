@@ -17,6 +17,7 @@ interface ProductCardProps {
     stock: number
     images: { url: string }[]
     category?: { name: string; slug: string }
+    description?: string | null
   }
   disableAnimation?: boolean
   index?: number
@@ -24,10 +25,21 @@ interface ProductCardProps {
 
 export function ProductCard({ product, disableAnimation = false, index = 0 }: ProductCardProps) {
   const { addItem } = useCartStore()
-  const { storeLogo } = useUIStore()
+  const { storeLogo, themeConfig } = useUIStore()
   const cardRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(disableAnimation)
   const [isAdding, setIsAdding] = useState(false)
+  
+  const cardSettings = themeConfig?.headerSettings?.productCard || {}
+  const showCategory = cardSettings.showCategory !== false
+  const showDescription = cardSettings.showDescription === true
+  const priceColor = cardSettings.priceColor || "var(--color-primary)"
+  const showAddToCart = cardSettings.showAddToCart !== false
+  const addToCartText = cardSettings.addToCartText || "أضف للسلة"
+  const addToCartStyle = cardSettings.addToCartStyle || "solid"
+  const addToCartColor = cardSettings.addToCartColor || "var(--color-primary)"
+  
+  const aspectClass = cardSettings.aspectRatio === "portrait" ? "aspect-[3/4]" : cardSettings.aspectRatio === "landscape" ? "aspect-[4/3]" : "${aspectClass}"
   
   const finalPrice = product.discountPrice ?? product.price
   const hasDiscount = product.discountPrice != null && product.discountPrice < product.price
@@ -100,7 +112,7 @@ export function ProductCard({ product, disableAnimation = false, index = 0 }: Pr
         )}
       </div>
 
-      <Link prefetch={false} href={`/product/${product.slug}`} className="block relative aspect-square overflow-hidden rounded-xl mb-4 bg-transparent shrink-0">
+      <Link prefetch={false} href={`/product/${product.slug}`} className={`block relative ${aspectClass} overflow-hidden rounded-xl mb-4 bg-transparent shrink-0`}>
         {product.images[0] ? (
           <Image 
             src={product.images[0].url} 
@@ -123,38 +135,48 @@ export function ProductCard({ product, disableAnimation = false, index = 0 }: Pr
           </div>
         )}
         
-        {/* Quick Add Overlay */}
-        {!isOutOfStock && (
-          <div className="hidden md:flex absolute inset-0 bg-black/40 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 items-center justify-center">
-            <button 
-              onClick={handleQuickAdd}
-              disabled={isAdding}
-              className="bg-white text-black font-bold px-6 py-3 rounded-full translate-y-4 group-hover/card:translate-y-0 transition-all duration-300 hover:scale-105 hover:bg-primary hover:text-white flex items-center justify-center min-w-[120px]"
-            >
-              {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : "أضف سريعاً"}
-            </button>
-          </div>
-        )}
+        
       </Link>
       
       <div className="flex flex-col flex-1 justify-between text-center">
         <div className="space-y-1 mb-4">
-          {product.category && (
+          {showCategory && product.category && (
             <p className="text-xs text-muted-foreground">{product.category.name}</p>
           )}
           <Link prefetch={false} href={`/product/${product.slug}`} className="font-semibold text-foreground hover:text-primary transition-colors line-clamp-2 text-sm sm:text-base leading-snug">
             {product.name}
           </Link>
+          {showDescription && product.description && (
+            <p className="text-xs text-muted-foreground line-clamp-2 mt-1.5">{product.description}</p>
+          )}
         </div>
         
         <div className="flex items-center justify-center mt-auto">
           <div className="flex flex-col items-center">
-            <span className="font-bold text-lg text-primary">{finalPrice.toFixed(2)} ج.م</span>
+            <span className="font-bold text-lg" style={{ color: priceColor }}>{finalPrice.toFixed(2)} ج.م</span>
             {hasDiscount && (
               <span className="text-xs text-muted-foreground line-through">{product.price.toFixed(2)} ج.م</span>
             )}
           </div>
         </div>
+        
+        {showAddToCart && !isOutOfStock && (
+          <div className="mt-4">
+            <button 
+              onClick={handleQuickAdd}
+              disabled={isAdding}
+              style={{
+                backgroundColor: addToCartStyle === 'solid' ? addToCartColor : 'transparent',
+                color: addToCartStyle === 'solid' ? '#fff' : addToCartColor,
+                borderColor: addToCartColor,
+              }}
+              className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] ${addToCartStyle === 'outline' ? 'border-2' : ''}`}
+            >
+              {isAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShoppingBag className="w-4 h-4" />}
+              <span>{isAdding ? "جاري الإضافة..." : addToCartText}</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

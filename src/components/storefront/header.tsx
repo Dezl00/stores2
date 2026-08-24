@@ -30,10 +30,11 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
 
   useEffect(() => {
     setMounted(true)
+    useUIStore.getState().setThemeConfig(themeConfig)
     if (themeConfig?.logoUrl) {
       useUIStore.getState().setStoreLogo(themeConfig.logoUrl)
     }
-  }, [themeConfig?.logoUrl])
+  }, [themeConfig])
 
   const handleScroll = useCallback(() => {
     const currentY = window.scrollY
