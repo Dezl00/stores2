@@ -9,7 +9,7 @@ import { ShareButton } from "@/components/storefront/share-button"
 import { ProductTabs } from "@/components/storefront/product-tabs"
 import { ProductFeatures } from "@/components/storefront/product-features"
 import { ProductCard } from "@/components/storefront/product-card"
-import { SimilarProductsCarousel } from "@/components/storefront/product/similar-products-carousel"
+import { ProductGrid } from "@/components/storefront/product-grid"
 
 import type { Metadata } from "next"
 import { logProductView } from "@/features/analytics/actions"
@@ -190,7 +190,7 @@ export default async function ProductDetailsPage(props: { params: Promise<{ slug
           <div className="flex items-center justify-between mb-10">
             <h2 className="text-3xl font-bold tracking-tight">منتجات مشابهة</h2>
           </div>
-          <SimilarProductsCarousel products={relatedProducts} />
+          <ProductGrid products={relatedProducts} />
         </div>
       )}
     </div>

@@ -403,7 +403,7 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
                     <label className="text-xs font-bold text-slate-600 block">الشاشات (في الصف)</label>
                     <select 
                       className="w-full p-2 border border-border/50 rounded-lg bg-slate-50 text-sm"
-                      value={headerSettings?.productCard?.desktopCols || "4"}
+                      value={headerSettings?.productCard?.desktopCols || "5"}
                       onChange={(e) => {
                         const newSettings = { ...headerSettings, productCard: { ...headerSettings.productCard, desktopCols: e.target.value } };
                         setHeaderSettings?.(newSettings);

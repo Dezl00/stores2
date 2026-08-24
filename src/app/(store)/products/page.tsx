@@ -1,6 +1,6 @@
 import React from "react"
 import { db } from "@/lib/db"
-import { ProductGrid } from "@/components/storefront/product-grid"
+import { CategoryProductGrid } from "@/components/storefront/category-product-grid"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
 import { FilterSidebar } from "@/components/storefront/filter-sidebar"
@@ -180,7 +180,7 @@ export default async function AllProductsPage({ searchParams }: Props) {
           
           {products.length > 0 ? (
             <>
-              <ProductGrid products={products} />
+              <CategoryProductGrid products={products} />
               <StorePagination totalPages={totalPages} currentPage={page} />
             </>
           ) : (

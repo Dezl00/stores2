@@ -1,7 +1,7 @@
 import React from "react"
 import { db } from "@/lib/db"
 import { notFound } from "next/navigation"
-import { ProductGrid } from "@/components/storefront/product-grid"
+import { CategoryProductGrid } from "@/components/storefront/category-product-grid"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
 import { FilterSidebar } from "@/components/storefront/filter-sidebar"
@@ -193,7 +193,7 @@ export default async function CategoryPage(props: Props) {
           
           <div className="flex-1 min-w-0">
             <StoreToolbar totalProducts={totalProducts} hideToolbar={isMainCategory && category.children.length > 0} />
-            <ProductGrid products={products} />
+            <CategoryProductGrid products={products} />
             {products.length > 0 && <StorePagination totalPages={totalPages} currentPage={page} />}
           </div>
         </div>

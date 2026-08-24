@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { Search, Loader2, Frown } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { ProductGrid } from "@/components/storefront/product-grid"
+import { CategoryProductGrid } from "@/components/storefront/category-product-grid"
 import { searchProductsLive } from "@/features/search/actions"
 
 export function SearchClient({ initialQuery, initialResults }: { initialQuery: string, initialResults: any[] }) {
@@ -84,7 +84,7 @@ export function SearchClient({ initialQuery, initialResults }: { initialQuery: s
         ) : results.length > 0 ? (
           <div className="space-y-6">
             <h2 className="text-xl font-bold">نتائج البحث عن "{query}" ({results.length})</h2>
-            <ProductGrid products={results} />
+            <CategoryProductGrid products={results} />
           </div>
         ) : (
           <div className="text-center text-muted-foreground py-20 flex flex-col items-center">

@@ -33,13 +33,7 @@ export function ProductListClient({ widget, products, collectionItem }: { widget
           </div>
         </ScrollReveal>
 
-        {widget.settings?.displayMode !== "grid" ? (
-          <div className="w-full">
-            <SimilarProductsCarousel products={products} />
-          </div>
-        ) : (
-          <ProductGrid products={products} />
-        )}
+        <ProductGrid products={products} />
       </div>
     </section>
   )

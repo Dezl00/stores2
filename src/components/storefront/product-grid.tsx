@@ -8,7 +8,7 @@ import { PackageSearch } from "lucide-react"
 export function ProductGrid({ products, title, subtitle }: { products: any[], title?: string, subtitle?: string }) {
   const { themeConfig } = useUIStore()
   const mobileCols = themeConfig?.headerSettings?.productCard?.mobileCols || "2"
-  const desktopCols = themeConfig?.headerSettings?.productCard?.desktopCols || "4"
+  const desktopCols = themeConfig?.headerSettings?.productCard?.desktopCols || "5"
   
   const getGridClass = () => {
     let cls = "gap-4 sm:gap-6 "
@@ -22,8 +22,15 @@ export function ProductGrid({ products, title, subtitle }: { products: any[], ti
     }
     
     // Desktop setup
-    cls += "md:grid-cols-3 "
-    cls += desktopCols === "4" ? "lg:grid-cols-4" : desktopCols === "5" ? "lg:grid-cols-5" : desktopCols === "6" ? "lg:grid-cols-6" : "lg:grid-cols-4"
+    if (desktopCols === "4") {
+      cls += "md:grid-cols-3 lg:grid-cols-4"
+    } else if (desktopCols === "5") {
+      cls += "md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+    } else if (desktopCols === "6") {
+      cls += "md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+    } else {
+      cls += "md:grid-cols-3 lg:grid-cols-4"
+    }
     
     return cls
   }

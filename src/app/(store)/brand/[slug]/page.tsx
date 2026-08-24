@@ -1,6 +1,6 @@
 import React from "react"
 import { db } from "@/lib/db"
-import { ProductGrid } from "@/components/storefront/product-grid"
+import { CategoryProductGrid } from "@/components/storefront/category-product-grid"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { FilterSidebar } from "@/components/storefront/filter-sidebar"
@@ -144,7 +144,7 @@ export default async function BrandPage(props: Props) {
           
           {products.length > 0 ? (
             <>
-              <ProductGrid products={products} />
+              <CategoryProductGrid products={products} />
               <StorePagination totalPages={totalPages} currentPage={page} />
             </>
           ) : (
