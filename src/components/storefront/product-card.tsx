@@ -39,7 +39,7 @@ export function ProductCard({ product, disableAnimation = false, index = 0 }: Pr
   const addToCartStyle = cardSettings.addToCartStyle || "solid"
   const addToCartColor = cardSettings.addToCartColor || "var(--color-primary)"
   
-  const aspectClass = cardSettings.aspectRatio === "portrait" ? "aspect-[3/4]" : cardSettings.aspectRatio === "landscape" ? "aspect-[4/3]" : "${aspectClass}"
+  const aspectClass = cardSettings.aspectRatio === "portrait" ? "aspect-[3/4]" : cardSettings.aspectRatio === "landscape" ? "aspect-[4/3]" : "aspect-square"
   
   const finalPrice = product.discountPrice ?? product.price
   const hasDiscount = product.discountPrice != null && product.discountPrice < product.price

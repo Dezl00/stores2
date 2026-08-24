@@ -2,7 +2,7 @@
 import React from "react"
 import Link from "next/link"
 import { ScrollReveal } from "@/components/ui/scroll-reveal"
-import { ProductCard } from "@/components/storefront/product-card"
+import { ProductGrid } from "@/components/storefront/product-grid"
 import { ChevronLeft } from "lucide-react"
 import { SimilarProductsCarousel } from "@/components/storefront/product/similar-products-carousel"
 
@@ -38,13 +38,7 @@ export function ProductListClient({ widget, products, collectionItem }: { widget
             <SimilarProductsCarousel products={products} />
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-            {products.map((product, index) => (
-              <ScrollReveal key={product.id} variant="fade-up" delay={index * 0.1}>
-                <ProductCard product={product} />
-              </ScrollReveal>
-            ))}
-          </div>
+          <ProductGrid products={products} />
         )}
       </div>
     </section>

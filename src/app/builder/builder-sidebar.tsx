@@ -326,15 +326,7 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
                   </button>
                 </div>
             </div>
-            
-            <div className="mt-8 pt-4 border-t border-border/50 flex justify-end">
-              <button
-                onClick={() => onSave(true, { headerSettings, footerSettings, widgets })}
-                className="bg-[#2453E3] text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 transition-colors shadow-sm w-full"
-              >
-                حفظ ونشر التغييرات
-              </button>
-            </div>
+
           </div>
         )}
         </div>
@@ -542,6 +534,16 @@ export function BuilderSidebar({ widgets, setWidgets, headerSettings, footerSett
               </div>
             )}
           </div>
+
+          <div className="mt-8 pt-4 border-t border-border/50 flex justify-end shrink-0">
+            <button
+              onClick={() => onSave(true, { headerSettings, footerSettings, widgets })}
+              className="bg-[#2453E3] text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 transition-colors shadow-sm w-full"
+            >
+              حفظ ونشر التغييرات
+            </button>
+          </div>
+
         </div>
         )}
     </div>
