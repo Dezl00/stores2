@@ -381,6 +381,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
           </div>
         </div>
       )}
+      {!isHomepage && <div className="h-16 md:h-20 shrink-0 w-full" />}
     </>
   )
 }

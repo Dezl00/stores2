@@ -1,13 +1,14 @@
 "use client"
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 import { getValidLink } from "@/lib/utils"
+import useEmblaCarousel from "embla-carousel-react"
+import Autoplay from "embla-carousel-autoplay"
 
 export function HeroSlider({ widget }: { widget: any }) {
-  const [currentSlide, setCurrentSlide] = useState(0)
   const slides = widget.items || []
 
   // Global settings for the widget
@@ -27,13 +28,36 @@ export function HeroSlider({ widget }: { widget: any }) {
     return 'mx-auto text-center items-center'
   }
 
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, direction: "rtl", duration: 40 },
+    [Autoplay({ delay: 5000, stopOnInteraction: false })]
+  )
+
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev()
+  }, [emblaApi])
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext()
+  }, [emblaApi])
+
+  const scrollTo = useCallback((index: number) => {
+    if (emblaApi) emblaApi.scrollTo(index)
+  }, [emblaApi])
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
+    setCurrentSlide(emblaApi.selectedScrollSnap())
+  }, [emblaApi])
+
   useEffect(() => {
-    if (slides.length <= 1) return
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1))
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [slides.length])
+    if (!emblaApi) return
+    onSelect()
+    emblaApi.on("select", onSelect)
+    emblaApi.on("reInit", onSelect)
+  }, [emblaApi, onSelect])
 
   const computeHref = (slide: any) => {
     if (slide.redirectType === 'product') return `/product/${slide.redirectId}`
@@ -46,90 +70,91 @@ export function HeroSlider({ widget }: { widget: any }) {
   if (slides.length === 0) {
     return (
       <div className="w-full h-[50vh] md:h-[70vh] bg-secondary flex items-center justify-center text-muted-foreground">
-        لم يتم إضافة صور للسلايدر
+        لا توجد شرائح مضافة
       </div>
     )
   }
 
   return (
-    <div className="relative w-full h-[50vh] md:h-[70vh] lg:h-[85vh] overflow-hidden bg-black" dir="ltr">
-      {slides.map((slide: any, index: number) => {
-        const offset = (currentSlide - index) * 100
-        return (
-          <div 
-            key={slide.id}
-            className="absolute inset-0 transition-transform duration-700 ease-in-out w-full h-full"
-            style={{ transform: `translateX(${offset}%)` }}
-            dir="rtl"
-          >
-            {/* Desktop Image */}
-            <Image 
-              src={slide.desktopImage}
-              alt={slide.title || "Hero Slide"}
-              fill
-              priority={index === 0}
-              className="hidden md:block object-cover object-center"
-              sizes="100vw"
-            />
-            {/* Mobile Image (fallback to desktop if no mobile image) */}
-            <Image 
-              src={slide.mobileImage || slide.desktopImage}
-              alt={slide.title || "Hero Slide"}
-              fill
-              priority={index === 0}
-              className="block md:hidden object-cover object-center"
-              sizes="100vw"
-            />
-            {/* Overlay */}
-            <div 
-              className="absolute inset-0 bg-black"
-              style={{ opacity: overlayOpacity / 100 }}
-            />
-            {/* Content */}
-            <div className={`absolute inset-0 flex flex-col p-6 md:p-16 lg:p-24 ${getFlexAlign(textPosition)}`}>
-              <div className={`max-w-3xl flex flex-col ${getTextJustify(textAlign)}`}>
-                {slide.title && (
-                  <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3 md:mb-5 leading-tight">
-                    {slide.title}
-                  </h2>
-                )}
-                {slide.subtitle && (
-                  <p className="text-base md:text-xl lg:text-2xl text-white/90 mb-6 md:mb-8 leading-relaxed max-w-2xl inline-block">
-                    {slide.subtitle}
-                  </p>
-                )}
-                {(slide.buttonUrl || slide.redirectType) && (
-                  <div>
-                    <Link prefetch={false} href={getValidLink(computeHref(slide))}>
-                      <Button size="lg" variant="outline" className="px-8 md:px-10 py-5 md:py-6 text-base md:text-lg font-bold bg-transparent text-white border-2 border-white hover:bg-white hover:text-black rounded-full shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2 group">
-                        {slide.buttonText || "تسوق الآن"}
-                        <ChevronLeft className="w-5 h-5 -translate-x-1 group-hover:-translate-x-2 transition-transform" />
-                      </Button>
-                    </Link>
+    <div className="relative w-full h-[50vh] md:h-[70vh] lg:h-[85vh] bg-black">
+      <div className="overflow-hidden w-full h-full" ref={emblaRef} dir="rtl">
+        <div className="flex h-full">
+          {slides.map((slide: any, index: number) => {
+            return (
+              <div 
+                key={slide.id}
+                className="relative flex-[0_0_100%] h-full w-full min-w-0"
+              >
+                {/* Desktop Image */}
+                <Image 
+                  src={slide.desktopImage}
+                  alt={slide.title || "Hero Slide"}
+                  fill
+                  priority={index === 0}
+                  className="hidden md:block object-cover object-center"
+                  sizes="100vw"
+                />
+                {/* Mobile Image (fallback to desktop if no mobile image) */}
+                <Image 
+                  src={slide.mobileImage || slide.desktopImage}
+                  alt={slide.title || "Hero Slide"}
+                  fill
+                  priority={index === 0}
+                  className="block md:hidden object-cover object-center"
+                  sizes="100vw"
+                />
+                {/* Overlay */}
+                <div 
+                  className="absolute inset-0 bg-black"
+                  style={{ opacity: overlayOpacity / 100 }}
+                />
+                {/* Content */}
+                <div className={`absolute inset-0 flex flex-col p-6 md:p-16 lg:p-24 ${getFlexAlign(textPosition)}`}>
+                  <div className={`max-w-3xl flex flex-col ${getTextJustify(textAlign)}`}>
+                    {slide.title && (
+                      <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3 md:mb-5 leading-tight">
+                        {slide.title}
+                      </h2>
+                    )}
+                    {slide.subtitle && (
+                      <p className="text-base md:text-xl lg:text-2xl text-white/90 mb-6 md:mb-8 leading-relaxed max-w-2xl inline-block">
+                        {slide.subtitle}
+                      </p>
+                    )}
+                    {(slide.buttonUrl || slide.redirectType) && (
+                      <div>
+                        <Link prefetch={false} href={getValidLink(computeHref(slide))}>
+                          <Button size="lg" variant="outline" className="px-8 md:px-10 py-5 md:py-6 text-base md:text-lg font-bold bg-transparent text-white border-2 border-white hover:bg-white hover:text-black rounded-full shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2 group">
+                            {slide.buttonText || "تسوق الآن"}
+                            <ChevronLeft className="w-5 h-5 -translate-x-1 group-hover:-translate-x-2 transition-transform" />
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
-            </div>
-          </div>
-        )
-      })}
+            )
+          })}
+        </div>
+      </div>
 
       {/* Navigation Arrows */}
       {slides.length > 1 && (
         <>
           <button 
-            onClick={() => setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
-            className="absolute right-3 sm:right-6 md:right-10 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 hover:bg-white/30 hover:scale-105 text-white flex items-center justify-center transition-all shadow-lg"
-            aria-label="Previous slide"
-          >
-            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-          <button 
-            onClick={() => setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1))}
+            onClick={scrollNext}
             className="absolute left-3 sm:left-6 md:left-10 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 hover:bg-white/30 hover:scale-105 text-white flex items-center justify-center transition-all shadow-lg"
             aria-label="Next slide"
           >
             <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+          <button 
+            onClick={scrollPrev}
+            className="absolute right-3 sm:right-6 md:right-10 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 hover:bg-white/30 hover:scale-105 text-white flex items-center justify-center transition-all shadow-lg"
+            aria-label="Previous slide"
+          >
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           {/* Dots */}
@@ -137,7 +162,7 @@ export function HeroSlider({ widget }: { widget: any }) {
             {slides.map((_: any, idx: number) => (
               <button
                 key={idx}
-                onClick={() => setCurrentSlide(idx)}
+                onClick={() => scrollTo(idx)}
                 className={`transition-all duration-300 rounded-full ${
                   currentSlide === idx 
                     ? "w-8 h-2.5 bg-white" 
