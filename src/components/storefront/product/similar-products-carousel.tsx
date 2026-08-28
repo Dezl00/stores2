@@ -32,7 +32,7 @@ export function SimilarProductsCarousel({ products }: { products: any[] }) {
   }
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: "start", direction: "rtl" },
-    [Autoplay({ delay: 3000, stopOnInteraction: true })]
+    [Autoplay({ delay: 3000, stopOnInteraction: false, stopOnMouseEnter: true })]
   )
 
   const [selectedIndex, setSelectedIndex] = useState(0)

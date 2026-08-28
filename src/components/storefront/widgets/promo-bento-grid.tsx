@@ -4,14 +4,23 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { motion } from 'framer-motion';
 
 export function PromoBentoGrid({ widget }: { widget: any }) {
   const { items, settings, title: widgetTitle } = widget;
   
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mql.matches);
+    
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    
     setMounted(true);
+    return () => mql.removeEventListener('change', handler);
   }, []);
 
   if (!items || items.length === 0) return null;
@@ -83,33 +92,11 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
     }
   }
 
-  const renderCard = (item: any, index: number) => {
-    const {
-       title, 
-       subtitle: description, 
-       desktopImage, 
-       mobileImage, 
-       buttonText, 
-       buttonUrl, 
-       redirectType, 
-       redirectId
-    } = item;
-    
-    let href = buttonUrl || '#';
-    if (redirectType === 'Product' || redirectType === 'product') href = `/product/${redirectId}`;
-    else if (redirectType === 'Category' || redirectType === 'category') href = `/category/${redirectId}`;
-    else if (redirectType === 'Page' || redirectType === 'page') href = `/pages/${redirectId}`;
-
-    const hasLink = !!(buttonUrl || (redirectType && redirectId));
+  const renderCardInner = (item: any) => {
+    const { title, subtitle: description, desktopImage, mobileImage, buttonText } = item;
     const imgUrl = desktopImage || mobileImage;
 
-    const cardClasses = cn(
-      "relative overflow-hidden rounded-2xl group transition-all duration-500 hover:shadow-2xl bg-slate-100",
-      bentoEffectEnabled ? "h-[280px] md:h-full" : "",
-      getBentoClasses(index, items.length)
-    );
-
-    const cardInner = (
+    return (
       <>
         {imgUrl && (
           <div 
@@ -134,22 +121,63 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
         </div>
       </>
     );
+  };
+
+  const renderCard = (item: any, index: number) => {
+    const { buttonUrl, redirectType, redirectId } = item;
+    
+    let href = buttonUrl || '#';
+    if (redirectType === 'Product' || redirectType === 'product') href = `/product/${redirectId}`;
+    else if (redirectType === 'Category' || redirectType === 'category') href = `/category/${redirectId}`;
+    else if (redirectType === 'Page' || redirectType === 'page') href = `/pages/${redirectId}`;
+
+    const hasLink = !!(buttonUrl || (redirectType && redirectId));
+
+    const cardClasses = cn(
+      "relative overflow-hidden rounded-2xl group transition-all duration-500 hover:shadow-2xl bg-slate-100",
+      bentoEffectEnabled ? "h-[280px] md:h-full" : "",
+      getBentoClasses(index, items.length)
+    );
+
+    // Only stagger cards on mobile
+    const animationProps = isMobile ? {
+      initial: { opacity: 0, y: 30 },
+      whileInView: { opacity: 1, y: 0 },
+      viewport: { once: true, margin: "0px" },
+      transition: { duration: 0.6, delay: index * 0.1, ease: "easeOut" as const }
+    } : {};
 
     if (hasLink) {
+      if (isMobile) {
+        return (
+          <motion.div key={item.id || index} className={cn("block w-full h-full", cardClasses)} {...animationProps}>
+            <Link href={href} className="absolute inset-0 z-20" />
+            {renderCardInner(item)}
+          </motion.div>
+        );
+      }
       return (
         <Link key={item.id || index} href={href} className={cn("block w-full h-full", cardClasses)}>
-          {cardInner}
+          {renderCardInner(item)}
         </Link>
       );
     }
+    
+    if (isMobile) {
+      return (
+        <motion.div key={item.id || index} className={cn("w-full h-full", cardClasses)} {...animationProps}>
+          {renderCardInner(item)}
+        </motion.div>
+      );
+    }
+    
     return (
       <div key={item.id || index} className={cn("w-full h-full", cardClasses)}>
-        {cardInner}
+        {renderCardInner(item)}
       </div>
     );
   };
 
-  // Only render once mounted to avoid hydration mismatches with responsive views
   if (!mounted) {
     return (
       <div className="w-full max-w-7xl mx-auto px-4 py-8 opacity-0">
@@ -158,43 +186,40 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
     );
   }
 
+  // Animation props for the wrapper (only used on desktop)
+  const wrapperAnimationProps = !isMobile ? {
+    initial: { opacity: 0, y: 40 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "0px" },
+    transition: { duration: 0.8, ease: "easeOut" as const }
+  } : {};
+
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8">
+    <div className="w-full max-w-7xl mx-auto px-4 py-8 overflow-hidden">
       {widgetTitle && (
-        <ScrollReveal variant="fade-up" delay={0.1}>
-          <div className="mb-8 text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground">{widgetTitle}</h2>
-          </div>
-        </ScrollReveal>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "0px" }}
+          transition={{ duration: 0.8 }}
+          className="mb-8 text-center"
+        >
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground">{widgetTitle}</h2>
+        </motion.div>
       )}
 
-      {/* DESKTOP VIEW */}
-      <div className="hidden md:block w-full">
-        <ScrollReveal variant="fade-up" duration={1.0}>
-          <div className={cn(
-            "grid gap-6",
-            bentoEffectEnabled
-              ? "grid-cols-4 grid-flow-row-dense"
-              : "grid-cols-3 lg:grid-cols-4"
-          )}>
-            {items.map((item: any, index: number) => renderCard(item, index))}
-          </div>
-        </ScrollReveal>
-      </div>
-
-      {/* MOBILE VIEW */}
-      <div className="block md:hidden w-full">
-        <div className={cn(
-          "grid gap-4 grid-cols-1",
-          !bentoEffectEnabled && "grid-cols-2"
-        )}>
-          {items.map((item: any, index: number) => (
-            <ScrollReveal key={item.id || index} variant="fade-up" delay={index * 0.1}>
-              {renderCard(item, index)}
-            </ScrollReveal>
-          ))}
-        </div>
-      </div>
+      {/* Single Grid Render */}
+      <motion.div 
+        {...wrapperAnimationProps}
+        className={cn(
+          "grid gap-4 md:gap-6",
+          !bentoEffectEnabled 
+            ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
+            : "grid-cols-1 md:grid-cols-4 md:grid-flow-row-dense"
+        )}
+      >
+        {items.map((item: any, index: number) => renderCard(item, index))}
+      </motion.div>
     </div>
   );
 }
