@@ -1,51 +1,11 @@
-'use client'
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 export function PromoBentoGrid({ widget }: { widget: any }) {
   const { items, settings, title: widgetTitle } = widget;
-  
-  const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    let mql: MediaQueryList | null = null;
-    try {
-      mql = window.matchMedia('(max-width: 767px)');
-      setIsMobile(mql.matches);
-      
-      const handler = (e: MediaQueryListEvent | MediaQueryListEvent | Event) => {
-        setIsMobile((e as MediaQueryListEvent).matches);
-      };
-      
-      if (mql.addEventListener) {
-        mql.addEventListener('change', handler);
-      } else if (mql.addListener) {
-        // Fallback for older Safari
-        mql.addListener(handler as any);
-      }
-      
-      setMounted(true);
-      
-      return () => {
-        if (mql) {
-          if (mql.removeEventListener) {
-            mql.removeEventListener('change', handler);
-          } else if (mql.removeListener) {
-            mql.removeListener(handler as any);
-          }
-        }
-      };
-    } catch (e) {
-      console.error(e);
-      setMounted(true);
-    }
-  }, []);
-
   if (!items || items.length === 0) return null;
 
   const bentoEffectEnabled = settings?.bentoEffectEnabled !== false;
@@ -115,11 +75,25 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
     }
   }
 
-  const renderCardInner = (item: any) => {
-    const { title, subtitle: description, desktopImage, mobileImage, buttonText } = item;
+  const renderCard = (item: any, index: number) => {
+    const { title, subtitle: description, desktopImage, mobileImage, buttonText, buttonUrl, redirectType, redirectId } = item;
+    
+    let href = buttonUrl || '#';
+    if (redirectType === 'Product' || redirectType === 'product') href = `/product/${redirectId}`;
+    else if (redirectType === 'Category' || redirectType === 'category') href = `/category/${redirectId}`;
+    else if (redirectType === 'Page' || redirectType === 'page') href = `/pages/${redirectId}`;
+
+    const hasLink = !!(buttonUrl || (redirectType && redirectId));
     const imgUrl = desktopImage || mobileImage;
 
-    return (
+    const cardClasses = cn(
+      "relative overflow-hidden rounded-2xl group transition-all duration-500 hover:shadow-2xl bg-slate-100 block",
+      // Important: provide intrinsic height so it doesn't collapse!
+      bentoEffectEnabled ? "h-[280px] md:h-full" : "h-auto w-full",
+      getBentoClasses(index, items.length)
+    );
+
+    const cardInner = (
       <>
         {imgUrl && (
           <div 
@@ -144,105 +118,64 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
         </div>
       </>
     );
-  };
-
-  const renderCard = (item: any, index: number) => {
-    const { buttonUrl, redirectType, redirectId } = item;
-    
-    let href = buttonUrl || '#';
-    if (redirectType === 'Product' || redirectType === 'product') href = `/product/${redirectId}`;
-    else if (redirectType === 'Category' || redirectType === 'category') href = `/category/${redirectId}`;
-    else if (redirectType === 'Page' || redirectType === 'page') href = `/pages/${redirectId}`;
-
-    const hasLink = !!(buttonUrl || (redirectType && redirectId));
-
-    const cardClasses = cn(
-      "relative overflow-hidden rounded-2xl group transition-all duration-500 hover:shadow-2xl bg-slate-100",
-      bentoEffectEnabled ? "h-[280px] md:h-full" : "",
-      getBentoClasses(index, items.length)
-    );
-
-    // Only stagger cards on mobile
-    const animationProps = isMobile ? {
-      initial: { opacity: 0, y: 30 },
-      whileInView: { opacity: 1, y: 0 },
-      viewport: { once: true, margin: "0px" },
-      transition: { duration: 0.6, delay: index * 0.1, ease: "easeOut" as const }
-    } : {};
 
     if (hasLink) {
-      if (isMobile) {
-        return (
-          <motion.div key={item.id || index} className={cn("block w-full h-full", cardClasses)} {...animationProps}>
-            <Link href={href} className="absolute inset-0 z-20" />
-            {renderCardInner(item)}
-          </motion.div>
-        );
-      }
       return (
-        <Link key={item.id || index} href={href} className={cn("block w-full h-full", cardClasses)}>
-          {renderCardInner(item)}
+        <Link key={item.id || index} href={href} className={cardClasses}>
+          {cardInner}
         </Link>
       );
     }
-    
-    if (isMobile) {
-      return (
-        <motion.div key={item.id || index} className={cn("w-full h-full", cardClasses)} {...animationProps}>
-          {renderCardInner(item)}
-        </motion.div>
-      );
-    }
-    
     return (
-      <div key={item.id || index} className={cn("w-full h-full", cardClasses)}>
-        {renderCardInner(item)}
+      <div key={item.id || index} className={cardClasses}>
+        {cardInner}
       </div>
     );
   };
 
-  if (!mounted) {
-    return (
-      <div className="w-full max-w-7xl mx-auto px-4 py-8 opacity-0">
-        <div className={cn("grid gap-6", bentoEffectEnabled ? "grid-cols-4" : "grid-cols-3")} />
-      </div>
-    );
-  }
-
-  // Animation props for the wrapper (only used on desktop)
-  const wrapperAnimationProps = !isMobile ? {
-    initial: { opacity: 0, y: 40 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: "0px" },
-    transition: { duration: 0.8, ease: "easeOut" as const }
-  } : {};
-
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8 overflow-hidden">
+    <div className="w-full max-w-7xl mx-auto px-4 py-8">
       {widgetTitle && (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "0px" }}
-          transition={{ duration: 0.8 }}
-          className="mb-8 text-center"
-        >
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground">{widgetTitle}</h2>
-        </motion.div>
+        <ScrollReveal variant="fade-up" delay={0.1}>
+          <div className="mb-8 text-center">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground">{widgetTitle}</h2>
+          </div>
+        </ScrollReveal>
       )}
 
-      {/* Single Grid Render */}
-      <motion.div 
-        {...wrapperAnimationProps}
-        className={cn(
-          "grid gap-4 md:gap-6",
-          !bentoEffectEnabled 
-            ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
-            : "grid-cols-1 md:grid-cols-4 md:grid-flow-row-dense"
-        )}
-      >
-        {items.map((item: any, index: number) => renderCard(item, index))}
-      </motion.div>
+      {/* DESKTOP VIEW: Entire grid animates together */}
+      <div className="hidden md:block w-full">
+        <ScrollReveal variant="fade-up" duration={1.0}>
+          <div className={cn(
+            "grid gap-6",
+            bentoEffectEnabled
+              ? "grid-cols-4 grid-flow-row-dense"
+              : "grid-cols-3 lg:grid-cols-4"
+          )}>
+            {items.map((item: any, index: number) => renderCard(item, index))}
+          </div>
+        </ScrollReveal>
+      </div>
+
+      {/* MOBILE VIEW: Individual cards animate with stagger */}
+      <div className="block md:hidden w-full">
+        <div className={cn(
+          "grid gap-4 grid-cols-1",
+          !bentoEffectEnabled && "grid-cols-2"
+        )}>
+          {items.map((item: any, index: number) => (
+            // CRITICAL FIX: Add h-[280px] to ScrollReveal so it doesn't collapse!
+            <ScrollReveal 
+              key={item.id || index} 
+              variant="fade-up" 
+              delay={index * 0.1}
+              className={bentoEffectEnabled ? "h-[280px]" : "h-auto"}
+            >
+              {renderCard(item, index)}
+            </ScrollReveal>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
