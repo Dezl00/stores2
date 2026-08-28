@@ -1,5 +1,4 @@
 import React from "react"
-import { ScrollReveal } from "@/components/ui/scroll-reveal"
 import { HeroSlider } from "./widgets/hero-slider"
 import { TextBlock } from "./widgets/text-block"
 import { BrandSlider } from "./widgets/brand-slider"
@@ -21,58 +20,88 @@ export function WidgetRenderer({ widget }: { widget: any }) {
   if (!widget.showDesktop) visibilityClass += " md:hidden"
   if (!widget.showMobile) visibilityClass += " hidden md:block"
 
-  const renderContent = () => {
-    switch (widget.type) {
-      case "PromoBanner":
-        return <PromoBanner widget={widget} />
-      case "MarqueeAlerts":
-        if (widget.settings?.placement !== 'content') return null;
-        return <MarqueeAlerts widget={widget} />
-      case "PromoBentoGrid":
-        return <PromoBentoGrid widget={widget} />
-      case "CategoryGrid":
-        return <CategoryGrid widget={widget} />
-      case "HeroSlider":
-        return <HeroSlider widget={widget} />
-      case "ProductList":
-        return <ProductList widget={widget} />
-      case "FeaturedProduct":
-        return <FeaturedProductWidget widget={widget} />
-      case "TextBlock":
-        return <TextBlock widget={widget} />
-      case "BrandSlider":
-        return <BrandSlider widget={widget} />
-      case "AboutUs":
-        return <AboutUs widget={widget} />
-      case "ValuesSlider":
-        return <ValuesSlider widget={widget} />
-      case "StoreFeatures":
-        return <StoreFeatures widget={widget} />
-      case "LatestArticles":
-        return <LatestArticlesWidget widget={widget} />
-      default:
-        return null
-    }
+  switch (widget.type) {
+    case "PromoBanner":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <PromoBanner widget={widget} />
+        </section>
+      )
+    case "MarqueeAlerts":
+      if (widget.settings?.placement !== 'content') return null;
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <MarqueeAlerts widget={widget} />
+        </section>
+      )
+    case "PromoBentoGrid":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <PromoBentoGrid widget={widget} />
+        </section>
+      )
+    case "CategoryGrid":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <CategoryGrid widget={widget} />
+        </section>
+      )
+    case "HeroSlider":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <HeroSlider widget={widget} />
+        </section>
+      )
+    case "ProductList":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <ProductList widget={widget} />
+        </section>
+      )
+    case "FeaturedProduct":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <FeaturedProductWidget widget={widget} />
+        </section>
+      )
+    
+    case "TextBlock":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <TextBlock widget={widget} />
+        </section>
+      )
+    case "BrandSlider":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <BrandSlider widget={widget} />
+        </section>
+      )
+    case "AboutUs":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <AboutUs widget={widget} />
+        </section>
+      )
+    case "ValuesSlider":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <ValuesSlider widget={widget} />
+        </section>
+      )
+    case "StoreFeatures":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <StoreFeatures widget={widget} />
+        </section>
+      )
+    case "LatestArticles":
+      return (
+        <section className={`w-full ${visibilityClass}`}>
+          <LatestArticlesWidget widget={widget} />
+        </section>
+      )
+    default:
+      return null
   }
-
-  const content = renderContent()
-  if (!content) return null
-
-  // Don't wrap HeroSlider or MarqueeAlerts in global scroll reveal
-  if (widget.type === "HeroSlider" || widget.type === "MarqueeAlerts") {
-    return (
-      <section className={`w-full ${visibilityClass}`}>
-        {content}
-      </section>
-    )
-  }
-
-  // Wrap all other widgets in a smooth scroll reveal for professional entrance
-  return (
-    <ScrollReveal variant="fade-up" duration={1.0} delay={0.1}>
-      <section className={`w-full ${visibilityClass}`}>
-        {content}
-      </section>
-    </ScrollReveal>
-  )
 }

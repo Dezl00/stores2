@@ -5,6 +5,7 @@ import { Truck, ShieldCheck, Tag, RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import useEmblaCarousel from "embla-carousel-react"
 import Autoplay from "embla-carousel-autoplay"
+import { ScrollReveal } from "@/components/ui/scroll-reveal"
 
 const ICON_MAP: Record<string, any> = {
   Truck,
@@ -61,10 +62,11 @@ export function StoreFeatures({ widget }: { widget?: any }) {
 
   if (visibleItems.length === 0) return null
 
-  const renderFeatureItem = (item: any) => {
+  const renderFeatureItem = (item: any, index: number) => {
     const Icon = ICON_MAP[item.iconName] || Truck
     return (
-      <div key={item.id} className="flex flex-col items-center justify-center text-center group">
+      <ScrollReveal key={item.id} variant="fade-up" delay={index * 0.1} duration={0.8}>
+        <div className="flex flex-col items-center justify-center text-center group">
         <div className={cn(
           "w-16 h-16 md:w-20 md:h-20 rounded-full shadow-sm flex items-center justify-center mb-3 md:mb-4 transition-all duration-300 group-hover:scale-110 group-hover:shadow-md",
           bgEnabled
@@ -82,6 +84,7 @@ export function StoreFeatures({ widget }: { widget?: any }) {
           bgEnabled ? "text-foreground/80" : "text-muted-foreground"
         )}>{item.subtitle}</p>
       </div>
+      </ScrollReveal>
     )
   }
 
@@ -96,9 +99,9 @@ export function StoreFeatures({ widget }: { widget?: any }) {
             <div className="relative">
               <div className="overflow-hidden" ref={emblaRef} dir="rtl">
                 <div className="flex -ml-4">
-                  {visibleItems.map((item) => (
+                  {visibleItems.map((item, index) => (
                     <div key={item.id} className="pl-4 min-w-[50%] md:min-w-[25%] shrink-0">
-                      {renderFeatureItem(item)}
+                      {renderFeatureItem(item, index)}
                     </div>
                   ))}
                 </div>
@@ -121,7 +124,7 @@ export function StoreFeatures({ widget }: { widget?: any }) {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-              {visibleItems.map((item) => renderFeatureItem(item))}
+              {visibleItems.map((item, index) => renderFeatureItem(item, index))}
             </div>
           )}
         </div>

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react"
 import useEmblaCarousel from "embla-carousel-react"
 import Autoplay from "embla-carousel-autoplay"
 import { ProductCard } from "@/components/storefront/product-card"
+import { ScrollReveal } from "@/components/ui/scroll-reveal"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 
 import { useUIStore } from "@/store/ui-store"
@@ -72,10 +73,10 @@ export function SimilarProductsCarousel({ products }: { products: any[] }) {
     <div className="relative group px-2 sm:px-0">
       <div className="overflow-hidden" ref={emblaRef} dir="rtl">
         <div className="flex pb-2 -mx-2 sm:-mx-3">
-          {products.map((product) => (
-            <div key={product.id} className={`${getFlexBasis()} min-w-0 px-2 sm:px-3`}>
+          {products.map((product, index) => (
+            <ScrollReveal key={product.id} variant="fade-up" delay={index * 0.1} className={`${getFlexBasis()} min-w-0 px-2 sm:px-3`}>
               <ProductCard product={product} disableAnimation={true} />
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>

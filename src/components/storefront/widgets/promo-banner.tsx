@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
 export function PromoBanner({ widget }: { widget: any }) {
   const { title, subtitle, settings } = widget;
@@ -79,9 +80,14 @@ export function PromoBanner({ widget }: { widget: any }) {
         isTimerActive ? "md:flex-row md:justify-between md:items-center text-center md:text-right" : "justify-center text-center"
       )}>
         <div className="space-y-6 max-w-2xl">
-          {title && <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight">{title}</h2>}
-          {subtitle && <p className="text-lg text-white/90 leading-relaxed">{subtitle}</p>}
+          <ScrollReveal variant="fade-up" delay={0.1}>
+            {title && <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight">{title}</h2>}
+          </ScrollReveal>
+          <ScrollReveal variant="fade-up" delay={0.2}>
+            {subtitle && <p className="text-lg text-white/90 leading-relaxed">{subtitle}</p>}
+          </ScrollReveal>
           
+          <ScrollReveal variant="fade-up" delay={0.3}>
           {buttonText && hasLink && (
             <div className={cn("pt-4", !isTimerActive && "flex justify-center")}>
               <Link href={href}>
@@ -91,9 +97,11 @@ export function PromoBanner({ widget }: { widget: any }) {
               </Link>
             </div>
           )}
+          </ScrollReveal>
         </div>
         
         {isTimerActive && (
+          <ScrollReveal variant="fade-left" delay={0.4}>
           <div className="flex items-center gap-3 sm:gap-4 shrink-0" dir="ltr">
             {[
               { label: 'يوم', value: timeLeft.days },
@@ -111,6 +119,7 @@ export function PromoBanner({ widget }: { widget: any }) {
               </div>
             ))}
           </div>
+          </ScrollReveal>
         )}
       </div>
     </div>
