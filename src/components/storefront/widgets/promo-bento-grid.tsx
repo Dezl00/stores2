@@ -1,12 +1,11 @@
-'use client'
-
 import React from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 export function PromoBentoGrid({ widget }: { widget: any }) {
-  const { items, settings } = widget;
+  const { items, settings, title: widgetTitle } = widget;
   if (!items || items.length === 0) return null;
 
   const bentoEffectEnabled = settings?.bentoEffectEnabled !== false;
@@ -79,88 +78,117 @@ export function PromoBentoGrid({ widget }: { widget: any }) {
     }
   }
 
+  const renderCard = (item: any, index: number) => {
+    const {
+       title, 
+       subtitle: description, 
+       desktopImage, 
+       mobileImage, 
+       buttonText, 
+       buttonUrl, 
+       redirectType, 
+       redirectId
+    } = item;
+    
+    let href = buttonUrl || '#';
+    if (redirectType === 'Product' || redirectType === 'product') href = `/product/${redirectId}`;
+    else if (redirectType === 'Category' || redirectType === 'category') href = `/category/${redirectId}`;
+    else if (redirectType === 'Page' || redirectType === 'page') href = `/pages/${redirectId}`;
+
+    const hasLink = !!(buttonUrl || (redirectType && redirectId));
+    const imgUrl = desktopImage || mobileImage;
+
+    const cardClasses = cn(
+      "relative overflow-hidden rounded-2xl group transition-all duration-500 hover:shadow-2xl bg-slate-100",
+      // On mobile: always single column full width with fixed height
+      bentoEffectEnabled ? "h-[280px] md:h-full" : "",
+      // Desktop bento classes
+      getBentoClasses(index, items.length)
+    );
+
+    const cardInner = (
+      <>
+        {/* Background Image */}
+        {imgUrl && (
+          <div 
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+            style={{ backgroundImage: `url(${imgUrl})` }}
+          />
+        )}
+        
+        {/* Overlay */}
+        <div 
+          className="absolute inset-0 transition-opacity duration-300"
+          style={{ backgroundColor: `rgba(${r},${g},${b},${globalOverlayOpacity / 100})` }}
+        />
+
+        {/* Content */}
+        <div className={cn("absolute inset-0 p-5 md:p-8 flex flex-col z-10", getFlexAlign(textPosition), getTextJustify(textAlign))}>
+          {title && <h3 className="text-xl md:text-3xl font-bold text-white mb-2 leading-tight">{title}</h3>}
+          {description && <p className="text-white/90 text-base md:text-lg mb-4 line-clamp-2 leading-relaxed">{description}</p>}
+          
+          {buttonText && (
+            <div className="mt-2">
+              <Button variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white hover:text-black transition-colors backdrop-blur-sm rounded-full px-6 font-semibold shadow-lg">
+                {buttonText}
+              </Button>
+            </div>
+          )}
+        </div>
+      </>
+    );
+
+    if (hasLink) {
+      return (
+        <Link key={item.id || index} href={href} className={cn("block h-full", cardClasses)}>
+          {cardInner}
+        </Link>
+      );
+    }
+
+    return (
+      <div key={item.id || index} className={cn("h-full", cardClasses)}>
+        {cardInner}
+      </div>
+    );
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8">
-      <div className={cn(
-        "grid gap-4 md:gap-6",
-        bentoEffectEnabled
-          ? "grid-cols-1 md:grid-cols-4 md:grid-flow-row-dense"
-          : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-      )}>
-        {items.map((item: any, index: number) => {
-          const {
-             title, 
-             subtitle: description, 
-             desktopImage, 
-             mobileImage, 
-             buttonText, 
-             buttonUrl, 
-             redirectType, 
-             redirectId
-          } = item;
-          
-          let href = buttonUrl || '#';
-          if (redirectType === 'Product' || redirectType === 'product') href = `/product/${redirectId}`;
-          else if (redirectType === 'Category' || redirectType === 'category') href = `/category/${redirectId}`;
-          else if (redirectType === 'Page' || redirectType === 'page') href = `/pages/${redirectId}`;
+      {widgetTitle && (
+        <ScrollReveal variant="fade-up" delay={0.1}>
+          <div className="mb-8 text-center">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground">{widgetTitle}</h2>
+          </div>
+        </ScrollReveal>
+      )}
 
-          const hasLink = !!(buttonUrl || (redirectType && redirectId));
-          const imgUrl = desktopImage || mobileImage;
+      {/* DESKTOP VIEW: Entire grid animates together */}
+      <div className="hidden md:block">
+        <ScrollReveal variant="fade-up" duration={1.0}>
+          <div className={cn(
+            "grid gap-6",
+            bentoEffectEnabled
+              ? "grid-cols-4 grid-flow-row-dense"
+              : "grid-cols-3 lg:grid-cols-4"
+          )}>
+            {items.map((item: any, index: number) => renderCard(item, index))}
+          </div>
+        </ScrollReveal>
+      </div>
 
-          const cardClasses = cn(
-            "relative overflow-hidden rounded-2xl group transition-all duration-500 hover:shadow-2xl bg-slate-100",
-            // On mobile: always single column full width with fixed height
-            bentoEffectEnabled ? "h-[280px] md:h-full" : "",
-            // Desktop bento classes
-            getBentoClasses(index, items.length)
-          );
-
-          const cardInner = (
-            <>
-              {/* Background Image */}
-              {imgUrl && (
-                <div 
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                  style={{ backgroundImage: `url(${imgUrl})` }}
-                />
-              )}
-              
-              {/* Overlay */}
-              <div 
-                className="absolute inset-0 transition-opacity duration-300"
-                style={{ backgroundColor: `rgba(${r},${g},${b},${globalOverlayOpacity / 100})` }}
-              />
-
-              {/* Content */}
-              <div className={cn("absolute inset-0 p-5 md:p-8 flex flex-col z-10", getFlexAlign(textPosition), getTextJustify(textAlign))}>
-                {title && <h3 className="text-xl md:text-3xl font-bold text-white mb-2 leading-tight">{title}</h3>}
-                {description && <p className="text-white/90 text-base md:text-lg mb-4 line-clamp-2 leading-relaxed">{description}</p>}
-                
-                {buttonText && (
-                  <div className="mt-2">
-                    <Button variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white hover:text-black transition-colors backdrop-blur-sm rounded-full px-6 font-semibold shadow-lg">
-                      {buttonText}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </>
-          );
-
-          if (hasLink) {
-            return (
-              <Link key={item.id || index} href={href} className={cn("block", cardClasses)}>
-                {cardInner}
-              </Link>
-            );
-          }
-
-          return (
-            <div key={item.id || index} className={cardClasses}>
-              {cardInner}
-            </div>
-          );
-        })}
+      {/* MOBILE VIEW: Each card animates individually with stagger */}
+      <div className="block md:hidden">
+        <div className={cn(
+          "grid gap-4 grid-cols-1",
+          !bentoEffectEnabled && "grid-cols-2" // fallback for mobile if not bento
+        )}>
+          {items.map((item: any, index: number) => (
+            <ScrollReveal key={item.id || index} variant="fade-up" delay={index * 0.1}>
+              {renderCard(item, index)}
+            </ScrollReveal>
+          ))}
+        </div>
       </div>
     </div>
   );

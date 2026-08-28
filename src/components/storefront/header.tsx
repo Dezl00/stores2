@@ -114,13 +114,13 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
       >
         <div className="container mx-auto px-3 md:px-6 lg:px-8">
           {/* DESKTOP HEADER */}
-          <div className="hidden md:flex h-20 items-center justify-between gap-6">
+          <div className="hidden md:flex h-28 items-center justify-between gap-6">
             
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
               <Link prefetch={false} href="/" className="flex items-center gap-2">
                 {themeConfig?.logoUrl ? (
-                  <img src={themeConfig.logoUrl} alt="Store Logo" className={`h-16 md:h-20 w-auto object-contain transition-all duration-300 hover:scale-105 ${isTop ? "brightness-0 invert" : ""}`} fetchPriority="high" loading="eager" />
+                  <img src={themeConfig.logoUrl} alt="Store Logo" className={`h-20 md:h-24 max-w-[280px] w-auto object-contain transition-all duration-300 hover:scale-105 ${isTop ? "brightness-0 invert" : ""}`} fetchPriority="high" loading="eager" />
                 ) : (
                   <span className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg ${isTop ? 'bg-white/20 text-white' : 'gold-gradient text-white shadow-primary/20'}`}>ع</span>
                 )}
@@ -268,7 +268,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
           </div>
 
           {/* MOBILE HEADER */}
-          <div className="flex md:hidden h-16 items-center justify-between w-full relative">
+          <div className="flex md:hidden h-20 items-center justify-between w-full relative">
             
             {/* Right: Search */}
             <div className="flex-1 flex justify-start">
@@ -284,7 +284,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
             <div className="flex-shrink-0 flex items-center justify-center absolute left-1/2 -translate-x-1/2">
               <Link prefetch={false} href="/" className="flex items-center gap-2">
                 {themeConfig?.logoUrl ? (
-                  <img src={themeConfig.logoUrl} alt="Store Logo" className={`h-12 sm:h-14 w-auto object-contain transition-all duration-300 ${isTop ? "brightness-0 invert" : ""}`} fetchPriority="high" loading="eager" />
+                  <img src={themeConfig.logoUrl} alt="Store Logo" className={`h-14 sm:h-16 max-w-[200px] w-auto object-contain transition-all duration-300 ${isTop ? "brightness-0 invert" : ""}`} fetchPriority="high" loading="eager" />
                 ) : (
                   <span className={`w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg ${isTop ? 'bg-white/20 text-white' : 'bg-primary text-primary-foreground shadow-primary/20'}`}>ع</span>
                 )}
@@ -381,7 +381,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
           </div>
         </div>
       )}
-      {!isHomepage && <div className="h-16 md:h-20 shrink-0 w-full" />}
+      {!isHomepage && <div className="h-20 md:h-28 shrink-0 w-full" />}
     </>
   )
 }
