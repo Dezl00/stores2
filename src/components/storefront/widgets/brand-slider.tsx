@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import useEmblaCarousel from "embla-carousel-react"
-import Autoplay from "embla-carousel-autoplay"
+import AutoScroll from "embla-carousel-auto-scroll"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 import { getValidLink } from "@/lib/utils"
 import { ScrollReveal } from "@/components/ui/scroll-reveal"
@@ -21,7 +21,7 @@ export function BrandSlider({ widget }: { widget: any }) {
   // Embla Carousel hook
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: "start", direction: "rtl", slidesToScroll: 1 },
-    [Autoplay({ delay: 3000, stopOnInteraction: false })]
+    [AutoScroll({ playOnInit: true, speed: 1, stopOnInteraction: false, stopOnMouseEnter: true })]
   )
 
   const [selectedIndex, setSelectedIndex] = useState(0)

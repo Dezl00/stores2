@@ -43,7 +43,7 @@ export function StoreFeatures({ widget }: { widget?: any }) {
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, direction: "rtl", align: "start" },
-    [Autoplay({ delay: 3000, stopOnInteraction: true })]
+    [Autoplay({ delay: 3000, stopOnInteraction: false })]
   )
   const [selectedIndex, setSelectedIndex] = useState(0)
 
@@ -103,7 +103,7 @@ export function StoreFeatures({ widget }: { widget?: any }) {
                   ))}
                 </div>
               </div>
-              <div className="flex justify-center gap-2 mt-8">
+              <div className="flex justify-center gap-2 mt-8 md:hidden">
                 {visibleItems.map((_, index) => (
                   <button
                     key={index}

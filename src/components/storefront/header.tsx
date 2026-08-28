@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
 import { useCartStore } from "@/store/cart-store"
 import { useUIStore } from "@/store/ui-store"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { searchProductsLive } from "@/features/search/actions"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
 
@@ -87,7 +87,9 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
   }
 
   // Dynamic classes based on scroll state
-  const isTop = scrollState === 'top'
+  const pathname = usePathname()
+  const isHomepage = pathname === '/'
+  const isTop = isHomepage && scrollState === 'top'
   const isHidden = scrollState === 'hidden'
 
   const headerBg = isTop
