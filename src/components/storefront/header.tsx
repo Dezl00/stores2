@@ -120,7 +120,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
             <div className="flex-shrink-0 flex items-center">
               <Link prefetch={false} href="/" className="flex items-center gap-2">
                 {themeConfig?.logoUrl ? (
-                  <img src={themeConfig.logoUrl} alt="Store Logo" className="h-14 w-auto object-contain transition-transform hover:scale-105" />
+                  <img src={themeConfig.logoUrl} alt="Store Logo" className={`h-16 md:h-20 w-auto object-contain transition-all duration-300 hover:scale-105 ${isTop ? "brightness-0 invert" : ""}`} fetchPriority="high" loading="eager" />
                 ) : (
                   <span className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg ${isTop ? 'bg-white/20 text-white' : 'gold-gradient text-white shadow-primary/20'}`}>ع</span>
                 )}
@@ -284,7 +284,7 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
             <div className="flex-shrink-0 flex items-center justify-center absolute left-1/2 -translate-x-1/2">
               <Link prefetch={false} href="/" className="flex items-center gap-2">
                 {themeConfig?.logoUrl ? (
-                  <img src={themeConfig.logoUrl} alt="Store Logo" className="h-10 w-auto object-contain" />
+                  <img src={themeConfig.logoUrl} alt="Store Logo" className={`h-12 sm:h-14 w-auto object-contain transition-all duration-300 ${isTop ? "brightness-0 invert" : ""}`} fetchPriority="high" loading="eager" />
                 ) : (
                   <span className={`w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg ${isTop ? 'bg-white/20 text-white' : 'bg-primary text-primary-foreground shadow-primary/20'}`}>ع</span>
                 )}
