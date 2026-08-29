@@ -46,7 +46,7 @@ export default async function AdminProductsPage({
       include: {
         category: true,
         brand: true,
-        options: true,
+        options: { include: { values: true } },
         variants: {
           include: {
             selections: {

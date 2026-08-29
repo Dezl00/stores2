@@ -161,7 +161,7 @@ export function ProductsClient({ products, categories, brands = [], globalOption
           if (opt.systemOptionId) {
             const matchedGlobalOpt = globalOptions.find((g: any) => g.id === opt.systemOptionId || g.name === opt.name)
             if (matchedGlobalOpt) {
-              preselected[matchedGlobalOpt.id] = opt.values.map((v: any) => {
+              preselected[matchedGlobalOpt.id] = (opt.values || []).map((v: any) => {
                 const matchedGVal = matchedGlobalOpt.values.find((gv: any) => gv.label === v.label)
                 return matchedGVal ? matchedGVal.id : null
               }).filter(Boolean)
