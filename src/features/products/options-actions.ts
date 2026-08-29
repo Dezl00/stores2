@@ -259,3 +259,94 @@ export async function getProductOptions(productId: string) {
     return { success: false, error: error.message }
   }
 }
+
+export async function syncProductGlobalOptions(productId: string, selections: Record<string, string[]>) {
+  try {
+    const storeId = await resolveStoreId()
+    
+    // Get the product and its current options
+    const product = await db.product.findFirst({
+      where: { id: productId, storeId },
+      include: {
+        options: {
+          include: { values: true }
+        }
+      }
+    })
+    
+    if (!product) throw new Error("Product not found")
+
+    const globalOptions = await db.globalOption.findMany({
+      where: { storeId, isActive: true },
+      include: { values: true }
+    })
+
+    // Process each active global option
+    for (const gOpt of globalOptions) {
+      const selectedGValIds = selections[gOpt.id] || []
+      
+      let pOpt = product.options.find(o => o.systemOptionId === gOpt.id)
+      
+      if (selectedGValIds.length > 0) {
+        // Need this option
+        if (!pOpt) {
+          pOpt = await db.productOption.create({
+            data: {
+              productId,
+              name: gOpt.name,
+              dataType: gOpt.dataType,
+              displayType: gOpt.displayType,
+              behavior: gOpt.behavior,
+              systemOptionId: gOpt.id,
+              isRequired: false,
+              sortOrder: 0,
+            },
+            include: { values: true }
+          })
+        }
+        
+        // Sync values
+        const currentVals = pOpt.values || []
+        
+        // Add new values
+        for (const gValId of selectedGValIds) {
+          const gVal = gOpt.values.find(v => v.id === gValId)
+          if (gVal) {
+            const exists = currentVals.find(v => v.label === gVal.label)
+            if (!exists) {
+              await db.productOptionValue.create({
+                data: {
+                  optionId: pOpt.id,
+                  label: gVal.label,
+                  value: gVal.value,
+                }
+              })
+            }
+          }
+        }
+        
+        // Remove unselected values
+        for (const cVal of currentVals) {
+          const gValForCVal = gOpt.values.find(v => v.label === cVal.label)
+          if (!gValForCVal || !selectedGValIds.includes(gValForCVal.id)) {
+            await db.productOptionValue.delete({ where: { id: cVal.id } })
+          }
+        }
+      } else {
+        // Option has no selected values, remove it entirely
+        if (pOpt) {
+          await db.productOption.delete({ where: { id: pOpt.id } })
+        }
+      }
+    }
+
+    // After syncing, regenerate variants to match new options/values
+    await generateVariants(productId)
+    
+    revalidatePath("/admin/catalog/products")
+    return { success: true }
+  } catch (error: any) {
+    console.error("Sync options error:", error)
+    return { success: false, error: error.message }
+  }
+}

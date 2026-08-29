@@ -111,7 +111,19 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
         <div key={option.id} className={`bg-card border rounded-xl overflow-hidden shadow-sm transition-all ${option.isActive ? 'border-primary ring-1 ring-primary/20' : 'border-border/50 opacity-80'}`}>
           <div className="p-5 border-b border-border/10 flex items-center justify-between bg-muted/20">
             <div>
-              <h3 className="font-bold text-lg">{option.name === 'Color' ? 'اللون' : option.name === 'Size' ? 'المقاس' : option.name === 'Material' ? 'الخامة' : option.name === 'Weight' ? 'الوزن' : option.name === 'Volume' ? 'الحجم' : option.name === 'Style' ? 'التصميم' : option.name}</h3>
+              <h3 className="font-bold text-lg">
+                {option.name === 'Color' ? 'اللون' : 
+                 option.name === 'Size' ? 'المقاس' : 
+                 option.name === 'Material' ? 'الخامة' : 
+                 option.name === 'Weight' ? 'الوزن' : 
+                 option.name === 'Volume' ? 'الحجم' : 
+                 option.name === 'Style' ? 'التصميم' : 
+                 option.name === 'Capacity' ? 'السعة' :
+                 option.name === 'Flavor' ? 'النكهة' :
+                 option.name === 'Scent' ? 'الرائحة' :
+                 option.name === 'Shape' ? 'الشكل' :
+                 option.name}
+              </h3>
               <p className="text-xs text-muted-foreground mt-1">
                 {option.behavior === 'VARIANT' ? 'يُستخدم لتوليد متغيرات' : 'خاصية وصفية فقط'}
               </p>

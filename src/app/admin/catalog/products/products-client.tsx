@@ -5,6 +5,7 @@ import { createPortal } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Search, Edit, Trash2, PlusCircle, X, Loader2, Download, Upload, CheckSquare, Square, Filter, Eye, EyeOff, Check, Settings } from "lucide-react"
 import { createProduct, deleteProduct, updateProduct, toggleProductStatus, bulkDeleteProducts, bulkToggleProductsStatus, bulkUpdateProducts } from "@/features/products/actions"
+import { syncProductGlobalOptions } from "@/features/products/options-actions"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { MultiImageUploader } from "@/components/ui/multi-image-uploader"
@@ -53,6 +54,9 @@ export function ProductsClient({ products, categories, brands = [], globalOption
   const [selectedCategoryId, setSelectedCategoryId] = useState("")
   const [categorySearch, setCategorySearch] = useState("")
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false)
+
+  // Global Options selection
+  const [selectedGlobalOptions, setSelectedGlobalOptions] = useState<Record<string, string[]>>({})
   
   // Single Action States
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -149,12 +153,30 @@ export function ProductsClient({ products, categories, brands = [], globalOption
       setBrandSearch(brands.find((b: any) => b.id === editingProduct.brandId)?.name || "")
       setImageUrls(editingProduct.images?.length > 0 ? editingProduct.images.map((img: any) => img.url) : [])
       setIsFormVisible(true)
+
+      // Populate selectedGlobalOptions
+      const preselected: Record<string, string[]> = {}
+      if (editingProduct.options) {
+        editingProduct.options.forEach((opt: any) => {
+          if (opt.systemOptionId) {
+            const matchedGlobalOpt = globalOptions.find((g: any) => g.id === opt.systemOptionId || g.name === opt.name)
+            if (matchedGlobalOpt) {
+              preselected[matchedGlobalOpt.id] = opt.values.map((v: any) => {
+                const matchedGVal = matchedGlobalOpt.values.find((gv: any) => gv.label === v.label)
+                return matchedGVal ? matchedGVal.id : null
+              }).filter(Boolean)
+            }
+          }
+        })
+      }
+      setSelectedGlobalOptions(preselected)
     }
-  }, [editingProduct, brands, categories])
+  }, [editingProduct, brands, categories, globalOptions])
 
   function resetForm(keepSelections: boolean = false) {
     setEditingProduct(null)
     setImageUrls([])
+    setSelectedGlobalOptions({})
     if (!keepSelections) {
       setSelectedBrandId("")
       setBrandSearch("")
@@ -179,6 +201,12 @@ export function ProductsClient({ products, categories, brands = [], globalOption
     } else {
       res = await createProduct(formData)
     }
+    
+    if (res.success && res.product) {
+      // Sync global options selections
+      await syncProductGlobalOptions(res.product.id, selectedGlobalOptions)
+    }
+
     setIsSubmitting(false)
     if (res.success) {
       toast.success(editingProduct ? "تم تعديل المنتج بنجاح" : "تمت إضافة المنتج بنجاح")
@@ -789,6 +817,58 @@ export function ProductsClient({ products, categories, brands = [], globalOption
                   <textarea name="description" rows={2} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none" />
                 </div>
 
+                {/* Global Options */}
+                {globalOptions && globalOptions.length > 0 && (
+                  <div className="pt-4 border-t border-border/50 space-y-4">
+                    <h3 className="text-sm font-semibold tracking-tight">خيارات المتجر (اختياري)</h3>
+                    {globalOptions.map((gOpt: any) => {
+                      const translatedName = gOpt.name === 'Color' ? 'اللون' : 
+                                            gOpt.name === 'Size' ? 'المقاس' : 
+                                            gOpt.name === 'Material' ? 'الخامة' : 
+                                            gOpt.name === 'Weight' ? 'الوزن' : 
+                                            gOpt.name === 'Volume' ? 'الحجم' : 
+                                            gOpt.name === 'Style' ? 'التصميم' : 
+                                            gOpt.name === 'Capacity' ? 'السعة' :
+                                            gOpt.name === 'Flavor' ? 'النكهة' :
+                                            gOpt.name === 'Scent' ? 'الرائحة' :
+                                            gOpt.name === 'Shape' ? 'الشكل' :
+                                            gOpt.name;
+                      return (
+                        <div key={gOpt.id} className="space-y-2">
+                          <label className="text-xs font-medium text-muted-foreground">{translatedName}</label>
+                          <div className="flex flex-wrap gap-2">
+                            {gOpt.values.map((val: any) => {
+                              const isSelected = selectedGlobalOptions[gOpt.id]?.includes(val.id)
+                              return (
+                                <button
+                                  key={val.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedGlobalOptions(prev => {
+                                      const current = prev[gOpt.id] || []
+                                      const updated = isSelected ? current.filter(id => id !== val.id) : [...current, val.id]
+                                      return { ...prev, [gOpt.id]: updated }
+                                    })
+                                  }}
+                                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${isSelected ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-background text-muted-foreground border-border/50 hover:bg-muted'}`}
+                                >
+                                  {gOpt.dataType === 'COLOR' && (
+                                    <span className="w-2.5 h-2.5 rounded-full border border-black/20" style={{ backgroundColor: val.value }} />
+                                  )}
+                                  {val.label}
+                                </button>
+                              )
+                            })}
+                            {gOpt.values.length === 0 && (
+                              <span className="text-[10px] text-muted-foreground">لا يوجد قيم مسجلة</span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+
                 {/* Advanced Settings */}
                 <div className="pt-2 border-t border-border/50">
                   <button type="button" onClick={() => setShowAdvanced(!showAdvanced)} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
@@ -817,58 +897,44 @@ export function ProductsClient({ products, categories, brands = [], globalOption
                 </div>
               </form>
 
-              {!editingProduct ? (
-                <div className="mt-8 border-t border-border/50 pt-8">
-                  <div className="bg-muted/30 border border-border/50 rounded-xl p-6 text-center">
-                    <Settings className="w-8 h-8 mx-auto text-muted-foreground/50 mb-3" />
-                    <h3 className="font-semibold mb-1">المتغيرات والخيارات</h3>
-                    <p className="text-sm text-muted-foreground">لإضافة خيارات مثل (اللون، المقاس) وتوليد المتغيرات، يرجى حفظ المنتج أولاً.</p>
+              {editingProduct && editingProduct.variants && editingProduct.variants.length > 0 && (
+                <div className="mt-8 border-t border-border/50 pt-8 space-y-4">
+                  <h3 className="text-sm font-semibold">متغيرات المنتج الحالية</h3>
+                  <div className="border border-border/50 rounded-xl overflow-hidden bg-card">
+                    <table className="w-full text-sm text-right">
+                      <thead className="bg-muted/50 border-b border-border/50">
+                        <tr>
+                          <th className="px-4 py-2.5 font-medium">المتغير</th>
+                          <th className="px-4 py-2.5 font-medium w-32">السعر</th>
+                          <th className="px-4 py-2.5 font-medium w-32">المخزون</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/50">
+                        {editingProduct.variants.map((variant: any) => (
+                          <tr key={variant.id} className="hover:bg-muted/30">
+                            <td className="px-4 py-2">
+                              <div className="flex gap-1.5 flex-wrap">
+                                {variant.selections.map((s: any) => (
+                                  <Badge key={s.id} variant="secondary" className="text-[10px] h-5 px-1.5">{s.optionValue.label}</Badge>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="px-4 py-2">
+                              <input type="number" defaultValue={variant.price || editingProduct.price} disabled className="h-8 w-full rounded border border-input bg-muted/50 px-2 cursor-not-allowed opacity-70 text-left" dir="ltr" title="يمكنك تعديل الأسعار قريباً" />
+                            </td>
+                            <td className="px-4 py-2">
+                              <input type="number" defaultValue={variant.stock} disabled className="h-8 w-full rounded border border-input bg-muted/50 px-2 cursor-not-allowed opacity-70 text-left" dir="ltr" title="يمكنك تعديل المخزون قريباً" />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <div className="p-3 bg-muted/20 text-xs text-muted-foreground border-t border-border/50">
+                      ملاحظة: يمكنك تعديل أسعار وكميات كل متغير بشكل منفصل لاحقاً (قيد التطوير).
+                    </div>
                   </div>
                 </div>
-              ) : (
-                  <div className="mt-8 border-t border-border/50 pt-8 space-y-6">
-                    <ProductOptionsManager productId={editingProduct.id} inline={true} />
-                    
-                    {editingProduct.variants && editingProduct.variants.length > 0 && (
-                      <div className="space-y-4">
-                        <h3 className="text-sm font-semibold">متغيرات المنتج المتاحة</h3>
-                        <div className="border border-border/50 rounded-xl overflow-hidden bg-card">
-                          <table className="w-full text-sm text-right">
-                            <thead className="bg-muted/50 border-b border-border/50">
-                              <tr>
-                                <th className="px-4 py-2.5 font-medium">المتغير</th>
-                                <th className="px-4 py-2.5 font-medium w-32">السعر</th>
-                                <th className="px-4 py-2.5 font-medium w-32">المخزون</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border/50">
-                              {editingProduct.variants.map((variant: any) => (
-                                <tr key={variant.id} className="hover:bg-muted/30">
-                                  <td className="px-4 py-2">
-                                    <div className="flex gap-1.5 flex-wrap">
-                                      {variant.selections.map((s: any) => (
-                                        <Badge key={s.id} variant="secondary" className="text-[10px] h-5 px-1.5">{s.optionValue.label}</Badge>
-                                      ))}
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-2">
-                                    <input type="number" defaultValue={variant.price || editingProduct.price} disabled className="h-8 w-full rounded border border-input bg-muted/50 px-2 cursor-not-allowed opacity-70 text-left" dir="ltr" title="يمكنك تعديل الأسعار قريباً" />
-                                  </td>
-                                  <td className="px-4 py-2">
-                                    <input type="number" defaultValue={variant.stock} disabled className="h-8 w-full rounded border border-input bg-muted/50 px-2 cursor-not-allowed opacity-70 text-left" dir="ltr" title="يمكنك تعديل المخزون قريباً" />
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                          <div className="p-3 bg-muted/20 text-xs text-muted-foreground border-t border-border/50">
-                            ملاحظة: يمكنك تعديل أسعار وكميات كل متغير بشكل منفصل لاحقاً (قيد التطوير).
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+              )}
             </div>
           </div>
         </div>
