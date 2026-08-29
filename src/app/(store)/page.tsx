@@ -1,6 +1,7 @@
 import { getWidgets } from "@/features/widget-builder/actions"
 import { WidgetRenderer } from "@/components/storefront/widget-renderer"
 import { db } from "@/lib/db"
+import { Suspense } from "react"
 
 export const revalidate = 3600
 
@@ -27,7 +28,7 @@ export async function generateMetadata() {
   }
 }
 
-export default async function StorefrontPage(props: { searchParams?: { preview?: string } }) {
+async function StorefrontWidgets() {
   const { widgets, success } = await getWidgets()
 
   if (!success) {
@@ -38,7 +39,6 @@ export default async function StorefrontPage(props: { searchParams?: { preview?:
     )
   }
 
-  // Filter only active widgets
   const activeWidgets = widgets?.filter((w: any) => w.status) || []
 
   if (activeWidgets.length === 0) {
@@ -54,10 +54,29 @@ export default async function StorefrontPage(props: { searchParams?: { preview?:
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <>
       {activeWidgets.map((widget: any) => (
         <WidgetRenderer key={widget.id} widget={widget} />
       ))}
+    </>
+  )
+}
+
+function WidgetsSkeleton() {
+  return (
+    <div className="w-full flex flex-col items-center p-8 space-y-12">
+      <div className="w-full max-w-7xl h-96 bg-secondary/20 animate-pulse rounded-2xl" />
+      <div className="w-full max-w-7xl h-64 bg-secondary/20 animate-pulse rounded-2xl" />
+    </div>
+  )
+}
+
+export default async function StorefrontPage(props: { searchParams?: { preview?: string } }) {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Suspense fallback={<WidgetsSkeleton />}>
+        <StorefrontWidgets />
+      </Suspense>
     </div>
   )
 }

@@ -9,6 +9,7 @@ import { useUIStore } from "@/store/ui-store"
 import { useRouter, usePathname } from "next/navigation"
 import { searchProductsLive } from "@/features/search/actions"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
+import Image from "next/image"
 
 export function StorefrontHeader({ menuItems, themeConfig, user, categories = [] }: { menuItems?: any[], themeConfig?: any, user?: any, categories?: any[] }) {
   const { getTotals, setIsOpen } = useCartStore()
@@ -120,7 +121,9 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
             <div className="flex-shrink-0 flex items-center">
               <Link prefetch={false} href="/" className="flex items-center gap-2">
                 {themeConfig?.logoUrl ? (
-                  <img src={themeConfig.logoUrl} alt="Store Logo" className={`h-16 w-auto object-contain transition-all duration-300 scale-[1.7] origin-left hover:scale-[1.8] ${isTop ? "brightness-0 invert" : ""}`} fetchPriority="high" loading="eager" />
+                  <div className={`relative h-16 w-24 transition-all duration-300 scale-[1.7] origin-left hover:scale-[1.8] ${isTop ? "brightness-0 invert" : ""}`}>
+                    <Image src={themeConfig.logoUrl} alt="Store Logo" fill sizes="96px" className="object-contain" priority />
+                  </div>
                 ) : (
                   <span className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg ${isTop ? 'bg-white/20 text-white' : 'gold-gradient text-white shadow-primary/20'}`}>ع</span>
                 )}
@@ -284,7 +287,9 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
             <div className="flex-shrink-0 flex items-center justify-center absolute left-1/2 -translate-x-1/2">
               <Link prefetch={false} href="/" className="flex items-center gap-2">
                 {themeConfig?.logoUrl ? (
-                  <img src={themeConfig.logoUrl} alt="Store Logo" className={`h-12 w-auto object-contain transition-all duration-300 scale-[1.5] origin-center ${isTop ? "brightness-0 invert" : ""}`} fetchPriority="high" loading="eager" />
+                  <div className={`relative h-12 w-20 transition-all duration-300 scale-[1.5] origin-center ${isTop ? "brightness-0 invert" : ""}`}>
+                    <Image src={themeConfig.logoUrl} alt="Store Logo" fill sizes="80px" className="object-contain" priority />
+                  </div>
                 ) : (
                   <span className={`w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg ${isTop ? 'bg-white/20 text-white' : 'bg-primary text-primary-foreground shadow-primary/20'}`}>ع</span>
                 )}
@@ -343,9 +348,9 @@ export function StorefrontHeader({ menuItems, themeConfig, user, categories = []
                         onClick={() => setIsSearchOpen(false)}
                         className="flex items-center gap-4 p-3 hover:bg-secondary rounded-xl transition-colors"
                       >
-                        <div className="w-12 h-12 rounded-lg bg-background border border-border overflow-hidden shrink-0">
+                        <div className="relative w-12 h-12 rounded-lg bg-background border border-border overflow-hidden shrink-0">
                           {product.imageUrl ? (
-                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                            <Image src={product.imageUrl} alt={product.name} fill sizes="48px" className="object-cover" />
                           ) : (
                             <ShoppingBag className="w-5 h-5 m-3.5 opacity-20" />
                           )}
