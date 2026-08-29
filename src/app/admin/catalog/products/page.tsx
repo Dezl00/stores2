@@ -68,9 +68,15 @@ export default async function AdminProductsPage({
 
   const totalPages = Math.ceil(totalCount / limit)
 
-  const [categories, brands] = await Promise.all([
+  const [categories, brands, globalOptions] = await Promise.all([
     db.category.findMany({ orderBy: { name: "asc" } }),
     db.brand.findMany({ orderBy: { name: "asc" } }),
+    db.globalOption.findMany({
+      where: { isActive: true },
+      include: {
+        values: { orderBy: { sortOrder: 'asc' } }
+      }
+    })
   ])
 
   return (
@@ -78,6 +84,7 @@ export default async function AdminProductsPage({
       products={products} 
       categories={categories} 
       brands={brands} 
+      globalOptions={globalOptions}
       
       currentPage={page}
       totalPages={totalPages}

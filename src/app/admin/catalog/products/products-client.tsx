@@ -16,7 +16,7 @@ import { ImportProductsModal } from "@/components/admin/import-products-modal"
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 
-export function ProductsClient({ products, categories, brands = [], currentPage = 1, totalPages = 1, initialSearch = "", initialBrand = "", initialCats = [], initialStatus = "all" }: { products: any[], categories: any[], brands?: any[], currentPage?: number, totalPages?: number, initialSearch?: string, initialBrand?: string, initialCats?: string[], initialStatus?: string }) {
+export function ProductsClient({ products, categories, brands = [], globalOptions = [], currentPage = 1, totalPages = 1, initialSearch = "", initialBrand = "", initialCats = [], initialStatus = "all" }: { products: any[], categories: any[], brands?: any[], globalOptions?: any[], currentPage?: number, totalPages?: number, initialSearch?: string, initialBrand?: string, initialCats?: string[], initialStatus?: string }) {
   const { hasPermission } = usePermissions()
   const canAdd = hasPermission("products.add")
   const canEdit = hasPermission("products.edit")

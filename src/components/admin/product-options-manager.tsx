@@ -19,11 +19,11 @@ export function ProductOptionsManager({ productId, open, onOpenChange, inline = 
   const [generating, setGenerating] = useState(false)
 
   useEffect(() => {
-    if (open) {
+    if (open || inline) {
       fetchOptions()
       fetchGlobalOptions()
     }
-  }, [open, productId])
+  }, [open, inline, productId])
 
   const fetchOptions = async () => {
     setLoading(true)
