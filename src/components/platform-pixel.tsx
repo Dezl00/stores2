@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { useEffect } from "react";
 
-const FB_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+const FB_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "2165978857636317";
 
 export const PlatformPixel = () => {
   const pathname = usePathname();
@@ -44,6 +44,15 @@ export const PlatformPixel = () => {
           \,
         }}
       />
+      <noscript>
+        <img
+          height="1"
+          width="1"
+          style={{ display: "none" }}
+          src={`https://www.facebook.com/tr?id=${FB_PIXEL_ID}&ev=PageView&noscript=1`}
+          alt=""
+        />
+      </noscript>
     </>
   );
 };
