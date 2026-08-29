@@ -21,7 +21,8 @@ export async function updateThemeConfig(formData: FormData) {
     const stringFields = [
       "storeName", "storeDescription", "logoUrl", "faviconUrl",
       "primaryColor", "secondaryColor", "adminColor", "whatsappNumber",
-      "facebookUrl", "instagramUrl", "twitterUrl", "tiktokUrl", "snapchatUrl", "backupFrequency"
+      "facebookUrl", "instagramUrl", "twitterUrl", "tiktokUrl", "snapchatUrl", "backupFrequency",
+      "facebookPixelId", "googleAnalyticsId", "tiktokPixelId", "snapchatPixelId"
     ]
 
     stringFields.forEach(field => {

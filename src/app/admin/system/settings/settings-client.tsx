@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
-import { Loader2, Store, Palette, Globe, MapPin, Share2, Plus, Edit, Trash2, Database, Upload, Download, Settings2, Bell, Send, History } from "lucide-react"
+import { Loader2, Store, Palette, Globe, MapPin, Share2, Plus, Edit, Trash2, Database, Upload, Download, Settings2, Bell, Send, History, Activity } from "lucide-react"
 import { updateThemeConfig, updateDomainSettings, createBranch, updateBranch, deleteBranch, resetStoreStats, checkDomainVerification } from "@/features/settings/actions"
 import { updateProfile } from "@/features/accounts/actions"
 import { toast } from "sonner"
@@ -215,6 +215,7 @@ export function SettingsClient({ config, store, branches: initialBranches = [], 
     { id: "appearance", label: "مظهر المتجر", icon: <Palette className="w-4 h-4" />, perm: 'settings.appearance' },
     { id: "domain", label: "الدومين والنطاق", icon: <Globe className="w-4 h-4" />, perm: 'settings.general' },
     { id: "social", label: "تواصل اجتماعي", icon: <Share2 className="w-4 h-4" />, perm: 'settings.social' },
+    { id: "analytics", label: "التتبع والإحصائيات", icon: <Activity className="w-4 h-4" />, perm: 'settings.general' },
     { id: "notifications", label: "الإشعارات", icon: <Bell className="w-4 h-4" />, perm: 'settings.general' },
     { id: "advanced", label: "إعدادات متقدمة", icon: <Settings2 className="w-4 h-4" />, perm: 'settings.general' },
     { id: "branches", label: "فروع المتجر", icon: <MapPin className="w-4 h-4" />, perm: 'settings.branches' },
@@ -454,6 +455,39 @@ export function SettingsClient({ config, store, branches: initialBranches = [], 
                         <label className="text-sm font-medium">رابط سناب شات</label>
                         <Input name="snapchatUrl" type="url" defaultValue={config.snapchatUrl || ""} dir="ltr" />
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* --- Analytics Tab --- */}
+                <div className={activeTab === "analytics" ? "block space-y-6 animate-in fade-in" : "hidden"}>
+                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                    <h2 className="text-lg font-semibold">التتبع والإحصائيات (Pixels)</h2>
+                  </div>
+                  
+                  <div className="bg-blue-50 border border-blue-100 text-blue-800 p-4 rounded-lg text-sm mb-6">
+                    يمكنك هنا إضافة معرفات التتبع الخاصة بحملاتك الإعلانية. سيتم دمجها تلقائياً في واجهة المتجر لحساب المشترين والزيارات.
+                  </div>
+
+                  <div className="space-y-4 max-w-xl">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Facebook Pixel ID</label>
+                      <Input name="facebookPixelId" defaultValue={config.facebookPixelId || ""} dir="ltr" className="text-left" placeholder="123456789012345" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Google Analytics Measurement ID</label>
+                      <Input name="googleAnalyticsId" defaultValue={config.googleAnalyticsId || ""} dir="ltr" className="text-left" placeholder="G-XXXXXXXXXX" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">TikTok Pixel ID</label>
+                      <Input name="tiktokPixelId" defaultValue={config.tiktokPixelId || ""} dir="ltr" className="text-left" placeholder="CXXXXXXXXXXXXXX" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Snapchat Pixel ID</label>
+                      <Input name="snapchatPixelId" defaultValue={config.snapchatPixelId || ""} dir="ltr" className="text-left" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
                     </div>
                   </div>
                 </div>

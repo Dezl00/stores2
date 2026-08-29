@@ -14,6 +14,7 @@ import { FloatingWhatsApp } from "@/components/storefront/floating-whatsapp"
 import { PromoPopup } from "@/components/storefront/promo-popup"
 import { PushNotificationPrompt } from "@/components/admin/push-notification-prompt"
 import { ScrollToTop } from "@/components/scroll-to-top"
+import { StorePixels } from "@/components/storefront/store-pixels"
 
 export const revalidate = 3600
 
@@ -59,6 +60,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       </main>
       <StorefrontFooter menuItems={footerItems} themeConfig={themeConfig} branches={branches} />
       <MobileBottomNav user={user} />
+      <StorePixels themeConfig={themeConfig} />
       {themeConfig?.whatsappEnabled && themeConfig?.whatsappNumber && (
         <FloatingWhatsApp number={themeConfig.whatsappNumber} />
       )}

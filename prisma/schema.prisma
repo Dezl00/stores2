@@ -535,6 +535,12 @@ model ThemeConfig {
   tiktokUrl            String?
   snapchatUrl          String?
 
+  // Analytics & Pixels
+  facebookPixelId      String?
+  googleAnalyticsId    String?
+  tiktokPixelId        String?
+  snapchatPixelId      String?
+
   backupFrequency String @default("never") // never, daily, 3days, weekly, monthly
 
   // Custom Settings (Header/Footer UI states)
