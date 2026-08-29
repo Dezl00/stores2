@@ -141,22 +141,8 @@ export default async function ProductDetailsPage(props: { params: Promise<{ slug
             <ShareButton title={product.name} url={`https://assal1.vercel.app/product/${product.id}`} />
           </div>
 
-          <div className="flex items-end gap-4 mb-3">
-            <span className="text-3xl md:text-4xl font-bold md:font-black text-primary">{finalPrice.toFixed(2)} ج.م</span>
-            {hasDiscount && (
-              <span className="text-xl text-muted-foreground line-through mb-1">
-                {product.price.toFixed(2)} ج.م
-              </span>
-            )}
-            {hasDiscount && (
-              <span className="bg-destructive/10 text-destructive font-bold px-3 py-1 rounded-full text-sm mb-1 ml-auto">
-                توفير {((1 - finalPrice / product.price) * 100).toFixed(0)}%
-              </span>
-            )}
-          </div>
-
           {/* SKU and Brand */}
-          <div className="flex flex-col gap-3 text-sm text-muted-foreground mb-8 pb-8 border-b border-border/50">
+          <div className="flex flex-col gap-3 text-sm text-muted-foreground mb-4">
             {product.sku && (
               <div className="flex items-center gap-1.5">
                 <span className="font-semibold text-foreground">الرمز (SKU):</span>
@@ -173,8 +159,7 @@ export default async function ProductDetailsPage(props: { params: Promise<{ slug
             )}
           </div>
 
-          {/* Add to Cart Actions */}
-          
+          <ProductBuySection product={product} options={product.options || []} variants={product.variants || []} />
 
           {/* Product Tabs (Description & Shipping) */}
           <div className="mt-8">
