@@ -1,6 +1,7 @@
 import React from "react"
 import { db } from "@/lib/db"
 import { ProductsClient } from "./products-client"
+import { resolveStoreId } from "@/lib/store-context"
 
 export const dynamic = "force-dynamic"
 
@@ -9,18 +10,19 @@ export default async function AdminProductsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const storeId = await resolveStoreId()
   const resolvedParams = await searchParams
   const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page) : 1
   const search = typeof resolvedParams.search === 'string' ? resolvedParams.search : ''
-    const brandId = typeof resolvedParams.brandId === 'string' ? resolvedParams.brandId : ''
+  const brandId = typeof resolvedParams.brandId === 'string' ? resolvedParams.brandId : ''
   const categoryIds = typeof resolvedParams.categoryIds === 'string' ? resolvedParams.categoryIds.split(',') : []
   const status = typeof resolvedParams.status === 'string' ? resolvedParams.status : 'all'
 
   const limit = 20
   const skip = (page - 1) * limit
 
-  // Prepare where clause
-  const where: any = {}
+  // Prepare where clause - ALWAYS scoped by storeId
+  const where: any = { storeId }
   
   if (search) {
     where.OR = [
@@ -69,10 +71,10 @@ export default async function AdminProductsPage({
   const totalPages = Math.ceil(totalCount / limit)
 
   const [categories, brands, globalOptions] = await Promise.all([
-    db.category.findMany({ orderBy: { name: "asc" } }),
-    db.brand.findMany({ orderBy: { name: "asc" } }),
+    db.category.findMany({ where: { storeId }, orderBy: { name: "asc" } }),
+    db.brand.findMany({ where: { storeId }, orderBy: { name: "asc" } }),
     db.globalOption.findMany({
-      where: { isActive: true },
+      where: { storeId, isActive: true },
       include: {
         values: { orderBy: { sortOrder: 'asc' } }
       }
