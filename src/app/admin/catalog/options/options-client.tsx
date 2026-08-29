@@ -44,10 +44,14 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
       const res = await addGlobalOptionValue(optionId, newLabel, newValue)
       if (res.success) {
         toast.success("تم إضافة القيمة بنجاح")
+        setOptions(options.map(o => {
+          if (o.id === optionId) {
+            return { ...o, values: [...o.values, res.value] }
+          }
+          return o
+        }))
         setNewLabel("")
         setNewValue(optionType === 'COLOR' ? "#000000" : "")
-        // Ideally we'd refresh from server, for now just reload window to keep it simple and accurate
-        window.location.reload()
       }
     } catch (e: any) {
       toast.error("حدث خطأ أثناء الإضافة")
@@ -56,14 +60,38 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
     }
   }
 
-  const handleDeleteValue = async (valueId: string) => {
+  const handleDeleteValue = async (valueId: string, optionId: string) => {
     try {
       setLoadingMap(prev => ({ ...prev, ['del_'+valueId]: true }))
       await deleteGlobalOptionValue(valueId)
       toast.success("تم الحذف بنجاح")
-      window.location.reload()
+      setOptions(options.map(o => {
+        if (o.id === optionId) {
+          return { ...o, values: o.values.filter((v: any) => v.id !== valueId) }
+        }
+        return o
+      }))
     } catch (e: any) {
       toast.error("حدث خطأ")
+    } finally {
+      setLoadingMap(prev => ({ ...prev, ['del_'+valueId]: false }))
+    }
+  }
+
+  // Helper for placeholder based on datatype
+  const getLabelPlaceholder = (dataType: string) => {
+    switch (dataType) {
+      case 'COLOR': return "مثال: أحمر"
+      case 'SELECT': return "مثال: كبير (L)"
+      default: return "مثال: قيمة جديدة"
+    }
+  }
+
+  const getValuePlaceholder = (dataType: string) => {
+    switch (dataType) {
+      case 'COLOR': return "#FF0000"
+      case 'SELECT': return "L"
+      default: return "New Value"
     }
   }
 
@@ -73,9 +101,9 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
         <div key={option.id} className={`bg-card border rounded-xl overflow-hidden shadow-sm transition-all ${option.isActive ? 'border-primary ring-1 ring-primary/20' : 'border-border/50 opacity-80'}`}>
           <div className="p-5 border-b border-border/10 flex items-center justify-between bg-muted/20">
             <div>
-              <h3 className="font-bold text-lg">{option.name}</h3>
+              <h3 className="font-bold text-lg">{option.name === 'Color' ? 'اللون' : option.name === 'Size' ? 'المقاس' : option.name === 'Material' ? 'الخامة' : option.name === 'Weight' ? 'الوزن' : option.name === 'Volume' ? 'الحجم' : option.name === 'Style' ? 'التصميم' : option.name}</h3>
               <p className="text-xs text-muted-foreground mt-1">
-                {option.behavior === 'VARIANT' ? 'يُستخدم لتوليد متغيرات (Variants)' : 'خاصية وصفية (Attribute)'}
+                {option.behavior === 'VARIANT' ? 'يُستخدم لتوليد متغيرات' : 'خاصية وصفية فقط'}
               </p>
             </div>
             <Switch 
@@ -94,7 +122,7 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
                   )}
                   <span>{v.label}</span>
                   {activeConfigOption === option.id && (
-                    <button onClick={() => handleDeleteValue(v.id)} className="text-muted-foreground hover:text-red-500 mr-1">
+                    <button onClick={() => handleDeleteValue(v.id, option.id)} className="text-muted-foreground hover:text-red-500 mr-1">
                       {loadingMap['del_'+v.id] ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" />}
                     </button>
                   )}
@@ -108,7 +136,7 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <label className="text-xs font-medium">الاسم الظاهر (عربي)</label>
-                    <Input placeholder="مثال: أحمر" value={newLabel} onChange={e => setNewLabel(e.target.value)} className="h-8 text-sm" />
+                    <Input placeholder={getLabelPlaceholder(option.dataType)} value={newLabel} onChange={e => setNewLabel(e.target.value)} className="h-8 text-sm" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-medium">{option.dataType === 'COLOR' ? 'اللون (كود HEX)' : 'القيمة الفعلية'}</label>
@@ -118,7 +146,7 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
                         <Input value={newValue || '#000000'} onChange={e => setNewValue(e.target.value)} className="h-8 text-sm flex-1" dir="ltr" />
                       </div>
                     ) : (
-                      <Input placeholder="مثال: Red" value={newValue} onChange={e => setNewValue(e.target.value)} className="h-8 text-sm" />
+                      <Input placeholder={getValuePlaceholder(option.dataType)} value={newValue} onChange={e => setNewValue(e.target.value)} className="h-8 text-sm" />
                     )}
                   </div>
                 </div>

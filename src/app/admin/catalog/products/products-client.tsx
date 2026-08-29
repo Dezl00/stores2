@@ -10,6 +10,7 @@ import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { MultiImageUploader } from "@/components/ui/multi-image-uploader"
 import { ProductOptionsManager } from "@/components/admin/product-options-manager"
 import { Switch } from "@/components/ui/switch"
+import { Badge } from "@/components/ui/badge"
 import { usePermissions } from "@/hooks/use-permissions"
 import { ImportProductsModal } from "@/components/admin/import-products-modal"
 
@@ -22,13 +23,22 @@ export function ProductsClient({ products, categories, brands = [], currentPage 
   const canDelete = hasPermission("products.delete")
 
   const [localProducts, setLocalProducts] = useState<any[]>(products)
-  useEffect(() => { setLocalProducts(products) }, [products])
+  const [editingProduct, setEditingProduct] = useState<any | null>(null)
+
+  useEffect(() => { 
+    setLocalProducts(products) 
+    if (editingProduct) {
+      const updated = products.find(p => p.id === editingProduct.id)
+      if (updated && JSON.stringify(updated.variants) !== JSON.stringify(editingProduct.variants)) {
+        setEditingProduct(updated)
+      }
+    }
+  }, [products])
 
   // Form States
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isFormVisible, setIsFormVisible] = useState(false)
-    const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<any | null>(null)
+  const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false)
   const [isBulkSubmitting, setIsBulkSubmitting] = useState(false)
   
   // Image Upload State
@@ -642,20 +652,7 @@ export function ProductsClient({ products, categories, brands = [], currentPage 
                 <p className="text-xs text-muted-foreground mt-1">{editingProduct ? "تعديل بيانات المنتج المحدد" : "إضافة منتج سريعاً للمتجر."}</p>
               </div>
               <div className="flex items-center gap-2">
-                {editingProduct && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5 text-primary border-primary/50 hover:bg-primary/5 text-xs"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsOptionsModalOpen(true);
-                    }}
-                  >
-                    <Settings className="w-3.5 h-3.5" />
-                    خيارات ومتغيرات
-                  </Button>
-                )}
+
                 {editingProduct && (
                   <Button variant="ghost" size="icon" onClick={() => resetForm(false)} className="h-8 w-8 shrink-0 text-muted-foreground">
                     <X className="w-4 h-4" />
@@ -819,6 +816,51 @@ export function ProductsClient({ products, categories, brands = [], currentPage 
                   </Button>
                 </div>
               </form>
+
+              {editingProduct && (
+                  <div className="mt-8 border-t border-border/50 pt-8 space-y-6">
+                    <ProductOptionsManager productId={editingProduct.id} inline={true} />
+                    
+                    {editingProduct.variants && editingProduct.variants.length > 0 && (
+                      <div className="space-y-4">
+                        <h3 className="text-sm font-semibold">متغيرات المنتج المتاحة</h3>
+                        <div className="border border-border/50 rounded-xl overflow-hidden bg-card">
+                          <table className="w-full text-sm text-right">
+                            <thead className="bg-muted/50 border-b border-border/50">
+                              <tr>
+                                <th className="px-4 py-2.5 font-medium">المتغير</th>
+                                <th className="px-4 py-2.5 font-medium w-32">السعر</th>
+                                <th className="px-4 py-2.5 font-medium w-32">المخزون</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border/50">
+                              {editingProduct.variants.map((variant: any) => (
+                                <tr key={variant.id} className="hover:bg-muted/30">
+                                  <td className="px-4 py-2">
+                                    <div className="flex gap-1.5 flex-wrap">
+                                      {variant.selections.map((s: any) => (
+                                        <Badge key={s.id} variant="secondary" className="text-[10px] h-5 px-1.5">{s.optionValue.label}</Badge>
+                                      ))}
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-2">
+                                    <input type="number" defaultValue={variant.price || editingProduct.price} disabled className="h-8 w-full rounded border border-input bg-muted/50 px-2 cursor-not-allowed opacity-70 text-left" dir="ltr" title="يمكنك تعديل الأسعار قريباً" />
+                                  </td>
+                                  <td className="px-4 py-2">
+                                    <input type="number" defaultValue={variant.stock} disabled className="h-8 w-full rounded border border-input bg-muted/50 px-2 cursor-not-allowed opacity-70 text-left" dir="ltr" title="يمكنك تعديل المخزون قريباً" />
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          <div className="p-3 bg-muted/20 text-xs text-muted-foreground border-t border-border/50">
+                            ملاحظة: يمكنك تعديل أسعار وكميات كل متغير بشكل منفصل لاحقاً (قيد التطوير).
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
             </div>
           </div>
         </div>
@@ -977,14 +1019,6 @@ export function ProductsClient({ products, categories, brands = [], currentPage 
         onCancel={() => setConfirmState(p => ({ ...p, isOpen: false }))}
       />
 
-      {/* Product Options & Variants Manager */}
-      {editingProduct && (
-        <ProductOptionsManager
-          productId={editingProduct.id}
-          open={isOptionsModalOpen}
-          onOpenChange={setIsOptionsModalOpen}
-        />
-      )}
     </div>
   )
 }

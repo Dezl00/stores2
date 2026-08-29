@@ -69,7 +69,7 @@ export async function addGlobalOptionValue(optionId: string, label: string, valu
   
   const count = await db.globalOptionValue.count({ where: { optionId } })
   
-  await db.globalOptionValue.create({
+  const newValue = await db.globalOptionValue.create({
     data: {
       optionId,
       label,
@@ -79,7 +79,7 @@ export async function addGlobalOptionValue(optionId: string, label: string, valu
   })
   
   revalidatePath("/admin/catalog/options")
-  return { success: true }
+  return { success: true, value: newValue }
 }
 
 export async function deleteGlobalOptionValue(valueId: string) {

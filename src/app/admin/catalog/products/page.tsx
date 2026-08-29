@@ -46,6 +46,14 @@ export default async function AdminProductsPage({
       include: {
         category: true,
         brand: true,
+        options: true,
+        variants: {
+          include: {
+            selections: {
+              include: { optionValue: true }
+            }
+          }
+        },
         images: {
           where: { isPrimary: true },
           take: 1

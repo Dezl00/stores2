@@ -28,7 +28,7 @@ export async function addProductOption(productId: string, data: any) {
       }
     })
     
-    revalidatePath(`/admin/products/${productId}`)
+    revalidatePath(`/admin/catalog/products`)
     return { success: true, option }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -57,7 +57,7 @@ export async function updateProductOption(optionId: string, data: any) {
       }
     })
     
-    revalidatePath(`/admin/products/${existing.productId}`)
+    revalidatePath(`/admin/catalog/products`)
     return { success: true, option }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -81,7 +81,7 @@ export async function deleteProductOption(optionId: string) {
     // Since variants rely on specific options, if an option is deleted, we should clear variants or they become orphaned from this option.
     // We will let the merchant manage variants separately.
     
-    revalidatePath(`/admin/products/${existing.productId}`)
+    revalidatePath(`/admin/catalog/products`)
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -106,7 +106,7 @@ export async function addProductOptionValue(optionId: string, data: { label: str
       }
     })
     
-    revalidatePath(`/admin/products/${option.productId}`)
+    revalidatePath(`/admin/catalog/products`)
     return { success: true, optionValue }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -126,7 +126,7 @@ export async function deleteProductOptionValue(valueId: string) {
 
     await db.productOptionValue.delete({ where: { id: valueId } })
     
-    revalidatePath(`/admin/products/${existing.option.productId}`)
+    revalidatePath(`/admin/catalog/products`)
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message }
