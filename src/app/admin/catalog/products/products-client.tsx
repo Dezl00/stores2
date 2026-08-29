@@ -817,7 +817,15 @@ export function ProductsClient({ products, categories, brands = [], currentPage 
                 </div>
               </form>
 
-              {editingProduct && (
+              {!editingProduct ? (
+                <div className="mt-8 border-t border-border/50 pt-8">
+                  <div className="bg-muted/30 border border-border/50 rounded-xl p-6 text-center">
+                    <Settings className="w-8 h-8 mx-auto text-muted-foreground/50 mb-3" />
+                    <h3 className="font-semibold mb-1">المتغيرات والخيارات</h3>
+                    <p className="text-sm text-muted-foreground">لإضافة خيارات مثل (اللون، المقاس) وتوليد المتغيرات، يرجى حفظ المنتج أولاً.</p>
+                  </div>
+                </div>
+              ) : (
                   <div className="mt-8 border-t border-border/50 pt-8 space-y-6">
                     <ProductOptionsManager productId={editingProduct.id} inline={true} />
                     

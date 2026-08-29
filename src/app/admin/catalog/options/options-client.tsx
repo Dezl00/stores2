@@ -78,19 +78,29 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
     }
   }
 
-  // Helper for placeholder based on datatype
-  const getLabelPlaceholder = (dataType: string) => {
-    switch (dataType) {
-      case 'COLOR': return "مثال: أحمر"
-      case 'SELECT': return "مثال: كبير (L)"
+  // Helper for placeholder based on datatype/name
+  const getLabelPlaceholder = (name: string, dataType: string) => {
+    switch (name.toLowerCase()) {
+      case 'color': return "مثال: أحمر"
+      case 'size': return "مثال: كبير (L)"
+      case 'material': return "مثال: قطن 100%"
+      case 'weight': return "مثال: 500 جم"
+      case 'volume': return "مثال: 50 مل"
+      case 'flavor': return "مثال: فانيلا"
+      case 'style': return "مثال: كلاسيك"
       default: return "مثال: قيمة جديدة"
     }
   }
 
-  const getValuePlaceholder = (dataType: string) => {
-    switch (dataType) {
-      case 'COLOR': return "#FF0000"
-      case 'SELECT': return "L"
+  const getValuePlaceholder = (name: string, dataType: string) => {
+    switch (name.toLowerCase()) {
+      case 'color': return "#FF0000"
+      case 'size': return "L"
+      case 'material': return "Cotton"
+      case 'weight': return "500g"
+      case 'volume': return "50ml"
+      case 'flavor': return "Vanilla"
+      case 'style': return "Classic"
       default: return "New Value"
     }
   }
@@ -136,7 +146,7 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <label className="text-xs font-medium">الاسم الظاهر (عربي)</label>
-                    <Input placeholder={getLabelPlaceholder(option.dataType)} value={newLabel} onChange={e => setNewLabel(e.target.value)} className="h-8 text-sm" />
+                    <Input placeholder={getLabelPlaceholder(option.name, option.dataType)} value={newLabel} onChange={e => setNewLabel(e.target.value)} className="h-8 text-sm" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-medium">{option.dataType === 'COLOR' ? 'اللون (كود HEX)' : 'القيمة الفعلية'}</label>
@@ -146,7 +156,7 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
                         <Input value={newValue || '#000000'} onChange={e => setNewValue(e.target.value)} className="h-8 text-sm flex-1" dir="ltr" />
                       </div>
                     ) : (
-                      <Input placeholder={getValuePlaceholder(option.dataType)} value={newValue} onChange={e => setNewValue(e.target.value)} className="h-8 text-sm" />
+                      <Input placeholder={getValuePlaceholder(option.name, option.dataType)} value={newValue} onChange={e => setNewValue(e.target.value)} className="h-8 text-sm" />
                     )}
                   </div>
                 </div>
