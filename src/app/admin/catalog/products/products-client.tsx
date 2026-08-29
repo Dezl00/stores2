@@ -1,9 +1,9 @@
-﻿"use client"
+"use client"
 
 import React, { useState, useEffect, useMemo, useRef } from "react"
 import { createPortal } from "react-dom"
 import { Button } from "@/components/ui/button"
-import { Search, Edit, Trash2, PlusCircle, X, Loader2, Download, Upload, CheckSquare, Square, Filter, Eye, EyeOff, Check } from "lucide-react"
+import { Search, Edit, Trash2, PlusCircle, X, Loader2, Download, Upload, CheckSquare, Square, Filter, Eye, EyeOff, Check, Settings } from "lucide-react"
 import { createProduct, deleteProduct, updateProduct, toggleProductStatus, bulkDeleteProducts, bulkToggleProductsStatus, bulkUpdateProducts } from "@/features/products/actions"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
@@ -641,25 +641,27 @@ export function ProductsClient({ products, categories, brands = [], currentPage 
                 <h2 className="text-lg font-semibold tracking-tight">{editingProduct ? "تعديل المنتج" : "إضافة منتج جديد"}</h2>
                 <p className="text-xs text-muted-foreground mt-1">{editingProduct ? "تعديل بيانات المنتج المحدد" : "إضافة منتج سريعاً للمتجر."}</p>
               </div>
-              
+              <div className="flex items-center gap-2">
                 {editingProduct && (
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
-                    className="ml-auto"
+                    className="gap-1.5 text-primary border-primary/50 hover:bg-primary/5 text-xs"
                     onClick={(e) => {
                       e.preventDefault();
                       setIsOptionsModalOpen(true);
                     }}
                   >
-                    إدارة الخيارات والمتغيرات
+                    <Settings className="w-3.5 h-3.5" />
+                    خيارات ومتغيرات
                   </Button>
                 )}
-{editingProduct && (
-                <Button variant="ghost" size="icon" onClick={() => resetForm(false)} className="h-8 w-8 shrink-0 text-muted-foreground">
-                  <X className="w-4 h-4" />
-                </Button>
-              )}
+                {editingProduct && (
+                  <Button variant="ghost" size="icon" onClick={() => resetForm(false)} className="h-8 w-8 shrink-0 text-muted-foreground">
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
             </div>
             
             <div className="p-6 overflow-y-auto">
@@ -974,6 +976,15 @@ export function ProductsClient({ products, categories, brands = [], currentPage 
         onConfirm={() => confirmState.action && confirmState.action()}
         onCancel={() => setConfirmState(p => ({ ...p, isOpen: false }))}
       />
+
+      {/* Product Options & Variants Manager */}
+      {editingProduct && (
+        <ProductOptionsManager
+          productId={editingProduct.id}
+          open={isOptionsModalOpen}
+          onOpenChange={setIsOptionsModalOpen}
+        />
+      )}
     </div>
   )
 }
