@@ -1,5 +1,6 @@
 import React from "react"
 import { db } from "@/lib/db"
+import { resolveStoreId } from "@/lib/store-context"
 import { OrdersClient } from "./orders-client"
 
 export const dynamic = "force-dynamic"
@@ -9,6 +10,7 @@ export default async function AdminOrdersPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const storeId = await resolveStoreId()
   const resolvedParams = await searchParams
   const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page) : 1
   const search = typeof resolvedParams.search === 'string' ? resolvedParams.search : ''
@@ -17,7 +19,7 @@ export default async function AdminOrdersPage({
   const limit = 20
   const skip = (page - 1) * limit
 
-  const where: any = {}
+  const where: any = { storeId }
   
   if (search) {
     where.OR = [

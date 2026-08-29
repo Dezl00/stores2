@@ -1,6 +1,7 @@
 import React from "react"
 import { db } from "@/lib/db"
 import { CustomersClient } from "./customers-client"
+import { resolveStoreId } from "@/lib/store-context"
 
 export const dynamic = 'force-dynamic'
 
@@ -9,6 +10,7 @@ export default async function AdminCustomersPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const storeId = await resolveStoreId()
   const resolvedParams = await searchParams
   const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page) : 1
   const search = typeof resolvedParams.search === 'string' ? resolvedParams.search : ''
@@ -16,6 +18,7 @@ export default async function AdminCustomersPage({
   const skip = (page - 1) * limit
 
   const whereClause = {
+    storeId,
     role: "CUSTOMER" as const,
     ...(search ? {
       OR: [

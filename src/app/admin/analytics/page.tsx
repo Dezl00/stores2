@@ -2,12 +2,14 @@ import { db as prisma } from '@/lib/db'
 import { AnalyticsClient } from './analytics-client'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
+import { resolveStoreId } from "@/lib/store-context"
 
 export const dynamic = 'force-dynamic'
 
 export default async function AnalyticsPage() {
   const session = await auth()
   if (session?.user?.role !== 'STORE_OWNER' && session?.user?.role !== 'MANAGER') redirect('/admin')
+  const storeId = await resolveStoreId()
 
   const thirtyDaysAgo = new Date(new Date().setDate(new Date().getDate() - 30))
   const todayStart = new Date(new Date().setHours(0, 0, 0, 0))
@@ -17,6 +19,7 @@ export default async function AnalyticsPage() {
   // We will filter out US visits in JS or DB. DB is better.
   const pageVisits = await prisma.pageVisit.findMany({
     where: { 
+      storeId,
       createdAt: { gte: thirtyDaysAgo },
       country: { notIn: ['US', 'USA', 'United States', 'United States of America', 'us'] }
     },
@@ -25,6 +28,7 @@ export default async function AnalyticsPage() {
   
   const productViews = await prisma.productView.findMany({
     where: { 
+      product: { storeId },
       createdAt: { gte: thirtyDaysAgo },
       // Optional: if product views had country, we'd filter here too, but they don't
     },
