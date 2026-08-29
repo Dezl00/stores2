@@ -40,14 +40,17 @@ export function RegisterClient() {
         // Redirect them to their new store's login page WITH the auto login token!
         const platformDomainRaw = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || "localhost:3000"
         const platformDomain = platformDomainRaw.replace(/^https?:\/\//, '').replace(/\/$/, '')
-        const cleanPlatform = platformDomain.split(':')[0]
         const protocol = window.location.protocol
-        const port = window.location.port ? `:${window.location.port}` : ""
         
-        // This will redirect to store.matgry.tech/login?autoLoginToken=XYZ
-        // The login page will automatically log them in and redirect to /admin
+        // Use the full platform domain (e.g. matgry.tech) without stripping TLD
+        // Only strip port if present and re-add from current window
+        const domainParts = platformDomain.split(':')
+        const cleanDomain = domainParts[0] // e.g. "matgry.tech" (keeps TLD!)
+        const port = window.location.port ? `:${window.location.port}` : (domainParts[1] ? `:${domainParts[1]}` : "")
+        
+        // This will redirect to newstore.matgry.tech/login?autoLoginToken=XYZ
         setTimeout(() => {
-          window.location.href = `${protocol}//${slug}.${cleanPlatform}${port}/login?autoLoginToken=${encodeURIComponent(result.autoLoginToken)}`
+          window.location.href = `${protocol}//${slug}.${cleanDomain}${port}/login?autoLoginToken=${encodeURIComponent(result.autoLoginToken)}`
         }, 300);
       }
     } catch (err) {
