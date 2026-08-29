@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, ShoppingBag, FolderTree, Image as ImageIcon, LayoutTemplate, Settings, ListTree, ExternalLink, LogOut, Menu as MenuIcon, X, Bell, Tag, Truck, BookOpen, Loader2, Award, ChevronDown, Home, Megaphone, Store, Shield } from "lucide-react"
+import { LayoutDashboard, ShoppingBag, FolderTree, Image as ImageIcon, LayoutTemplate, Settings, ListTree, ExternalLink, LogOut, Menu as MenuIcon, X, Bell, Tag, Truck, BookOpen, Loader2, Award, ChevronDown, Home, Megaphone, Store, Shield, Layers, SlidersHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { signOut, useSession, SessionProvider } from "next-auth/react"
 import { AdminGlobalSearch } from "@/components/admin/admin-global-search"
@@ -168,6 +168,7 @@ function AdminLayoutInner({
       title: "المبيعات",
       icon: ShoppingBag,
       items: [
+      items: [
         { name: "الرئيسية", href: "/admin", icon: LayoutDashboard, show: true },
         { name: "الطلبات", href: "/admin/sales/orders", icon: ShoppingBag, show: hasPerm('orders') },
         { name: "السلات المتروكة", href: "/admin/sales/abandoned-carts", icon: ShoppingBag, show: hasPerm('orders') },
@@ -180,6 +181,8 @@ function AdminLayoutInner({
       items: [
         { name: "المنتجات", href: "/admin/catalog/products", icon: ShoppingBag, show: hasPerm('products') },
         { name: "التصنيفات", href: "/admin/catalog/categories", icon: ListTree, show: hasPerm('categories') },
+        { name: "الماركات", href: "/admin/catalog/brands", icon: Layers, show: hasPerm('products') },
+        { name: "المتغيرات والخيارات", href: "/admin/catalog/options", icon: SlidersHorizontal, show: hasPerm('products') },
         { name: "التقييمات", href: "/admin/catalog/reviews", icon: Tag, show: hasPerm('products') },
         { name: "المخزون", href: "/admin/catalog/inventory", icon: FolderTree, show: hasPerm('products') },
       ]
@@ -187,9 +190,6 @@ function AdminLayoutInner({
     {
       title: "التسويق",
       icon: Megaphone,
-      items: [
-        { name: "العروض والخصومات", href: "/admin/marketing/offers", icon: Tag, show: hasPerm('offers') },
-        { name: "الحملات التسويقية", href: "/admin/marketing/campaigns", icon: Tag, show: hasPerm('marketing') || true },
       ]
     },
     {

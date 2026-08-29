@@ -55,6 +55,39 @@ enum OptionDisplayType {
   IMAGE_SWATCHES
 }
 
+model GlobalOption {
+  id      String @id @default(cuid())
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  name        String // "Color", "Size", "Material"
+  behavior    OptionBehavior
+  dataType    OptionDataType
+  displayType OptionDisplayType
+
+  isActive Boolean @default(true) // Toggle to make available in product forms
+
+  values GlobalOptionValue[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, name])
+  @@index([storeId])
+}
+
+model GlobalOptionValue {
+  id       String       @id @default(cuid())
+  optionId String
+  option   GlobalOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  label     String
+  value     String
+  sortOrder Int    @default(0)
+
+  @@index([optionId])
+}
+
 enum StoreRole {
   STORE_OWNER
   MANAGER
@@ -136,6 +169,7 @@ model Store {
   collections           Collection[]
   products              Product[]
   orders                Order[]
+  globalOptions         GlobalOption[]
   menus                 Menu[]
   themeConfig           ThemeConfig?
   branches              Branch[]
@@ -360,10 +394,10 @@ model Product {
   storeId String
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  options ProductOption[]
-  variants ProductVariant[]
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  options   ProductOption[]
+  variants  ProductVariant[]
 
   @@unique([slug, storeId])
   @@index([categoryId])
