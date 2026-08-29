@@ -404,6 +404,9 @@ model Product {
   @@index([brandId])
   @@index([isActive])
   @@index([storeId])
+  @@index([price])
+  @@index([createdAt])
+  @@index([storeId, isActive, categoryId])
 }
 
 model ProductImage {

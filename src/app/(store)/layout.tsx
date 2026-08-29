@@ -15,7 +15,7 @@ import { PromoPopup } from "@/components/storefront/promo-popup"
 import { PushNotificationPrompt } from "@/components/admin/push-notification-prompt"
 import { ScrollToTop } from "@/components/scroll-to-top"
 
-export const revalidate = 60
+export const revalidate = 3600
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()

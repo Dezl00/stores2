@@ -1,4 +1,4 @@
-﻿"use server"
+"use server"
 
 import { requireStoreAdmin, requirePermission } from "@/lib/auth/require-admin"
 import { db } from "@/lib/db"
@@ -84,6 +84,9 @@ export async function deleteOrder(orderId: string) {
     }
     const session = await auth()
     
+    const existing = await db.order.findFirst({ where: { id: orderId, storeId } })
+    if (!existing) return { success: false, error: "Order not found" }
+
     await db.order.delete({ where: { id: orderId }})
 
     if (session?.user?.id) {
