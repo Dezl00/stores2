@@ -32,6 +32,11 @@ export function RegisterClient() {
       }
 
       if (result.success && result.autoLoginToken) {
+        // Fire Facebook Pixel CompleteRegistration
+        import("@/components/platform-pixel").then((mod) => {
+          mod.fbq("CompleteRegistration", { value: 1.00, currency: "USD" });
+        });
+
         // Redirect them to their new store's login page WITH the auto login token!
         const platformDomainRaw = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN || "localhost:3000"
         const platformDomain = platformDomainRaw.replace(/^https?:\/\//, '').replace(/\/$/, '')
@@ -41,7 +46,9 @@ export function RegisterClient() {
         
         // This will redirect to store.matgry.tech/login?autoLoginToken=XYZ
         // The login page will automatically log them in and redirect to /admin
-        window.location.href = `${protocol}//${slug}.${cleanPlatform}${port}/login?autoLoginToken=${encodeURIComponent(result.autoLoginToken)}`
+        setTimeout(() => {
+          window.location.href = `${protocol}//${slug}.${cleanPlatform}${port}/login?autoLoginToken=${encodeURIComponent(result.autoLoginToken)}`
+        }, 300);
       }
     } catch (err) {
       setError("حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى")

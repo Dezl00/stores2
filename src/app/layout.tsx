@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { db } from "@/lib/db";
 import NextTopLoader from 'nextjs-toploader';
 import { PageTracker } from "@/components/page-tracker";
+import { PlatformPixel } from "@/components/platform-pixel";
 import { Suspense } from "react";
 import { getCurrentStore } from "@/lib/tenant";
 
@@ -128,6 +129,7 @@ export default async function RootLayout({
         />
         <Suspense fallback={null}>
           <PageTracker />
+          <PlatformPixel />
         </Suspense>
         {children}
         <Toaster 
