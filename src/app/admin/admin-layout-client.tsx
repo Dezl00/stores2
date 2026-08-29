@@ -168,7 +168,6 @@ function AdminLayoutInner({
       title: "المبيعات",
       icon: ShoppingBag,
       items: [
-      items: [
         { name: "الرئيسية", href: "/admin", icon: LayoutDashboard, show: true },
         { name: "الطلبات", href: "/admin/sales/orders", icon: ShoppingBag, show: hasPerm('orders') },
         { name: "السلات المتروكة", href: "/admin/sales/abandoned-carts", icon: ShoppingBag, show: hasPerm('orders') },
@@ -190,6 +189,9 @@ function AdminLayoutInner({
     {
       title: "التسويق",
       icon: Megaphone,
+      items: [
+        { name: "العروض والخصومات", href: "/admin/marketing/offers", icon: Tag, show: hasPerm('offers') },
+        { name: "الحملات التسويقية", href: "/admin/marketing/campaigns", icon: Tag, show: hasPerm('marketing') || true },
       ]
     },
     {

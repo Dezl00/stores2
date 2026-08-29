@@ -4,7 +4,6 @@ import React, { useState } from "react"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { toggleGlobalOption, addGlobalOptionValue, deleteGlobalOptionValue } from "@/features/products/global-options-actions"
 import { toast } from "sonner"
 import { Plus, Trash2, Settings, Loader2, X } from "lucide-react"
@@ -71,7 +70,7 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {options.map(option => (
-        <div key={option.id} className={\g-card border rounded-xl overflow-hidden shadow-sm transition-all \\}>
+        <div key={option.id} className={`bg-card border rounded-xl overflow-hidden shadow-sm transition-all ${option.isActive ? 'border-primary ring-1 ring-primary/20' : 'border-border/50 opacity-80'}`}>
           <div className="p-5 border-b border-border/10 flex items-center justify-between bg-muted/20">
             <div>
               <h3 className="font-bold text-lg">{option.name}</h3>
@@ -108,11 +107,11 @@ export function OptionsClient({ initialOptions }: { initialOptions: any[] }) {
               <div className="pt-4 border-t border-border/50 space-y-3 mt-4 animate-in fade-in slide-in-from-top-2">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
-                    <Label className="text-xs">الاسم الظاهر (عربي)</Label>
+                    <label className="text-xs font-medium">الاسم الظاهر (عربي)</label>
                     <Input placeholder="مثال: أحمر" value={newLabel} onChange={e => setNewLabel(e.target.value)} className="h-8 text-sm" />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">{option.dataType === 'COLOR' ? 'اللون (كود HEX)' : 'القيمة الفعلية'}</Label>
+                    <label className="text-xs font-medium">{option.dataType === 'COLOR' ? 'اللون (كود HEX)' : 'القيمة الفعلية'}</label>
                     {option.dataType === 'COLOR' ? (
                       <div className="flex items-center gap-2">
                         <Input type="color" value={newValue || '#000000'} onChange={e => setNewValue(e.target.value)} className="h-8 w-12 p-0 border-0 cursor-pointer" />

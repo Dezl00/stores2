@@ -1,4 +1,4 @@
-﻿"use server"
+"use server"
 
 import { requirePermission } from "@/lib/auth/require-admin"
 import { db } from "@/lib/db"
@@ -20,16 +20,12 @@ export async function seedGlobalOptions() {
       create: {
         storeId,
         name: sysOpt.name,
-        behavior: sysOpt.behavior as OptionBehavior,
+        behavior: sysOpt.defaultBehavior as OptionBehavior,
         dataType: sysOpt.dataType as OptionDataType,
         displayType: sysOpt.defaultDisplayType as OptionDisplayType,
         isActive: false, // Disabled by default
         values: {
-          create: sysOpt.suggestedValues.map((v, i) => ({
-            label: v.label,
-            value: v.value,
-            sortOrder: i
-          }))
+          create: []
         }
       }
     })
@@ -97,4 +93,12 @@ export async function deleteGlobalOptionValue(valueId: string) {
   
   revalidatePath("/admin/catalog/options")
   return { success: true }
+}
+export async function getActiveGlobalOptions() {
+  const storeId = await resolveStoreId()
+  return await db.globalOption.findMany({
+    where: { storeId, isActive: true },
+    include: { values: { orderBy: { sortOrder: 'asc' } } },
+    orderBy: { createdAt: 'asc' }
+  })
 }
