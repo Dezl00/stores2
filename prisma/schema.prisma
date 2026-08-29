@@ -32,6 +32,29 @@ enum StoreStatus {
   DELETED
 }
 
+enum OptionBehavior {
+  VARIANT_OPTION
+  PRODUCT_ATTRIBUTE
+}
+
+enum OptionDataType {
+  TEXT
+  NUMBER
+  COLOR
+  SELECT
+  MULTI_SELECT
+  BOOLEAN
+}
+
+enum OptionDisplayType {
+  INPUT
+  DROPDOWN
+  BUTTONS
+  SWATCHES
+  CHECKBOX
+  IMAGE_SWATCHES
+}
+
 enum StoreRole {
   STORE_OWNER
   MANAGER
@@ -43,15 +66,15 @@ enum StoreRole {
 // ============================================================
 
 model PlatformUser {
-  id           String       @id @default(cuid())
+  id           String        @id @default(cuid())
   name         String
-  email        String       @unique
+  email        String        @unique
   passwordHash String
-  role         PlatformRole @default(SUPER_ADMIN)
-  isActive     Boolean      @default(true)
+  role         PlatformRole  @default(SUPER_ADMIN)
+  isActive     Boolean       @default(true)
   logs         PlatformLog[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model Plan {
@@ -91,7 +114,7 @@ model Store {
   domainVerified   Boolean     @default(false)
   status           StoreStatus @default(ACTIVE)
   ownerId          String?
-  owner            StoreUser?    @relation("StoreOwnership", fields: [ownerId], references: [id])
+  owner            StoreUser?  @relation("StoreOwnership", fields: [ownerId], references: [id])
   logoUrl          String?
   faviconUrl       String?
   description      String?
@@ -125,11 +148,11 @@ model Store {
   pushSubscriptions     PushSubscription[]
   articles              Article[]
   notificationCampaigns NotificationCampaign[]
-  
+
   // New Relations
-  productReviews        ProductReview[]
-  carts                 Cart[]
-  appIntegrations       AppIntegration[]
+  productReviews  ProductReview[]
+  carts           Cart[]
+  appIntegrations AppIntegration[]
 
   @@index([slug])
   @@index([customDomain])
@@ -144,28 +167,28 @@ model Store {
 // ---------- StoreUser (replaces old User) ----------
 
 model StoreUser {
-  id                  String             @id @default(cuid())
+  id                  String    @id @default(cuid())
   name                String?
   email               String?
   passwordHash        String?
   phone               String?
   address             String?
-  role                StoreRole          @default(CUSTOMER)
-  permissions         String[]           @default([])
-  isActive            Boolean            @default(true)
-  orderUpdatesEnabled Boolean            @default(false)
+  role                StoreRole @default(CUSTOMER)
+  permissions         String[]  @default([])
+  isActive            Boolean   @default(true)
+  orderUpdatesEnabled Boolean   @default(false)
 
-  storeId             String
-  store               Store              @relation("StoreMembers", fields: [storeId], references: [id], onDelete: Cascade)
+  storeId String
+  store   Store  @relation("StoreMembers", fields: [storeId], references: [id], onDelete: Cascade)
 
-  ownedStores         Store[]            @relation("StoreOwnership")
-  orders              Order[]
-  addresses           Address[]
-  notifications       Notification[]
-  pushSubscriptions   PushSubscription[]
+  ownedStores       Store[]            @relation("StoreOwnership")
+  orders            Order[]
+  addresses         Address[]
+  notifications     Notification[]
+  pushSubscriptions PushSubscription[]
 
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([phone, storeId])
   @@unique([email, storeId])
@@ -175,41 +198,41 @@ model StoreUser {
 // ---------- Widget System ----------
 
 model Widget {
-  id          String              @id @default(cuid())
-  type        String              // HeroSlider, BannerGrid, FeaturedProducts, etc.
-  title       String?
-  subtitle    String?
-  status      Boolean             @default(true)
-  sortOrder   Int                 @default(0)
+  id        String  @id @default(cuid())
+  type      String // HeroSlider, BannerGrid, FeaturedProducts, etc.
+  title     String?
+  subtitle  String?
+  status    Boolean @default(true)
+  sortOrder Int     @default(0)
 
   // Visibility
-  showDesktop Boolean             @default(true)
-  showTablet  Boolean             @default(true)
-  showMobile  Boolean             @default(true)
+  showDesktop Boolean @default(true)
+  showTablet  Boolean @default(true)
+  showMobile  Boolean @default(true)
 
   // Styling JSON (Padding, Margin, Width, BgColor, Animation, CssClass)
-  settings    Json?
+  settings   Json?
   // Data Source JSON (e.g. { source: "Category", categoryId: "123", sort: "Newest", limit: 10 })
-  dataSource  Json?
+  dataSource Json?
   // Display Options JSON (Columns, Rows, Spacing, ImageRatio, ShowPrice, etc.)
-  display     Json?
+  display    Json?
 
   // Content (Slides for Hero, Banners, etc.)
-  items       WidgetContentItem[]
+  items WidgetContentItem[]
 
-  storeId     String
-  store       Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([storeId])
 }
 
 model WidgetContentItem {
-  id           String  @id @default(cuid())
-  widgetId     String
-  widget       Widget  @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+  id       String @id @default(cuid())
+  widgetId String
+  widget   Widget @relation(fields: [widgetId], references: [id], onDelete: Cascade)
 
   desktopImage String?
   mobileImage  String?
@@ -225,7 +248,7 @@ model WidgetContentItem {
   redirectId   String?
 
   // Custom Settings (Alignment, Colors, Button Styles)
-  settings     Json?
+  settings Json?
 
   @@index([widgetId])
 }
@@ -251,24 +274,24 @@ model MediaAsset {
 // ---------- Catalog ----------
 
 model Category {
-  id           String     @id @default(cuid())
-  name         String
-  slug         String
-  description  String?
-  imageUrl     String?
-  isActive     Boolean    @default(true)
+  id          String  @id @default(cuid())
+  name        String
+  slug        String
+  description String?
+  imageUrl    String?
+  isActive    Boolean @default(true)
 
-  parentId     String?
-  parent       Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children     Category[] @relation("CategoryHierarchy")
+  parentId String?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
 
-  products     Product[]
+  products Product[]
 
-  storeId      String
-  store        Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([slug, storeId])
   @@index([parentId])
@@ -276,69 +299,71 @@ model Category {
 }
 
 model Brand {
-  id       String    @id @default(cuid())
-  name     String
-  slug     String
-  logoUrl  String?
-  products Product[]
-  storeId  String
-  store    Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(cuid())
+  name      String
+  slug      String
+  logoUrl   String?
+  products  Product[]
+  storeId   String
+  store     Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@unique([slug, storeId])
   @@index([storeId])
 }
 
 model Collection {
-  id       String    @id @default(cuid())
-  name     String
-  slug     String
-  products Product[] @relation("CollectionProducts")
-  storeId  String
-  store    Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(cuid())
+  name      String
+  slug      String
+  products  Product[] @relation("CollectionProducts")
+  storeId   String
+  store     Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@unique([slug, storeId])
   @@index([storeId])
 }
 
 model Product {
-  id                 String         @id @default(cuid())
-  name               String
-  slug               String
-  sku                String?
-  barcode            String?
-  description        String?
-  price              Float
-  discountPrice      Float?
-  stock              Int            @default(0)
-  isActive           Boolean        @default(true)
+  id            String  @id @default(cuid())
+  name          String
+  slug          String
+  sku           String?
+  barcode       String?
+  description   String?
+  price         Float
+  discountPrice Float?
+  stock         Int     @default(0)
+  isActive      Boolean @default(true)
 
-  categoryId         String
-  category           Category       @relation(fields: [categoryId], references: [id])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
 
-  brandId            String?
-  brand              Brand?         @relation(fields: [brandId], references: [id])
+  brandId String?
+  brand   Brand?  @relation(fields: [brandId], references: [id])
 
-  collections        Collection[]   @relation("CollectionProducts")
+  collections Collection[] @relation("CollectionProducts")
 
-  images             ProductImage[]
-  
-  reviews            ProductReview[] @relation("ProductReviews")
-  cartItems          CartItem[]
+  images ProductImage[]
 
-  recommendationMode String         @default("Automatic") // Automatic, Manual, Disabled
+  reviews   ProductReview[] @relation("ProductReviews")
+  cartItems CartItem[]
 
-  orders             OrderItem[]
-  productViews       ProductView[]
+  recommendationMode String @default("Automatic") // Automatic, Manual, Disabled
 
-  storeId            String
-  store              Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orders       OrderItem[]
+  productViews ProductView[]
 
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  options ProductOption[]
+  variants ProductVariant[]
 
   @@unique([slug, storeId])
   @@index([categoryId])
@@ -361,26 +386,26 @@ model ProductImage {
 // ---------- Orders ----------
 
 model Order {
-  id            String      @id @default(cuid())
+  id            String     @id @default(cuid())
   userId        String?
-  user          StoreUser?  @relation(fields: [userId], references: [id])
+  user          StoreUser? @relation(fields: [userId], references: [id])
   customerName  String?
   customerPhone String?
   address       String?
   city          String?
   governorate   String?
-  status        String      @default("PENDING") // PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
+  status        String     @default("PENDING") // PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
   totalAmount   Float
-  shippingCost  Float       @default(0)
-  discount      Float       @default(0)
+  shippingCost  Float      @default(0)
+  discount      Float      @default(0)
   couponCode    String?
   paymentMethod String?
-  
-  items         OrderItem[]
-  storeId       String
-  store         Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+
+  items     OrderItem[]
+  storeId   String
+  store     Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
   @@index([userId])
   @@index([status])
@@ -389,13 +414,15 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  quantity  Int
-  price     Float
+  id               String          @id @default(cuid())
+  orderId          String
+  order            Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product         @relation(fields: [productId], references: [id])
+  quantity         Int
+  price            Float
+  ProductVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
+  productVariantId String?
 
   @@index([orderId])
   @@index([productId])
@@ -405,7 +432,7 @@ model OrderItem {
 
 model Menu {
   id          String     @id @default(cuid())
-  name        String     // e.g., 'header-menu', 'footer-menu'
+  name        String // e.g., 'header-menu', 'footer-menu'
   description String?
   items       MenuItem[]
   storeId     String
@@ -438,8 +465,8 @@ model Address {
   id          String    @id @default(cuid())
   userId      String
   user        StoreUser @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title       String    // e.g., المنزل، العمل
-  address     String    // Full details
+  title       String // e.g., المنزل، العمل
+  address     String // Full details
   city        String?
   governorate String?
   phone       String    @default("")
@@ -451,48 +478,48 @@ model Address {
 // ---------- Theme & Settings ----------
 
 model ThemeConfig {
-  id                            String   @id @default(cuid())
-  storeName                     String   @default("متجري")
-  storeDescription              String?
-  logoUrl                       String?
-  faviconUrl                    String?
-  primaryColor                  String   @default("#000000")
-  secondaryColor                String   @default("#ffffff")
-  borderRadius                  String   @default("0px")
-  buttonStyle                   String   @default("solid") // solid, outline
+  id               String  @id @default(cuid())
+  storeName        String  @default("متجري")
+  storeDescription String?
+  logoUrl          String?
+  faviconUrl       String?
+  primaryColor     String  @default("#000000")
+  secondaryColor   String  @default("#ffffff")
+  borderRadius     String  @default("0px")
+  buttonStyle      String  @default("solid") // solid, outline
 
-  adminColor                    String   @default("#0f172a")
-  whatsappNumber                String?
-  whatsappEnabled               Boolean  @default(true)
-  whatsappOrderEnabled          Boolean  @default(false)
-  facebookUrl                   String?
-  instagramUrl                  String?
-  twitterUrl                    String?
-  tiktokUrl                     String?
-  snapchatUrl                   String?
+  adminColor           String  @default("#0f172a")
+  whatsappNumber       String?
+  whatsappEnabled      Boolean @default(true)
+  whatsappOrderEnabled Boolean @default(false)
+  facebookUrl          String?
+  instagramUrl         String?
+  twitterUrl           String?
+  tiktokUrl            String?
+  snapchatUrl          String?
 
-  backupFrequency               String   @default("never") // never, daily, 3days, weekly, monthly
+  backupFrequency String @default("never") // never, daily, 3days, weekly, monthly
 
   // Custom Settings (Header/Footer UI states)
-  headerSettings                Json?
-  footerSettings                Json?
+  headerSettings Json?
+  footerSettings Json?
 
   // Offers & Shipping
-  freeShippingThreshold         Float?
-  promoPopupEnabled             Boolean  @default(false)
-  promoPopupDelay               Int      @default(10)
-  promoPopupTitle               String?
-  promoPopupDescription         String?
-  promoPopupCode                String?
+  freeShippingThreshold Float?
+  promoPopupEnabled     Boolean @default(false)
+  promoPopupDelay       Int     @default(10)
+  promoPopupTitle       String?
+  promoPopupDescription String?
+  promoPopupCode        String?
 
   // Notification Toggles for Admin
-  adminOrderNotifications       Boolean  @default(true)
-  adminNewCustomerNotifications Boolean  @default(true)
+  adminOrderNotifications       Boolean @default(true)
+  adminNewCustomerNotifications Boolean @default(true)
 
-  storeId                       String   @unique
-  store                         Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  storeId String @unique
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
-  updatedAt                     DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 }
 
 // ---------- Analytics ----------
@@ -546,7 +573,7 @@ model Backup {
   id        String   @id @default(cuid())
   filename  String
   size      Int
-  status    String   // COMPLETED, FAILED, PENDING
+  status    String // COMPLETED, FAILED, PENDING
   storeId   String
   store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -586,9 +613,9 @@ model City {
 model PaymentMethod {
   id           String   @id @default(cuid())
   name         String
-  type         String   // COD, ELECTRONIC_WALLET, INSTAPAY
-  accountInfo  String?  // Phone number
-  paymentLink  String?  // Payment link for Instapay
+  type         String // COD, ELECTRONIC_WALLET, INSTAPAY
+  accountInfo  String? // Phone number
+  paymentLink  String? // Payment link for Instapay
   instructions String?
   logoUrl      String?
   isActive     Boolean  @default(true)
@@ -606,7 +633,7 @@ model PaymentMethod {
 model Coupon {
   id        String    @id @default(cuid())
   code      String
-  type      String    // PERCENTAGE, FIXED, FREE_SHIPPING
+  type      String // PERCENTAGE, FIXED, FREE_SHIPPING
   value     Float
   maxUses   Int?
   usedCount Int       @default(0)
@@ -629,7 +656,7 @@ model Notification {
   user      StoreUser? @relation(fields: [userId], references: [id])
   title     String
   message   String
-  type      String     // ORDER_CREATED, ORDER_SHIPPED, NEW_CUSTOMER, ORDER_CANCELLED
+  type      String // ORDER_CREATED, ORDER_SHIPPED, NEW_CUSTOMER, ORDER_CANCELLED
   link      String?
   isRead    Boolean    @default(false)
   storeId   String
@@ -660,8 +687,8 @@ model Article {
   id        String   @id @default(cuid())
   title     String
   slug      String
-  content   String   // HTML content from rich text editor
-  imageUrl  String?  // Cover image
+  content   String // HTML content from rich text editor
+  imageUrl  String? // Cover image
   isActive  Boolean  @default(true)
   seoTitle  String?
   seoDesc   String?
@@ -692,17 +719,17 @@ model NotificationCampaign {
 // ---------- New Models ----------
 
 model ProductReview {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   rating    Int
   comment   String?
-  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  status    String  @default("PENDING") // PENDING, APPROVED, REJECTED
   productId String
-  product   Product  @relation("ProductReviews", fields: [productId], references: [id], onDelete: Cascade)
-  userId    String?  
-  userName  String?  
-  
-  storeId   String
-  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  product   Product @relation("ProductReviews", fields: [productId], references: [id], onDelete: Cascade)
+  userId    String?
+  userName  String?
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -712,19 +739,19 @@ model ProductReview {
 }
 
 model Cart {
-  id          String   @id @default(cuid())
-  sessionId   String?  
-  userId      String?  
-  
-  status      String   @default("ACTIVE") // ACTIVE, ABANDONED, CONVERTED
-  
-  items       CartItem[]
+  id        String  @id @default(cuid())
+  sessionId String?
+  userId    String?
 
-  storeId     String
-  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  status String @default("ACTIVE") // ACTIVE, ABANDONED, CONVERTED
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  items CartItem[]
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([sessionId])
   @@index([userId])
@@ -732,30 +759,103 @@ model Cart {
 }
 
 model CartItem {
-  id        String   @id @default(cuid())
-  cartId    String
-  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  quantity  Int
-  price     Float
+  id               String          @id @default(cuid())
+  cartId           String
+  cart             Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity         Int
+  price            Float
+  ProductVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
+  productVariantId String?
 
   @@index([cartId])
 }
 
 model AppIntegration {
-  id        String   @id @default(cuid())
-  provider  String   // e.g., "ARAMEX", "TAP", "SNAPCHAT"
-  category  String   // "SHIPPING", "PAYMENT", "MARKETING", "ACCOUNTING"
-  isActive  Boolean  @default(false)
-  config    Json?    
-  
-  storeId   String
-  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  
+  id       String  @id @default(cuid())
+  provider String // e.g., "ARAMEX", "TAP", "SNAPCHAT"
+  category String // "SHIPPING", "PAYMENT", "MARKETING", "ACCOUNTING"
+  isActive Boolean @default(false)
+  config   Json?
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([storeId, provider])
   @@index([storeId])
+}
+
+// ---------- Product Options & Variants ----------
+
+model ProductOption {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  name           String
+  dataType       OptionDataType
+  displayType    OptionDisplayType
+  behavior       OptionBehavior
+  isRequired     Boolean           @default(false)
+  systemOptionId String? // Identifies built-in options (e.g., 'color', 'size')
+  sortOrder      Int               @default(0)
+
+  values ProductOptionValue[]
+
+  @@index([productId])
+}
+
+model ProductOptionValue {
+  id       String        @id @default(cuid())
+  optionId String
+  option   ProductOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  label     String // e.g., "Red", "Cotton"
+  value     String // e.g., "#FF0000", "cotton"
+  sortOrder Int    @default(0)
+
+  // Join table for Variant associations
+  variantSelections VariantSelection[]
+
+  @@index([optionId])
+}
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  price          Float?
+  compareAtPrice Float?
+  cost           Float?
+  stock          Int     @default(0)
+  sku            String?
+  barcode        String?
+  weight         Float?
+  imageUrl       String?
+  isActive       Boolean @default(true)
+
+  selections VariantSelection[]
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([productId])
+}
+
+// Join Table mapping a Variant to its chosen Option Values
+model VariantSelection {
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  optionValueId String
+  optionValue   ProductOptionValue @relation(fields: [optionValueId], references: [id], onDelete: Cascade)
+
+  @@id([variantId, optionValueId])
+  @@index([variantId])
+  @@index([optionValueId])
 }

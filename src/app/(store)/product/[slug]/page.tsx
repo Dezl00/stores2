@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 import Link from "next/link"
 import { ChevronRight, Truck, ShieldCheck, Tag } from "lucide-react"
 import { ProductGallery } from "@/components/storefront/product-gallery"
-import { AddToCartForm } from "@/components/storefront/add-to-cart-form"
+import { ProductBuySection } from "@/components/storefront/product/product-buy-section"
 import { ShareButton } from "@/components/storefront/share-button"
 import { ProductTabs } from "@/components/storefront/product-tabs"
 import { ProductFeatures } from "@/components/storefront/product-features"
@@ -23,6 +23,8 @@ const getProduct = cache(async (slug: string) => {
     where: { slug, isActive: true, storeId: await resolveStoreId() },
     include: { 
       images: { orderBy: { sortOrder: 'asc' } },
+      options: { include: { values: true }, orderBy: { sortOrder: 'asc' } },
+      variants: { include: { selections: true } },
       category: {
         include: {
           parent: true
@@ -172,7 +174,7 @@ export default async function ProductDetailsPage(props: { params: Promise<{ slug
           </div>
 
           {/* Add to Cart Actions */}
-          <AddToCartForm product={product as any} />
+          
 
           {/* Product Tabs (Description & Shipping) */}
           <div className="mt-8">

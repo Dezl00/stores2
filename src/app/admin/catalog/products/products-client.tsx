@@ -8,6 +8,7 @@ import { createProduct, deleteProduct, updateProduct, toggleProductStatus, bulkD
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { MultiImageUploader } from "@/components/ui/multi-image-uploader"
+import { ProductOptionsManager } from "@/components/admin/product-options-manager"
 import { Switch } from "@/components/ui/switch"
 import { usePermissions } from "@/hooks/use-permissions"
 import { ImportProductsModal } from "@/components/admin/import-products-modal"
@@ -26,6 +27,7 @@ export function ProductsClient({ products, categories, brands = [], currentPage 
   // Form States
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isFormVisible, setIsFormVisible] = useState(false)
+    const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<any | null>(null)
   const [isBulkSubmitting, setIsBulkSubmitting] = useState(false)
   
@@ -639,7 +641,21 @@ export function ProductsClient({ products, categories, brands = [], currentPage 
                 <h2 className="text-lg font-semibold tracking-tight">{editingProduct ? "تعديل المنتج" : "إضافة منتج جديد"}</h2>
                 <p className="text-xs text-muted-foreground mt-1">{editingProduct ? "تعديل بيانات المنتج المحدد" : "إضافة منتج سريعاً للمتجر."}</p>
               </div>
-              {editingProduct && (
+              
+                {editingProduct && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="ml-auto"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsOptionsModalOpen(true);
+                    }}
+                  >
+                    إدارة الخيارات والمتغيرات
+                  </Button>
+                )}
+{editingProduct && (
                 <Button variant="ghost" size="icon" onClick={() => resetForm(false)} className="h-8 w-8 shrink-0 text-muted-foreground">
                   <X className="w-4 h-4" />
                 </Button>

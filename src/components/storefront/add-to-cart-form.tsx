@@ -16,7 +16,7 @@ interface AddToCartProps {
   }
 }
 
-export function AddToCartForm({ product }: AddToCartProps) {
+export function AddToCartForm({ product, variantId }: AddToCartProps & { variantId?: string }) {
   const [quantity, setQuantity] = useState(1)
   const [isAdding, setIsAdding] = useState(false)
   const { addItem, setIsOpen } = useCartStore()

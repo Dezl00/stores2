@@ -58,7 +58,9 @@ export default async function AdminLayout({
     })
 
     if (!store) {
-      throw new Error(`Store not found for session storeId: ${session.user.storeId}`)
+      // Session references a store that no longer exists (e.g., after DB reset).
+      // Clear the session and redirect to login.
+      redirect('/login?reason=store_not_found')
     }
 
     if (session.user.role !== "STORE_OWNER" && session.user.role !== "MANAGER") {
@@ -89,15 +91,10 @@ export default async function AdminLayout({
       </AdminLayoutClient>
     )
   } catch (error: any) {
-    if (error?.message?.includes('NEXT_REDIRECT')) {
+    if (error?.message?.includes('NEXT_REDIRECT') || error?.digest?.startsWith('NEXT_REDIRECT')) {
       throw error
     }
-    return (
-      <div style={{ padding: 20, color: 'red', backgroundColor: '#fee' }}>
-        <h1>CRITICAL ADMIN LAYOUT ERROR</h1>
-        <pre>{error?.message}</pre>
-        <pre>{error?.stack}</pre>
-      </div>
-    )
+    // Any other unexpected error → send to login to avoid white screen / 503
+    redirect('/login?reason=auth_error')
   }
 }
