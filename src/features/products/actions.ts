@@ -1,4 +1,4 @@
-﻿"use server"
+"use server"
 
 import { requireStoreAdmin, requirePermission } from "@/lib/auth/require-admin"
 import { db } from "@/lib/db"
@@ -104,8 +104,9 @@ export async function deleteProduct(id: string) {
     const product = await db.product.findFirst({ where: { id, storeId } });
     if (!product) return { success: false, error: "Product not found" }
 
-    await db.product.delete({
-      where: { id: product.id }
+    await db.product.update({
+      where: { id: product.id },
+      data: { isArchived: true }
     })
     
     
@@ -128,8 +129,9 @@ export async function bulkDeleteProducts(ids: string[]) {
     }
     const storeId = await resolveStoreId()
 
-    await db.product.deleteMany({
-      where: { id: { in: ids }, storeId }
+    await db.product.updateMany({
+      where: { id: { in: ids }, storeId },
+      data: { isArchived: true }
     })
     revalidatePath("/admin/products")
     revalidatePath("/")

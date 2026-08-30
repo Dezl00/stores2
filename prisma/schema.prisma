@@ -314,6 +314,7 @@ model Category {
   description String?
   imageUrl    String?
   isActive    Boolean @default(true)
+  isArchived  Boolean @default(false)
 
   parentId String?
   parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
@@ -372,6 +373,7 @@ model Product {
   discountPrice Float?
   stock         Int     @default(0)
   isActive      Boolean @default(true)
+  isArchived    Boolean @default(false)
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])

@@ -65,8 +65,9 @@ export async function deleteCategory(id: string) {
       return { success: false, error: `لا يمكن حذف هذا القسم لأنه يحتوي على ${childCount} أقسام فرعية. قم بحذفها أولاً.` }
     }
 
-    await db.category.deleteMany({
-      where: { id, storeId }
+    await db.category.updateMany({
+      where: { id, storeId },
+      data: { isArchived: true }
     })
     revalidatePath("/admin/categories")
     return { success: true }

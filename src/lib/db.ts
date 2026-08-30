@@ -1,7 +1,23 @@
 import { PrismaClient } from '@prisma/client'
 
 const prismaClientSingleton = () => {
-  return new PrismaClient()
+  const client = new PrismaClient()
+  return client.$extends({
+    query: {
+      product: {
+        async findMany({ args, query }) {
+          args.where = { ...args.where, isArchived: false }
+          return query(args)
+        }
+      },
+      category: {
+        async findMany({ args, query }) {
+          args.where = { ...args.where, isArchived: false }
+          return query(args)
+        }
+      }
+    }
+  })
 }
 
 declare global {
