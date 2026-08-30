@@ -40,6 +40,16 @@ export async function updateThemeConfig(formData: FormData) {
       data.whatsappOrderEnabled = formData.get("whatsappOrderEnabled") === "true"
     }
 
+    if (formData.has("adminGlobalNotifications")) {
+      data.adminGlobalNotifications = formData.get("adminGlobalNotifications") === "true"
+    }
+    if (formData.has("adminOrderNotifications")) {
+      data.adminOrderNotifications = formData.get("adminOrderNotifications") === "true"
+    }
+    if (formData.has("adminNewCustomerNotifications")) {
+      data.adminNewCustomerNotifications = formData.get("adminNewCustomerNotifications") === "true"
+    }
+
     if (!existing) {
       // If creating for the first time, ensure required fields have fallback
       data.storeName = data.storeName || "متجر العسال"

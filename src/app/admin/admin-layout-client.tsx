@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils"
 import { signOut, useSession, SessionProvider } from "next-auth/react"
 import { AdminGlobalSearch } from "@/components/admin/admin-global-search"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
-import { PushNotificationPrompt } from "@/components/admin/push-notification-prompt"
 import { GlobalOrderListener } from "@/components/admin/global-order-listener"
 
 export function AdminLayoutClient({
@@ -367,8 +366,6 @@ function AdminLayoutInner({
           })}
         </div>
       </nav>
-
-      <PushNotificationPrompt />
     </div>
   )
 }

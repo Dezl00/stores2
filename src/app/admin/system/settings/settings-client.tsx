@@ -40,6 +40,7 @@ export function SettingsClient({ config, store, branches: initialBranches = [], 
   const [whatsappEnabled, setWhatsappEnabled] = useState(config.whatsappEnabled !== false)
   const [whatsappOrderEnabled, setWhatsappOrderEnabled] = useState(config.whatsappOrderEnabled === true)
 
+  const [adminGlobalNotifications, setAdminGlobalNotifications] = useState(config.adminGlobalNotifications === true)
   const [adminOrderNotifications, setAdminOrderNotifications] = useState(config.adminOrderNotifications !== false)
   const [adminNewCustomerNotifications, setAdminNewCustomerNotifications] = useState(config.adminNewCustomerNotifications !== false)
   const [campaignTitle, setCampaignTitle] = useState("")
@@ -118,6 +119,29 @@ export function SettingsClient({ config, store, branches: initialBranches = [], 
     }
   }
 
+  async function handleGlobalNotificationToggle(checked: boolean) {
+    setAdminGlobalNotifications(checked)
+    if (checked && "Notification" in window) {
+      try {
+        if (Notification.permission !== "granted") {
+          const perm = await Notification.requestPermission()
+          if (perm === "granted") {
+            const { registerServiceWorkerAndSubscribe } = await import("@/lib/push-client")
+            await registerServiceWorkerAndSubscribe()
+          } else {
+            setAdminGlobalNotifications(false)
+            toast.error("يرجى السماح بالإشعارات من إعدادات المتصفح")
+          }
+        } else {
+          const { registerServiceWorkerAndSubscribe } = await import("@/lib/push-client")
+          await registerServiceWorkerAndSubscribe()
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }
+
   async function handleConfigSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setIsSubmitting(true)
@@ -128,6 +152,7 @@ export function SettingsClient({ config, store, branches: initialBranches = [], 
     formData.set("secondaryColor", secondaryColor)
     formData.set("whatsappEnabled", whatsappEnabled.toString())
     formData.set("whatsappOrderEnabled", whatsappOrderEnabled.toString())
+    formData.set("adminGlobalNotifications", adminGlobalNotifications.toString())
     formData.set("adminOrderNotifications", adminOrderNotifications.toString())
     formData.set("adminNewCustomerNotifications", adminNewCustomerNotifications.toString())
 
@@ -800,13 +825,22 @@ export function SettingsClient({ config, store, branches: initialBranches = [], 
                   <div className="space-y-4 max-w-2xl bg-muted/30 p-4 rounded-xl border border-border/50">
                     <h3 className="font-semibold text-foreground">إشعارات لوحة التحكم</h3>
                     <form onSubmit={handleConfigSubmit} className="space-y-4">
-                      <div className="flex items-center justify-between p-4 border bg-background rounded-lg">
+                      <div className="flex items-center justify-between p-4 border bg-background rounded-lg border-primary/50 shadow-sm">
                         <div>
-                          <p className="font-medium">الطلبات الجديدة</p>
-                          <p className="text-sm text-muted-foreground">استلام إشعار في المتصفح عند وصول طلب جديد</p>
+                          <p className="font-bold text-primary">تفعيل الإشعارات الكلية</p>
+                          <p className="text-sm text-muted-foreground">تفعيل إرسال إشعارات المتصفح لهذا الجهاز</p>
                         </div>
-                        <Switch checked={adminOrderNotifications} onCheckedChange={setAdminOrderNotifications} />
+                        <Switch checked={adminGlobalNotifications} onCheckedChange={handleGlobalNotificationToggle} />
                       </div>
+                      
+                      <div className={`space-y-4 transition-all duration-300 ${!adminGlobalNotifications ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
+                        <div className="flex items-center justify-between p-4 border bg-background rounded-lg">
+                          <div>
+                            <p className="font-medium">الطلبات الجديدة</p>
+                            <p className="text-sm text-muted-foreground">استلام إشعار في المتصفح عند وصول طلب جديد</p>
+                          </div>
+                          <Switch checked={adminOrderNotifications} onCheckedChange={setAdminOrderNotifications} />
+                        </div>
                       
                       <div className="flex items-center justify-between p-4 border bg-background rounded-lg">
                         <div>
@@ -814,6 +848,7 @@ export function SettingsClient({ config, store, branches: initialBranches = [], 
                           <p className="text-sm text-muted-foreground">استلام إشعار في المتصفح عند تسجيل عميل جديد</p>
                         </div>
                         <Switch checked={adminNewCustomerNotifications} onCheckedChange={setAdminNewCustomerNotifications} />
+                      </div>
                       </div>
                       
                       <Button type="submit" disabled={isSubmitting}>

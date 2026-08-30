@@ -556,6 +556,7 @@ model ThemeConfig {
   promoPopupCode        String?
 
   // Notification Toggles for Admin
+  adminGlobalNotifications      Boolean @default(false)
   adminOrderNotifications       Boolean @default(true)
   adminNewCustomerNotifications Boolean @default(true)
 

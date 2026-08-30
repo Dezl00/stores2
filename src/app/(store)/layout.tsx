@@ -12,7 +12,6 @@ import { auth } from "@/lib/auth"
 import { resolveStoreId } from "@/lib/store-context"
 import { FloatingWhatsApp } from "@/components/storefront/floating-whatsapp"
 import { PromoPopup } from "@/components/storefront/promo-popup"
-import { PushNotificationPrompt } from "@/components/admin/push-notification-prompt"
 import { ScrollToTop } from "@/components/scroll-to-top"
 import { StorePixels } from "@/components/storefront/store-pixels"
 
@@ -65,13 +64,6 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         <FloatingWhatsApp number={themeConfig.whatsappNumber} />
       )}
       <PromoPopup settings={themeConfig} />
-      {user && (
-        <PushNotificationPrompt 
-          title="تفعيل إشعارات الطلبات"
-          description="احصل على إشعارات فورية بحالة طلبك ومسار الشحن مباشرة على جهازك."
-          isAdmin={false}
-        />
-      )}
     </div>
   )
 }
