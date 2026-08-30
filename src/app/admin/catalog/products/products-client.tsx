@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react"
 import { createPortal } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Search, Edit, Trash2, PlusCircle, X, Loader2, Download, Upload, CheckSquare, Square, Filter, Eye, EyeOff, Check, Settings } from "lucide-react"
-import { createProduct, deleteProduct, updateProduct, toggleProductStatus, bulkDeleteProducts, bulkToggleProductsStatus, bulkUpdateProducts } from "@/features/products/actions"
+import { createProduct, deleteProduct, updateProduct, toggleProductStatus, bulkDeleteProducts, bulkToggleProductsStatus, bulkUpdateProducts, updateProductVariant } from "@/features/products/actions"
 import { syncProductGlobalOptions } from "@/features/products/options-actions"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
@@ -920,18 +920,41 @@ export function ProductsClient({ products, categories, brands = [], globalOption
                               </div>
                             </td>
                             <td className="px-4 py-2">
-                              <input type="number" defaultValue={variant.price || editingProduct.price} disabled className="h-8 w-full rounded border border-input bg-muted/50 px-2 cursor-not-allowed opacity-70 text-left" dir="ltr" title="يمكنك تعديل الأسعار قريباً" />
+                              <input 
+                                type="number" 
+                                defaultValue={variant.price || editingProduct.price} 
+                                className="h-8 w-full rounded border border-input bg-background px-2 text-left" 
+                                dir="ltr" 
+                                onBlur={async (e) => {
+                                  const val = parseFloat(e.target.value)
+                                  if (!isNaN(val)) {
+                                    const res = await updateProductVariant(variant.id, { price: val })
+                                    if (res.success) toast.success("تم تحديث السعر للمتغير")
+                                    else toast.error(res.error || "فشل التحديث")
+                                  }
+                                }}
+                              />
                             </td>
                             <td className="px-4 py-2">
-                              <input type="number" defaultValue={variant.stock} disabled className="h-8 w-full rounded border border-input bg-muted/50 px-2 cursor-not-allowed opacity-70 text-left" dir="ltr" title="يمكنك تعديل المخزون قريباً" />
+                              <input 
+                                type="number" 
+                                defaultValue={variant.stock} 
+                                className="h-8 w-full rounded border border-input bg-background px-2 text-left" 
+                                dir="ltr" 
+                                onBlur={async (e) => {
+                                  const val = parseInt(e.target.value)
+                                  if (!isNaN(val)) {
+                                    const res = await updateProductVariant(variant.id, { stock: val })
+                                    if (res.success) toast.success("تم تحديث المخزون للمتغير")
+                                    else toast.error(res.error || "فشل التحديث")
+                                  }
+                                }}
+                              />
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
-                    <div className="p-3 bg-muted/20 text-xs text-muted-foreground border-t border-border/50">
-                      ملاحظة: يمكنك تعديل أسعار وكميات كل متغير بشكل منفصل لاحقاً (قيد التطوير).
-                    </div>
                   </div>
                 </div>
               )}

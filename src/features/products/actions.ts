@@ -437,3 +437,40 @@ export async function bulkImportProducts(products: any[], duplicateHandling: 'sk
     return { success: false, error: "حدث خطأ أثناء الاستيراد الجماعي" }
   }
 }
+
+export async function updateProductVariant(id: string, data: { price?: number, stock?: number }) {
+  try {
+    const session = await auth()
+    const isStoreAdmin = session?.user?.role === "STORE_OWNER" || session?.user?.role === "MANAGER"
+    const hasPerm = session?.user?.permissions?.includes("products.edit")
+    if (!isStoreAdmin && !hasPerm) {
+      return { success: false, error: "Not authorized" }
+    }
+    
+    // We need to ensure the variant belongs to the store, but variant doesn't have storeId directly.
+    // It belongs to a product which has storeId.
+    const storeId = await resolveStoreId()
+    const variant = await db.productVariant.findUnique({
+      where: { id },
+      include: { product: true }
+    })
+    
+    if (!variant || variant.product.storeId !== storeId) {
+      return { success: false, error: "Variant not found or unauthorized" }
+    }
+
+    await db.productVariant.update({
+      where: { id },
+      data: {
+        price: data.price !== undefined ? data.price : undefined,
+        stock: data.stock !== undefined ? data.stock : undefined
+      }
+    })
+
+    revalidatePath("/admin/products")
+    revalidatePath("/")
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: "Failed to update variant" }
+  }
+}
